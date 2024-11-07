@@ -51,7 +51,27 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   <string name="exit_menu_item">Exit</string>
 
   <!-- Toast messages -->
-  <string name="toastWifiConfigurationComplete">Configuration Complete</string>
+    <string name="permRcWriteExternalStorageExplain">Explanation for write external storage permission</string>
+    <string name="permRcReadExternalStorageExplain">Explanation for read external storage permission</string>
+    <string name="permRcCameraExplain">Explanation for camera permission</string>
+    <string name="permAccessLocationExplain">Explanation for location permission</string>
+    <string name="permReadPhoneState">Explanation for phone state permission</string>
+    <string name="permGenericExplain">Generic explanation for permissions</string>
+
+    <string name="pref_rc_connected">RC Connected</string>
+    <string name="pref_warn_about_2_4_ghz_band">Warning about 2.4 GHz Band</string>
+    <string name="pref_warn_about_obsolete_software">Warning about Obsolete Software</string>
+    <string name="pref_warn_about_mismatched_app_versions">Warning about Mismatched App Versions</string>
+    <string name="pref_warn_about_incorrect_clocks">Warning about Incorrect Clocks</string>
+    <string name="pref_pairing_kind">Pairing Kind</string>
+    <string name="pref_wifi_automute">WiFi Automute</string>
+    <string name="pref_wifip2p_channel">WiFi P2P Channel</string>
+    <string name="toastRestartRobotComplete">Robot Restart Complete</string>
+    <string name="toastRobotSetupComplete">Robot Setup Complete</string>
+    <string name="pref_app_theme">App Theme</string>
+    <string name="appThemeChangeRestartNotifyRC">The app theme has changed. The robot controller will restart.</string>
+
+    <string name="toastWifiConfigurationComplete">Configuration Complete</string>
   <string name="toastRestartingRobot">Restarting Robot</string>
   <string name="toastWifiUpBeforeProgrammingMode">The Robot Controller must be fully up and running before entering Program and Manage Mode.</string>
 
