@@ -10,7 +10,7 @@ import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
 
 public class MeepMeepTesting {
     public static void main(String[] args) {
-        MeepMeep meepMeep = new MeepMeep(800);
+        MeepMeep meepMeep = new MeepMeep(1200);
 //        OneBot(meepMeep);
         TwoBots(meepMeep);
     }
@@ -22,7 +22,7 @@ public class MeepMeepTesting {
                 .build();
 
         myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(0, 0, 0))
-                .lineToX(30)
+                .lineToX(30) // move 30 horizontally
                 .turn(Math.toRadians(90))
                 .lineToY(30)
                 .turn(Math.toRadians(90))
@@ -82,8 +82,10 @@ public class MeepMeepTesting {
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 // Add both of our declared bot entities
-                .addEntity(myFirstBot)
-                .addEntity(mySecondBot)
+                .addEntity(myFirstBot)  // opens the first bot in the meep meep visualizer
+                .addEntity(mySecondBot) // opens the second bot in the meep meep visualizer
                 .start();
+
+
     }
 }
