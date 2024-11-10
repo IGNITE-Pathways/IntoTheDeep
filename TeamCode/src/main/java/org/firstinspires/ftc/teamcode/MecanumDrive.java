@@ -131,8 +131,8 @@ public class MecanumDrive {
         private boolean initialized;
 
         public DriveLocalizer() {
-            rightBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightBack)); //0
-            rightFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightFront)); //1
+            rightFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightFront)); //0
+            rightBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.rightBack)); //1
             leftFront = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftFront)); //2
             leftBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftBack)); //3
 
