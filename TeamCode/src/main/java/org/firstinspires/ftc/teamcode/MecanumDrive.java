@@ -64,13 +64,13 @@ public class MecanumDrive {
 
         // drive model parameters
         public double inPerTick = 1; // SparkFun OTOS Note: you can probably leave this at 1
-        public double lateralInPerTick = inPerTick;
-        public double trackWidthTicks = 0;
+        public double lateralInPerTick = 0.8828827468528146; //inPerTick;
+        public double trackWidthTicks = 4.72441; //inches, 120mm
 
         // feedforward parameters (in tick units)
-        public double kS = 0;
-        public double kV = 0;
-        public double kA = 0;
+        public double kS = 1.0988597148211063;
+        public double kV = 0.17623305406144568;
+        public double kA = 0.015;
 
         // path profile parameters (in inches)
         public double maxWheelVel = 50;
@@ -137,12 +137,6 @@ public class MecanumDrive {
             leftBack = new OverflowEncoder(new RawEncoder(MecanumDrive.this.leftBack)); //3
 
             imu = lazyImu.get();
-
-            // TODO: reverse encoders if needed
-            rightFront.setDirection(DcMotor.Direction.FORWARD);
-            rightBack.setDirection(DcMotor.Direction.FORWARD);
-            leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
-            leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
         }
 
         @Override
@@ -224,6 +218,11 @@ public class MecanumDrive {
         leftBack = hardwareMap.get(DcMotorEx.class, "leftback");
         rightBack = hardwareMap.get(DcMotorEx.class, "rightback");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightfront");
+
+        rightFront.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftBack.setDirection(DcMotorSimple.Direction.REVERSE);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
