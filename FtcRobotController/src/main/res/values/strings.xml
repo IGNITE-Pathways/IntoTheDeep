@@ -54,7 +54,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
     <string name="permRcWriteExternalStorageExplain">Explanation for write external storage permission</string>
     <string name="permRcReadExternalStorageExplain">Explanation for read external storage permission</string>
     <string name="permRcCameraExplain">Explanation for camera permission</string>
-    <string name="permAccessLocationExplain">Explanation for location permission</string>
+    <string name="permAccessLocationExplain">Explanation for location permission</string>.
     <string name="permReadPhoneState">Explanation for phone state permission</string>
     <string name="permGenericExplain">Generic explanation for permissions</string>
 
