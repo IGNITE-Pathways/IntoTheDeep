@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -44,10 +45,15 @@ public class DriveTest extends LinearOpMode {
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
+    private DcMotor viper = null;
     private Servo extendo = null;
     private Servo elbow = null;
     private Servo roller = null;
 
+    static final double     COUNTS_PER_MOTOR_REV    = 537.7;// 384.5; // 1425.1;    // eg: Motor Encoder 312, 117, 435
+    static final double     PULLEY_DIAMETER_INCHES   = 1.5 ;     // For figuring circumference
+    static final double     COUNTS_PER_INCH  = (COUNTS_PER_MOTOR_REV) / (PULLEY_DIAMETER_INCHES * Math.PI); //81.6 ticks per inch
+    static final double     VIPER_DRIVE_SPEED             = 1.0;
 
     @Override
     public void runOpMode() {
@@ -60,10 +66,15 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
 
         //Initialize the Servo variables
-        extendo = hardwareMap.get(Servo.class, "extendo");
-        elbow = hardwareMap.get(Servo.class, "elbow");
-        roller = hardwareMap.get(Servo.class, "roller");
+//        extendo = hardwareMap.get(Servo.class, "extendo");
+//        elbow = hardwareMap.get(Servo.class, "elbow");
+//        roller = hardwareMap.get(Servo.class, "roller");
 
+        viper = hardwareMap.get(DcMotor.class, "viper");
+        viper.setDirection(DcMotor.Direction.REVERSE);
+        viper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        viper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         // ########################################################################################
         // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
@@ -82,11 +93,19 @@ public class DriveTest extends LinearOpMode {
 
         // Wait for the game to start (driver presses START)
         telemetry.addData("Status", "Initialized");
+//        telemetry.addData("COUNTS_PER_INCH", "%7d", COUNTS_PER_INCH);
+        telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
         telemetry.update();
+
+        double extendoPosition = 0.5;
+        double elbowPosition = 0.5;
+        double rollerPosition = 0.5;
+        double JOYSTICK_SENSITIVITY = 0.01;
+
+        int viperPosition = 0;
 
         waitForStart();
         runtime.reset();
-
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -103,10 +122,6 @@ public class DriveTest extends LinearOpMode {
             double rightFrontPower = axial - lateral - yaw;
             double leftBackPower = axial - lateral + yaw;
             double rightBackPower = axial + lateral - yaw;
-            double extendoPosition = 0.5;
-            double elbowPosition = 0.5;
-            double rollerPosition = 0.5;
-            double JOYSTICK_SENSITIVITY = 0.01;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -154,32 +169,137 @@ public class DriveTest extends LinearOpMode {
             // Control the roller servo with the left stick X-axis
             rollerPosition += gamepad1.left_stick_x * JOYSTICK_SENSITIVITY;
 
+            // Control the viper position with the right stick Y-axis
+            viperPosition += -(int) gamepad2.right_stick_y * 100;
+
+            if (gamepad2.x) {
+                viperDriveRunToPosition(VIPER_DRIVE_SPEED, 0, 100);
+//                viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            }
+
+            if (gamepad2.y) {
+                //Move Viper Slide
+                viperDriveToPositionInInches(VIPER_DRIVE_SPEED,  26, 100.0);  // S1: Forward 47 Inches with 5 Sec timeout
+            }
             // Clamp positions to stay within servo range (0 to 1)
             extendoPosition = Math.min(Math.max(extendoPosition, 0), 1);
             elbowPosition = Math.min(Math.max(elbowPosition, 0), 1);
             rollerPosition = Math.min(Math.max(rollerPosition, 0), 1);
 
             // Update servo positions
-            extendo.setPosition(extendoPosition);
-            elbow.setPosition(elbowPosition);
-            roller.setPosition(rollerPosition);
+//            extendo.setPosition(extendoPosition);
+//            elbow.setPosition(elbowPosition);
+//            roller.setPosition(rollerPosition);
+            if (!isViperPositionClose(viperPosition)) {
+                viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
+            }
 
             // Telemetry
-            telemetry.addData("Extendo Position", extendoPosition);
-            telemetry.addData("Wrist Position", elbowPosition);
-            telemetry.addData("Roller Position", rollerPosition);
-            telemetry.update();
+//            telemetry.addData("Extendo Position", extendoPosition);
+//            telemetry.addData("Wrist Position", elbowPosition);
+//            telemetry.addData("Roller Position", rollerPosition);
+            telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", viperPosition);
+            telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
-
-
         }
+    }
 
+    private boolean isViperPositionClose(double viperPosition) {
+       int currentPosition = viper.getCurrentPosition();
+       if ((viperPosition < currentPosition + 10) && (viperPosition > currentPosition - 10)) return true;
+       if (viperPosition > 3000) return true;
+       if (viperPosition < 0) return true;
+       return false;
+    }
 
+    private void viperDrive(double speed, int inches, double timeoutS) {
+        int newTarget;
+
+        // Ensure that the OpMode is still active
+        if (opModeIsActive()) {
+            newTarget = viper.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+            viper.setTargetPosition(newTarget);
+
+            // Turn On RUN_TO_POSITION
+            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            runtime.reset();
+            viper.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and viper motor is running.
+            // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
+                // Display it for the driver.
+                telemetry.addData("Viper Running to",  " %7d", newTarget);
+                telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            viper.setPower(0);
+        }
+    }
+
+    private void viperDriveToPositionInInches(double speed, int inches, double timeoutS) {
+        int newTarget;
+
+        // Ensure that the OpMode is still active
+        if (opModeIsActive()) {
+            newTarget = (int)(inches * COUNTS_PER_INCH);
+            viper.setTargetPosition(newTarget);
+
+            // Turn On RUN_TO_POSITION
+            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            runtime.reset();
+            viper.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and viper motor is running.
+            // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
+                // Display it for the driver.
+                telemetry.addData("Viper Running to",  " %7d", newTarget);
+                telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            viper.setPower(0);
+        }
+    }
+
+    private void viperDriveRunToPosition(double speed, int position, double timeoutS) {
+
+        // Ensure that the OpMode is still active
+        if (opModeIsActive()) {
+            viper.setTargetPosition(position);
+
+            // Turn On RUN_TO_POSITION
+            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            runtime.reset();
+            viper.setPower(Math.abs(speed));
+
+            // keep looping while we are still active, and there is time left, and viper motor is running.
+            // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
+            // its target position, the motion will stop.  This is "safer" in the event that the robot will
+            // always end the motion as soon as possible.
+            while (opModeIsActive()  && (runtime.seconds() < timeoutS)&& (viper.isBusy())) {
+                // Display it for the driver.
+                telemetry.addData("Viper Running to",  " %7d", position);
+                telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
+                telemetry.update();
+            }
+
+            // Stop all motion;
+            viper.setPower(0);
+        }
     }
 }
 
