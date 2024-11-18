@@ -49,6 +49,9 @@ public class DriveTest extends LinearOpMode {
     private Servo extendo = null;
     private Servo elbow = null;
     private Servo roller = null;
+    private static final double SERVO_INCREMENT = 0.1; // Step size for position adjustment
+    private static final double SERVO_MIN = 0.0; // Minimum servo position
+    private static final double SERVO_MAX = 1.0; // Maximum servo position
 
     static final double     COUNTS_PER_MOTOR_REV    = 537.7;// 384.5; // 1425.1;    // eg: Motor Encoder 312, 117, 435
     static final double     PULLEY_DIAMETER_INCHES   = 1.5 ;     // For figuring circumference
@@ -66,9 +69,9 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
 
         //Initialize the Servo variables
-//        extendo = hardwareMap.get(Servo.class, "extendo");
-//        elbow = hardwareMap.get(Servo.class, "elbow");
-//        roller = hardwareMap.get(Servo.class, "roller");
+        extendo = hardwareMap.get(Servo.class, "extendo");
+        elbow = hardwareMap.get(Servo.class, "elbow");
+        roller = hardwareMap.get(Servo.class, "roller");
 
         viper = hardwareMap.get(DcMotor.class, "viper");
         viper.setDirection(DcMotor.Direction.REVERSE);
@@ -97,10 +100,10 @@ public class DriveTest extends LinearOpMode {
         telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
         telemetry.update();
 
-        double extendoPosition = 0.5;
-        double elbowPosition = 0.5;
-        double rollerPosition = 0.5;
-        double JOYSTICK_SENSITIVITY = 0.01;
+        double extendoPosition = 0.5; // Midpoint for extendo
+        double elbowPosition = 0.5;   // Midpoint for elbow
+        double rollerPosition = 0.5;  // Midpoint for roller
+
 
         int viperPosition = 0;
 
@@ -160,14 +163,39 @@ public class DriveTest extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower);
 
 
-            // Control the extendo servo with the left stick Y-axis
-            extendoPosition += -gamepad1.left_stick_y * JOYSTICK_SENSITIVITY;
+            if (gamepad2.dpad_up) {
+                extendoPosition += SERVO_INCREMENT; // Increase position
+                sleep(200); // Avoid rapid input
+            } else if (gamepad2.dpad_down) {
+                extendoPosition -= SERVO_INCREMENT; // Decrease position
+                sleep(200); // Avoid rapid input
+            }
 
-            // Control the wrist servo with the right stick Y-axis
-            elbowPosition += -gamepad1.right_stick_y * JOYSTICK_SENSITIVITY;
+            // Control for Elbow Servo
+            if (gamepad2.dpad_right) {
+                elbowPosition += SERVO_INCREMENT; // Increase position
+                sleep(200); // Avoid rapid input
+            } else if (gamepad2.dpad_left) {
+                elbowPosition -= SERVO_INCREMENT; // Decrease position
+                sleep(200); // Avoid rapid input
+            }
+            if (gamepad2.a) {
+                rollerPosition += SERVO_INCREMENT; // Increase position
+                sleep(200); // Avoid rapid input
+            } else if (gamepad2.b) {
+                rollerPosition -= SERVO_INCREMENT; // Decrease position
+                sleep(200); // Avoid rapid input
+            }
 
-            // Control the roller servo with the left stick X-axis
-            rollerPosition += gamepad1.left_stick_x * JOYSTICK_SENSITIVITY;
+
+            extendoPosition = Math.min(Math.max(extendoPosition, SERVO_MIN), SERVO_MAX);
+            elbowPosition = Math.min(Math.max(elbowPosition, SERVO_MIN), SERVO_MAX);
+            rollerPosition = Math.min(Math.max(rollerPosition, SERVO_MIN), SERVO_MAX);
+
+            // Update servo positions
+            extendo.setPosition(extendoPosition);
+            elbow.setPosition(elbowPosition);
+            roller.setPosition(rollerPosition);
 
             // Control the viper position with the right stick Y-axis
             viperPosition += -(int) gamepad2.right_stick_y * 100;
@@ -181,23 +209,15 @@ public class DriveTest extends LinearOpMode {
                 //Move Viper Slide
                 viperDriveToPositionInInches(VIPER_DRIVE_SPEED,  26, 100.0);  // S1: Forward 47 Inches with 5 Sec timeout
             }
-            // Clamp positions to stay within servo range (0 to 1)
-            extendoPosition = Math.min(Math.max(extendoPosition, 0), 1);
-            elbowPosition = Math.min(Math.max(elbowPosition, 0), 1);
-            rollerPosition = Math.min(Math.max(rollerPosition, 0), 1);
 
-            // Update servo positions
-//            extendo.setPosition(extendoPosition);
-//            elbow.setPosition(elbowPosition);
-//            roller.setPosition(rollerPosition);
             if (!isViperPositionClose(viperPosition)) {
                 viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
             }
 
             // Telemetry
-//            telemetry.addData("Extendo Position", extendoPosition);
-//            telemetry.addData("Wrist Position", elbowPosition);
-//            telemetry.addData("Roller Position", rollerPosition);
+            telemetry.addData("Extendo Position", extendoPosition);
+            telemetry.addData("Elbow Position", elbowPosition);
+            telemetry.addData("Roller Position", rollerPosition);
             telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", viperPosition);
             telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
 
