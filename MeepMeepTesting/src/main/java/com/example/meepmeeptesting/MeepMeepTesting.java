@@ -2,7 +2,6 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
-import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueLight;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
@@ -53,23 +52,42 @@ public class MeepMeepTesting {
                 .build();
 
         redRight.runAction(redRight.getDrive().actionBuilder(new Pose2d(10, -56, Math.toRadians(-90)))
-                .lineToY(-34)
-                    .waitSeconds(1)
-                .turn(Math.toRadians(90))
-                .lineToX(40)
-                .turn(Math.toRadians(25))
-                    .waitSeconds(1)
-                .turn(Math.toRadians(-90))
+                .lineToY(-37)//Drop Preloaded
+                .waitSeconds(1)
+                .turn(Math.toRadians(90))//turn towards spike mark
+                .lineToX(39)//drive towards spike mark 1
+                .turn(Math.toRadians(25))//turn to pick up
+                .waitSeconds(1)//Picked up
+                .turn(Math.toRadians(-85))//face bucket
+                .lineToY(-47)//drive bucket
+                .waitSeconds(1)//drop in
+                .turn(Math.toRadians(125))//drive towards spike 3
+                .lineToY(-37)//pick up from spike 3
+                .waitSeconds(1)
+                .turn(Math.toRadians(-155))
                 .lineToY(-50)
-                                .waitSeconds(1)
-                .splineTo(new Vector2d(50, -33), -50)
-                    .waitSeconds(1)
-                .turn(Math.toRadians(-90))
-                .lineToY(-50)
-                    .waitSeconds(1)
-                .turn(Math.toRadians(180))
-                //.splineTo(new Vector2d(28, 8), 360)
+                .waitSeconds(1)
+                .lineToY(-12)//drive back towards submersible
+                .turn(Math.toRadians(90))//face towards park
+                .lineToX(26)//drive into park
                 .build());
+//                .lineToY(-34)
+//                    .waitSeconds(1)
+//                .turn(Math.toRadians(90))
+//                .lineToX(40)
+//                .turn(Math.toRadians(25))
+//                    .waitSeconds(1)
+//                .turn(Math.toRadians(-90))
+//                .lineToY(-50)
+//                                .waitSeconds(1)
+//                .splineTo(new Vector2d(50, -33), -50)
+//                    .waitSeconds(1)
+//                .turn(Math.toRadians(-90))
+//                .lineToY(-50)
+//                    .waitSeconds(1)
+//                .turn(Math.toRadians(180))
+//                //.splineTo(new Vector2d(28, 8), 360)
+//                .build());
 
         // Declare our second bot
         RoadRunnerBotEntity redLeft = new DefaultBotBuilder(meepMeep)
@@ -127,9 +145,37 @@ public class MeepMeepTesting {
                 .lineToX(-26)//drive into park
                         .build();
 
+        RoadRunnerBotEntity blueRight = new DefaultBotBuilder(meepMeep)
+                // We set this bot to be red
+                .setColorScheme(new ColorSchemeBlueLight())
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .build();
+        Action blueRightAction = blueLeft.getDrive().actionBuilder(new Pose2d(13, 60, Math.toRadians(90)))
+                .lineToY(38)
+                .waitSeconds(1)
+                .turn(Math.toRadians(-90))
+                .lineToX(30)
+                .turn(Math.toRadians(-25))
+                .waitSeconds(1)
+                .turn(Math.toRadians(-110))
+                .lineToY(56)
+                .waitSeconds(1)
+                .turn(Math.toRadians(60))
+                .lineToY(38)
+                .waitSeconds(1)
+                .lineToY(50)
+                .turn(Math.toRadians(-60))
+                .waitSeconds(1)
+                .turn(Math.toRadians(45))
+                .lineToY(10)
+                .turn(Math.toRadians(90))
+                .lineToX(26)
+                .build();
+
 
         redLeft.runAction(myAction);
         blueLeft.runAction(blueLeftAction);
+        blueRight.runAction(blueRightAction);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
                 .setDarkMode(true) // activates dark mode
@@ -139,6 +185,7 @@ public class MeepMeepTesting {
                 .addEntity(redRight)  // opens the first bot in the meep meep visualizer
                 .addEntity(redLeft) // opens the second bot in the meep meep visualizer
                 .addEntity(blueLeft)
+                .addEntity(blueRight)
                 .start();
 
 
