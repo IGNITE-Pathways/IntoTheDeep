@@ -24,9 +24,7 @@ public class PickingPixelsSequence extends LinearOpMode {
 
     // State control for "Picking Pixels"
     private enum State {
-        EXTENDING,
-        LOWERING_ELBOW,
-        ROLLING
+        PICKING_SAMPLES
     }
     private State currentState = null; // Default no state
 
@@ -51,27 +49,20 @@ public class PickingPixelsSequence extends LinearOpMode {
         while (opModeIsActive()) {
             // Trigger the sequence by pressing the "X" button if not already active
             if (gamepad2.x && currentState == null) {
-                currentState = State.EXTENDING; // Start the sequence
+                currentState = State.PICKING_SAMPLES; // Start the sequence
             }
 
             // State machine for "Picking Pixels" sequence
             if (currentState != null) {
                 switch (currentState) {
-                    case EXTENDING:
+                    case PICKING_SAMPLES:
                         extendoPosition += SERVO_INCREMENT;
                         if (extendoPosition >= SERVO_MAX) {
                             extendoPosition = SERVO_MAX; // Clamp to max
-                            currentState = State.LOWERING_ELBOW; // Move to next state
+
                         }
                         extendo.setPosition(extendoPosition);
-                        break;
-
-                    case LOWERING_ELBOW:
                         elbow.setPosition(ELBOW_TARGET_POSITION); // Set elbow to 0.3 directly
-                        currentState = State.ROLLING; // Move to the next state
-                        break;
-
-                    case ROLLING:
                         rollerPosition = 1.0; // Start rolling
                         roller.setPosition(rollerPosition);
                         // Stay in this state; the roller continues indefinitely

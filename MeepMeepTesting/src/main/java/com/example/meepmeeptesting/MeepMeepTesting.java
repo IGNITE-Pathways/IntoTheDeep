@@ -4,8 +4,8 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
-import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueLight;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedDark;
+import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeRedLight;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
@@ -13,7 +13,8 @@ public class MeepMeepTesting {
     public static void main(String[] args) {   // this code executes first in any Java application
         MeepMeep meepMeep = new MeepMeep(800);
         //OneBot(meepMeep);
-        TwoBots(meepMeep); // this is allowing both of the bots to run in the same meep meep environment
+        FourBots(meepMeep); // this is allowing both of the bots to run in the same meep meep environment
+        double BucketDropLine = -50;
     }
 /*
     private static void OneBot(MeepMeep meepMeep) { // declaring a class if their is only OneBot being on the Field
@@ -43,14 +44,14 @@ public class MeepMeepTesting {
                 .start();
     }*/
 
-    private static void TwoBots(MeepMeep meepMeep) { // declaring a class if their is two bots being on the Field
+    private static void FourBots(MeepMeep meepMeep) { // declaring a class if their is two bots being on the Field
         //Declare our First bot
-        RoadRunnerBotEntity myFirstBot = new DefaultBotBuilder(meepMeep)
-                .setColorScheme(new ColorSchemeBlueLight())                 // We set this bot to be blue
+        RoadRunnerBotEntity redRight = new DefaultBotBuilder(meepMeep)
+                .setColorScheme(new ColorSchemeRedDark())                 // We set this bot to be blue
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        myFirstBot.runAction(myFirstBot.getDrive().actionBuilder(new Pose2d(10, -56, Math.toRadians(-90)))
+        redRight.runAction(redRight.getDrive().actionBuilder(new Pose2d(10, -56, Math.toRadians(-90)))
                 .lineToY(-34)
                     .waitSeconds(1)
                 .turn(Math.toRadians(90))
@@ -64,9 +65,9 @@ public class MeepMeepTesting {
                     .waitSeconds(1)
                 .turn(Math.toRadians(-90))
                 .lineToY(-50)
-                                .waitSeconds(1)
+                    .waitSeconds(1)
                 .turn(Math.toRadians(180))
-//                .splineTo(new Vector2d(28, 5), -20)
+                .splineTo(new Vector2d(28, 8), 360)
 
 //
 //
@@ -81,32 +82,58 @@ public class MeepMeepTesting {
                 .build());
 
         // Declare our second bot
-        RoadRunnerBotEntity mySecondBot = new DefaultBotBuilder(meepMeep)
+        RoadRunnerBotEntity redLeft = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be red
-                .setColorScheme(new ColorSchemeRedDark())
+                .setColorScheme(new ColorSchemeRedLight())
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
                 .build();
 
-        Action myAction = mySecondBot.getDrive().actionBuilder(new Pose2d(30, 30, Math.toRadians(180)))
-                .lineToX(0)
-                .turn(Math.toRadians(90))
-                .lineToY(0)
-                .turn(Math.toRadians(90))
-                .lineToX(30)
-                .turn(Math.toRadians(90))
-                .lineToY(30)
-                .turn(Math.toRadians(90))
+        double BucketDropLine = -55;
+        Action myAction = redLeft.getDrive().actionBuilder(new Pose2d(-16, -56, Math.toRadians(-90)))
+                .lineToY(-38)
+                .waitSeconds(1)
+                .turn(Math.toRadians(-90))
+                .lineToX(-30)
+                .turn(Math.toRadians(-25))
+                .waitSeconds(1)
+                .turn(Math.toRadians(-110))
+                .lineToY(-56)
+                .waitSeconds(1)
+                .splineTo(new Vector2d(-60, -38), 360)
+                .waitSeconds(1)
+                .lineToY(BucketDropLine)
+                .turn(Math.toRadians(-60))
                 .build();
 
-        mySecondBot.runAction(myAction);
+//        RoadRunnerBotEntity blueLeft = new DefaultBotBuilder(meepMeep)
+//                // We set this bot to be red
+//                .setColorScheme(new ColorSchemeRedLight())
+//                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+//                .build();
+//        Action myAction = blueLeft.getDrive().actionBuilder(new Pose2d(-16, -56, Math.toRadians(-90)))
+//                .lineToY(-38)
+//                .waitSeconds(1)
+//                .turn(Math.toRadians(-90))
+//                .lineToX(-30)
+//                .turn(Math.toRadians(-25))
+//                .waitSeconds(1)
+//                .turn(Math.toRadians(-110))
+//                .lineToY(-56)
+//                .waitSeconds(1)
+//                .splineTo(new Vector2d(-60, -38), 360)
+//                .waitSeconds(1)
+//                .lineToY(BucketDropLine)
+//                .turn(Math.toRadians(-60))
+
+        redLeft.runAction(myAction);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
                 .setDarkMode(true) // activates dark mode
                 .setBackgroundAlpha(1000f)  // sets background transparency
 
                 // Add both of our declared bot entities
-                .addEntity(myFirstBot)  // opens the first bot in the meep meep visualizer
-                //.addEntity(mySecondBot) // opens the second bot in the meep meep visualizer
+                .addEntity(redRight)  // opens the first bot in the meep meep visualizer
+                .addEntity(redLeft) // opens the second bot in the meep meep visualizer
                 .start();
 
 
