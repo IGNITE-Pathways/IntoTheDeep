@@ -7,12 +7,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 @TeleOp(name = "Picking Pixels Sequence", group = "Linear Opmode")
 public class PickingPixelsSequence extends LinearOpMode {
 
-    // Constants for servo position control
-    private static final double SERVO_INCREMENT = 0.05; // Increment size for position changes
-    private static final double SERVO_MIN = 0.0;        // Minimum servo position
-    private static final double SERVO_MAX = 1.0;        // Maximum servo position
-    private static final double ELBOW_TARGET_POSITION = 0.3; // Specific position for the elbow servo
-
     // Servo objects
     private Servo extendo;
     private Servo elbow;
@@ -32,8 +26,8 @@ public class PickingPixelsSequence extends LinearOpMode {
     public void runOpMode() {
         // Initialize hardware
         extendo = hardwareMap.get(Servo.class, "extendo");
-        elbow = hardwareMap.get(Servo.class, "elbow");
         roller = hardwareMap.get(Servo.class, "roller");
+        elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
 
         // Set initial positions
         extendo.setPosition(extendoPosition);
@@ -56,13 +50,13 @@ public class PickingPixelsSequence extends LinearOpMode {
             if (currentState != null) {
                 switch (currentState) {
                     case PICKING_SAMPLES:
-                        extendoPosition += SERVO_INCREMENT;
-                        if (extendoPosition >= SERVO_MAX) {
-                            extendoPosition = SERVO_MAX; // Clamp to max
+                        extendoPosition += XBot.SERVO_INCREMENT;
+                        if (extendoPosition >= XBot.EXTENDO_MAX) {
+                            extendoPosition = XBot.EXTENDO_MAX; // Clamp to max
 
                         }
                         extendo.setPosition(extendoPosition);
-                        elbow.setPosition(ELBOW_TARGET_POSITION); // Set elbow to 0.3 directly
+                        elbow.setPosition(XBot.ELBOW_TARGET_POSITION); // Set elbow to 0.3 directly
                         rollerPosition = 1.0; // Start rolling
                         roller.setPosition(rollerPosition);
                         // Stay in this state; the roller continues indefinitely

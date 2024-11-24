@@ -4,7 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -49,14 +48,7 @@ public class DriveTest extends LinearOpMode {
     private Servo extendo = null;
     private Servo elbow = null;
     private Servo roller = null;
-    private static final double SERVO_INCREMENT = 0.1; // Step size for position adjustment
-    private static final double SERVO_MIN = 0.0; // Minimum servo position
-    private static final double SERVO_MAX = 1.0; // Maximum servo position
-
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7;// 384.5; // 1425.1;    // eg: Motor Encoder 312, 117, 435
-    static final double     PULLEY_DIAMETER_INCHES   = 1.5 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH  = (COUNTS_PER_MOTOR_REV) / (PULLEY_DIAMETER_INCHES * Math.PI); //81.6 ticks per inch
-    static final double     VIPER_DRIVE_SPEED             = 1.0;
+    private Servo claw = null;
 
     @Override
     public void runOpMode() {
@@ -69,9 +61,10 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
 
         //Initialize the Servo variables
-        extendo = hardwareMap.get(Servo.class, "extendo");
-        elbow = hardwareMap.get(Servo.class, "elbow");
-        roller = hardwareMap.get(Servo.class, "roller");
+        extendo = hardwareMap.get(Servo.class, "extendo"); // chub 0
+        roller = hardwareMap.get(Servo.class, "roller"); // chub 1
+        elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
+        claw = hardwareMap.get(Servo.class, "claw"); // ehub 0
 
         viper = hardwareMap.get(DcMotor.class, "viper");
         viper.setDirection(DcMotor.Direction.REVERSE);
@@ -103,7 +96,6 @@ public class DriveTest extends LinearOpMode {
         double extendoPosition = 0.5; // Midpoint for extendo
         double elbowPosition = 0.5;   // Midpoint for elbow
         double rollerPosition = 0.5;  // Midpoint for roller
-
 
         int viperPosition = 0;
 
@@ -164,55 +156,54 @@ public class DriveTest extends LinearOpMode {
 
 
             if (gamepad2.dpad_up) {
-                extendoPosition += SERVO_INCREMENT; // Increase position
+                extendoPosition += XBot.SERVO_INCREMENT; // Increase position
                 sleep(200); // Avoid rapid input
             } else if (gamepad2.dpad_down) {
-                extendoPosition -= SERVO_INCREMENT; // Decrease position
+                extendoPosition -= XBot.SERVO_INCREMENT; // Decrease position
                 sleep(200); // Avoid rapid input
             }
 
             // Control for Elbow Servo
             if (gamepad2.dpad_right) {
-                elbowPosition += SERVO_INCREMENT; // Increase position
+                elbowPosition += XBot.SERVO_INCREMENT; // Increase position
                 sleep(200); // Avoid rapid input
             } else if (gamepad2.dpad_left) {
-                elbowPosition -= SERVO_INCREMENT; // Decrease position
+                elbowPosition -= XBot.SERVO_INCREMENT; // Decrease position
                 sleep(200); // Avoid rapid input
             }
             if (gamepad2.a) {
-                rollerPosition += SERVO_INCREMENT; // Increase position
+                rollerPosition += XBot.SERVO_INCREMENT; // Increase position
                 sleep(200); // Avoid rapid input
             } else if (gamepad2.b) {
-                rollerPosition -= SERVO_INCREMENT; // Decrease position
+                rollerPosition -= XBot.SERVO_INCREMENT; // Decrease position
                 sleep(200); // Avoid rapid input
             }
 
-
-            extendoPosition = Math.min(Math.max(extendoPosition, SERVO_MIN), SERVO_MAX);
-            elbowPosition = Math.min(Math.max(elbowPosition, SERVO_MIN), SERVO_MAX);
-            rollerPosition = Math.min(Math.max(rollerPosition, SERVO_MIN), SERVO_MAX);
+            extendoPosition = Math.min(Math.max(extendoPosition, XBot.EXTENDO_MIN), XBot.EXTENDO_MAX);
+            elbowPosition = Math.min(Math.max(elbowPosition, XBot.ELBOW_MIN), XBot.EXTENDO_MAX);
+            rollerPosition = Math.min(Math.max(rollerPosition, XBot.SERVO_MIN), XBot.SERVO_MAX);
 
             // Update servo positions
-            extendo.setPosition(extendoPosition);
-            elbow.setPosition(elbowPosition);
-            roller.setPosition(rollerPosition);
+//            extendo.setPosition(extendoPosition);
+//            elbow.setPosition(elbowPosition);
+//            roller.setPosition(rollerPosition);
 
             // Control the viper position with the right stick Y-axis
-            viperPosition += -(int) gamepad2.right_stick_y * 100;
+//            viperPosition += -(int) gamepad2.right_stick_y * 100;
 
             if (gamepad2.x) {
-                viperDriveRunToPosition(VIPER_DRIVE_SPEED, 0, 100);
+                viperDriveRunToPosition(XBot.VIPER_DRIVE_SPEED, 0, 1000);
 //                viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             }
 
             if (gamepad2.y) {
                 //Move Viper Slide
-                viperDriveToPositionInInches(VIPER_DRIVE_SPEED,  26, 100.0);  // S1: Forward 47 Inches with 5 Sec timeout
+                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED,  26, 100.0);  // S1: Forward 47 Inches with 5 Sec timeout
             }
 
-            if (!isViperPositionClose(viperPosition)) {
-                viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
-            }
+//            if (!isViperPositionClose(viperPosition)) {
+//                viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
+//            }
 
             // Telemetry
             telemetry.addData("Extendo Position", extendoPosition);
@@ -242,7 +233,7 @@ public class DriveTest extends LinearOpMode {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
-            newTarget = viper.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+            newTarget = viper.getCurrentPosition() + (int)(inches * XBot.COUNTS_PER_INCH);
             viper.setTargetPosition(newTarget);
 
             // Turn On RUN_TO_POSITION
@@ -271,7 +262,7 @@ public class DriveTest extends LinearOpMode {
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
-            newTarget = (int)(inches * COUNTS_PER_INCH);
+            newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
             viper.setTargetPosition(newTarget);
 
             // Turn On RUN_TO_POSITION
@@ -310,7 +301,7 @@ public class DriveTest extends LinearOpMode {
             // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
             // its target position, the motion will stop.  This is "safer" in the event that the robot will
             // always end the motion as soon as possible.
-            while (opModeIsActive()  && (runtime.seconds() < timeoutS)&& (viper.isBusy())) {
+            while (opModeIsActive()  && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
                 // Display it for the driver.
                 telemetry.addData("Viper Running to",  " %7d", position);
                 telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
