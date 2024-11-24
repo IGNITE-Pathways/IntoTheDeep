@@ -64,7 +64,7 @@ public class DriveTest extends LinearOpMode {
         extendo = hardwareMap.get(Servo.class, "extendo"); // chub 0
         roller = hardwareMap.get(Servo.class, "roller"); // chub 1
         elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
-        claw = hardwareMap.get(Servo.class, "claw"); // ehub 0
+        claw = hardwareMap.get(Servo.class, "claw"); // ehub 3
 
         viper = hardwareMap.get(DcMotor.class, "viper");
         viper.setDirection(DcMotor.Direction.REVERSE);
@@ -93,8 +93,9 @@ public class DriveTest extends LinearOpMode {
         double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
         double elbowPosition = XBot.ELBOW_MIN;   // Midpoint for elbow
         double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
+        double clawPosition = XBot.CLAW_OPEN;  // position for claw opening
 
-        int viperPosition = 0;
+//        int viperPosition = 0;
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Extendo Position", extendoPosition);
@@ -158,15 +159,25 @@ public class DriveTest extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower);
             rightBackDrive.setPower(rightBackPower);
 
-
+// intaking sample
 
             if (gamepad2.b) {           //circle on sony controller
                 extendoPosition = XBot.EXTENDO_MAX;
                 elbowPosition = XBot.ELBOW_MAX;
             }
-            if (gamepad2.a) {           //x on sony controller
+            if (gamepad2.a) {           // x on sony controller
                 extendoPosition = XBot.EXTENDO_MIN;
                 elbowPosition = XBot.ELBOW_MIN;
+                extendo.setPosition(extendoPosition);
+                elbow.setPosition(elbowPosition);
+                sleep(1000);
+                // roll the roller to drop the sample
+                rollerPosition = XBot.ROLLER_BACKWARD;
+                roller.setPosition(rollerPosition);
+                sleep(1000);
+                // make elbow vertical once the sample is dropped
+                elbowPosition = XBot.ELBOW_VERTICAL; // bringing the elbow a little bit up after it drops the sample
+                elbow.setPosition(elbowPosition);
             }
 
 
@@ -183,18 +194,20 @@ public class DriveTest extends LinearOpMode {
                 elbowPosition -= XBot.SERVO_INCREMENT; // Decrease position
             }
 
-
-
-            if (gamepad2.right_trigger > 0.5) {
-                rollerPosition = XBot.ROLLER_BACKWARD;
-            } else {
+            if ((gamepad2.right_trigger < 0.5) && (gamepad2.left_trigger < 0.5)) { // both of them aren't touched
                 rollerPosition = XBot.ROLLER_STOP;
+            } else if (gamepad2.right_trigger > 0.5) {
+                rollerPosition = XBot.ROLLER_BACKWARD;
+            } else if (gamepad2.left_trigger > 0.5) {
+                rollerPosition = XBot.ROLLER_FORWARD;
             }
 
-            if (gamepad2.left_trigger > 0.5) {
-                rollerPosition = XBot.ROLLER_FORWARD;
-            } else {
-                rollerPosition = XBot.ROLLER_STOP;
+            //
+
+            if (gamepad2.left_bumper) {
+                claw.setPosition(XBot.CLAW_CLOSE);
+            } else if (gamepad2.right_bumper) {
+                claw.setPosition(XBot.CLAW_OPEN);
             }
 
 
@@ -228,9 +241,10 @@ public class DriveTest extends LinearOpMode {
             telemetry.addData("Extendo Position", extendoPosition);
             telemetry.addData("Elbow Position", elbowPosition);
             telemetry.addData("Roller Position", rollerPosition);
-            telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", viperPosition);
+            telemetry.addData("Claw Position", claw.getPosition());
+            telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", gamepad2.right_stick_y);
             telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
-            telemetry.addData("Trigger Position", gamepad2.left_trigger);
+            telemetry.addData("Viper Position Inches", viper.getCurrentPosition() / XBot.COUNTS_PER_INCH);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());

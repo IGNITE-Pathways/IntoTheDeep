@@ -8,9 +8,11 @@ public class XBot {
     static final double     ELBOW_MIN = 0.95; // Elbow folded back
     static final double     ELBOW_STRAIGHT = 0.1; // Elbow up front - but straight
     static final double     ELBOW_MAX = 0.01; // Elbow up front - but dropped down to pick sample
+    static final double     ELBOW_VERTICAL = 0.42; // Elbow up front - but dropped down to pick sample
 
-    static final double     CLAW_CLOSE = 0.0; // Close position, Specimen in hand
-    static final double     CLAW_OPEN = 0.2; // Position when we pick Specimen or open claw to drop
+
+    static final double     CLAW_CLOSE = 0.3; // Close position, Specimen in hand
+    static final double     CLAW_OPEN = 0.7; // Position when we pick Specimen or open claw to drop
     static final double     CLAW_FULLY_OPEN = 1.0; // Maximum open position - may be used when dropping Sample to bucket
 
     static final double     ROLLER_FORWARD = 1.0; // Roller spinning forward - picking sample
@@ -30,6 +32,7 @@ public class XBot {
     static final double     COUNTS_PER_INCH  = (COUNTS_PER_MOTOR_REV) / (PULLEY_DIAMETER_INCHES * Math.PI); //81.6 ticks per inch
     static final double     VIPER_DRIVE_SPEED = 1.0;
 
+    //All values in Inches
     static final double     VIPER_HOME = 0.0; // Viper zero position
     static final double     VIPER_PICK_SPECIMEN = 0.0; // Viper zero position
     static final double     VIPER_DROP_SPECIMEN = 0.0; // Viper zero position
