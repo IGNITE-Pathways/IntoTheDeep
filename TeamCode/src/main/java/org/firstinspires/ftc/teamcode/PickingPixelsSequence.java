@@ -56,7 +56,7 @@ public class PickingPixelsSequence extends LinearOpMode {
 
                         }
                         extendo.setPosition(extendoPosition);
-                        elbow.setPosition(XBot.ELBOW_TARGET_POSITION); // Set elbow to 0.3 directly
+                        elbow.setPosition(XBot.ELBOW_STRAIGHT); // Set elbow to 0.3 directly
                         rollerPosition = 1.0; // Start rolling
                         roller.setPosition(rollerPosition);
                         // Stay in this state; the roller continues indefinitely

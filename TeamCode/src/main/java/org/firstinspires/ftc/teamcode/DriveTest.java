@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -49,6 +48,7 @@ public class DriveTest extends LinearOpMode {
     private Servo elbow = null;
     private Servo roller = null;
     private Servo claw = null;
+    boolean rolling = false;
 
     @Override
     public void runOpMode() {
@@ -88,17 +88,21 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses START)
-        telemetry.addData("Status", "Initialized");
-//        telemetry.addData("COUNTS_PER_INCH", "%7d", COUNTS_PER_INCH);
-        telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
-        telemetry.update();
 
-        double extendoPosition = 0.5; // Midpoint for extendo
-        double elbowPosition = 0.5;   // Midpoint for elbow
-        double rollerPosition = 0.5;  // Midpoint for roller
+
+        double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
+        double elbowPosition = XBot.ELBOW_MIN;   // Midpoint for elbow
+        double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
 
         int viperPosition = 0;
 
+        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Extendo Position", extendoPosition);
+        telemetry.addData("Elbow position", elbowPosition);
+
+//        telemetry.addData("COUNTS_PER_INCH", "%7d", COUNTS_PER_INCH);
+        telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
+        telemetry.update();
         waitForStart();
         runtime.reset();
 
@@ -155,38 +159,53 @@ public class DriveTest extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower);
 
 
-            if (gamepad2.dpad_up) {
-                extendoPosition += XBot.SERVO_INCREMENT; // Increase position
-                sleep(200); // Avoid rapid input
-            } else if (gamepad2.dpad_down) {
-                extendoPosition -= XBot.SERVO_INCREMENT; // Decrease position
-                sleep(200); // Avoid rapid input
+
+            if (gamepad2.b) {           //circle on sony controller
+                extendoPosition = XBot.EXTENDO_MAX;
+                elbowPosition = XBot.ELBOW_MAX;
+            }
+            if (gamepad2.a) {           //x on sony controller
+                extendoPosition = XBot.EXTENDO_MIN;
+                elbowPosition = XBot.ELBOW_MIN;
             }
 
+
+//            if (gamepad2.dpad_up) {
+//                extendoPosition += XBot.SERVO_INCREMENT; // Increase position
+//            } else if (gamepad2.dpad_down) {
+//                extendoPosition -= XBot.SERVO_INCREMENT; // Decrease position
+//            }
+//
             // Control for Elbow Servo
             if (gamepad2.dpad_right) {
                 elbowPosition += XBot.SERVO_INCREMENT; // Increase position
-                sleep(200); // Avoid rapid input
             } else if (gamepad2.dpad_left) {
                 elbowPosition -= XBot.SERVO_INCREMENT; // Decrease position
-                sleep(200); // Avoid rapid input
-            }
-            if (gamepad2.a) {
-                rollerPosition += XBot.SERVO_INCREMENT; // Increase position
-                sleep(200); // Avoid rapid input
-            } else if (gamepad2.b) {
-                rollerPosition -= XBot.SERVO_INCREMENT; // Decrease position
-                sleep(200); // Avoid rapid input
             }
 
-            extendoPosition = Math.min(Math.max(extendoPosition, XBot.EXTENDO_MIN), XBot.EXTENDO_MAX);
-            elbowPosition = Math.min(Math.max(elbowPosition, XBot.ELBOW_MIN), XBot.EXTENDO_MAX);
-            rollerPosition = Math.min(Math.max(rollerPosition, XBot.SERVO_MIN), XBot.SERVO_MAX);
+
+
+            if (gamepad2.right_trigger > 0.5) {
+                rollerPosition = XBot.ROLLER_BACKWARD;
+            } else {
+                rollerPosition = XBot.ROLLER_STOP;
+            }
+
+            if (gamepad2.left_trigger > 0.5) {
+                rollerPosition = XBot.ROLLER_FORWARD;
+            } else {
+                rollerPosition = XBot.ROLLER_STOP;
+            }
+
+
+            extendoPosition = Math.min(Math.max(extendoPosition, XBot.EXTENDO_MAX), XBot.EXTENDO_MIN);
+            elbowPosition = Math.min(Math.max(elbowPosition, XBot.ELBOW_MAX), XBot.EXTENDO_MIN);
+            //rollerPosition = Math.min(Math.max(rollerPosition, XBot.SERVO_MIN), XBot.SERVO_MAX);
 
             // Update servo positions
-//            extendo.setPosition(extendoPosition);
-//            elbow.setPosition(elbowPosition);
-//            roller.setPosition(rollerPosition);
+            extendo.setPosition(extendoPosition);
+            elbow.setPosition(elbowPosition);
+            roller.setPosition(rollerPosition);
 
             // Control the viper position with the right stick Y-axis
 //            viperPosition += -(int) gamepad2.right_stick_y * 100;
@@ -211,6 +230,7 @@ public class DriveTest extends LinearOpMode {
             telemetry.addData("Roller Position", rollerPosition);
             telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", viperPosition);
             telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
+            telemetry.addData("Trigger Position", gamepad2.left_trigger);
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());

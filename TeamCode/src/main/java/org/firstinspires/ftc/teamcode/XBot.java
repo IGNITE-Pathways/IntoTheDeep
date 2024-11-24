@@ -1,27 +1,28 @@
 package org.firstinspires.ftc.teamcode;
 
 public class XBot {
-    static final double     EXTENDO_MIN = 0.0; // Extendo in starging position
-    static final double     EXTENDO_HALF = 0.5; // Extendo in half extended position
-    static final double     EXTENDO_MAX = 1.0; // Extendo in fully extended position
+    static final double     EXTENDO_MIN = 1.0; // Extendo in starging position
+    static final double     EXTENDO_HALF = 0.75; // Extendo in half extended position
+    static final double     EXTENDO_MAX = 0.5; // Extendo in fully extended position
 
-    static final double     ELBOW_MIN = 0.0; // Elbow folded back
-    static final double     ELBOW_STRAIGHT = 0.8; // Elbow up front - but straight
-    static final double     ELBOW_MAX = 1.0; // Elbow up front - but dropped down to pick sample
-    static final double     ELBOW_TARGET_POSITION = 0.3; // Specific position for the elbow servo
+    static final double     ELBOW_MIN = 0.95; // Elbow folded back
+    static final double     ELBOW_STRAIGHT = 0.1; // Elbow up front - but straight
+    static final double     ELBOW_MAX = 0.01; // Elbow up front - but dropped down to pick sample
 
     static final double     CLAW_CLOSE = 0.0; // Close position, Specimen in hand
     static final double     CLAW_OPEN = 0.2; // Position when we pick Specimen or open claw to drop
     static final double     CLAW_FULLY_OPEN = 1.0; // Maximum open position - may be used when dropping Sample to bucket
 
-    static final double     ROLLER_FORWARD = 0.0; // Roller spinning forward - picking sample
+    static final double     ROLLER_FORWARD = 1.0; // Roller spinning forward - picking sample
     static final double     ROLLER_BACKWARD = 0.0; // Roller Spinning backward - releasing sample
+    static final double     ROLLER_STOP = 0.5; // Roller Stopped Spinning
+
 
     static final double     SERVO_MIN = 0.0; // Minimum servo position
     static final double     SERVO_MAX = 1.0; // Maximum servo position
 
     // Constants for servo position control
-    static final double     SERVO_INCREMENT = 0.05; // Increment size for position changes
+    static final double     SERVO_INCREMENT = 0.03; // Increment size for position changes
 
     // eg: Motor Encoder 117 = 384.5, 223 = 751.8, 312 = 537.7, 435 = 1425.1
     static final double     COUNTS_PER_MOTOR_REV    = 537.7;// 384.5; // 1425.1;
