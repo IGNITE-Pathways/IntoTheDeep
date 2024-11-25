@@ -50,6 +50,13 @@ public class DriveTest extends LinearOpMode {
     private Servo claw = null;
     boolean rolling = false;
 
+    private enum State {
+        SAMPLE,
+        SPECIMEN
+    }
+    private DriveTest.State state = State.SAMPLE; // Default no state
+
+
     @Override
     public void runOpMode() {
 
@@ -91,7 +98,7 @@ public class DriveTest extends LinearOpMode {
 
 
         double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
-        double elbowPosition = XBot.ELBOW_MIN;   // Midpoint for elbow
+        double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
         double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
         double clawPosition = XBot.CLAW_OPEN;  // position for claw opening
 
@@ -187,12 +194,12 @@ public class DriveTest extends LinearOpMode {
 //                extendoPosition -= XBot.SERVO_INCREMENT; // Decrease position
 //            }
 //
-            // Control for Elbow Servo
-            if (gamepad2.dpad_right) {
-                elbowPosition += XBot.SERVO_INCREMENT; // Increase position
-            } else if (gamepad2.dpad_left) {
-                elbowPosition -= XBot.SERVO_INCREMENT; // Decrease position
-            }
+//            // Control for Elbow Servo
+//            if (gamepad2.dpad_right) {
+//                elbowPosition += XBot.SERVO_INCREMENT; // Increase position
+//            } else if (gamepad2.dpad_left) {
+//                elbowPosition -= XBot.SERVO_INCREMENT; // Decrease position
+//            }
 
             if ((gamepad2.right_trigger < 0.5) && (gamepad2.left_trigger < 0.5)) { // both of them aren't touched
                 rollerPosition = XBot.ROLLER_STOP;
@@ -223,15 +230,26 @@ public class DriveTest extends LinearOpMode {
             // Control the viper position with the right stick Y-axis
 //            viperPosition += -(int) gamepad2.right_stick_y * 100;
 
-            if (gamepad2.x) {
-                viperDriveRunToPosition(XBot.VIPER_DRIVE_SPEED, 0, 1000);
-//                viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+            if (gamepad2.dpad_up) {//high basket dpad up
+                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2.0, 1000);
+                clawPosition = XBot.CLAW_FULLY_OPEN;
+                claw.setPosition(clawPosition);
+            } else if (gamepad2.dpad_down) {//high chamber dpad down
+                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
+            } else if (gamepad2.x) { //square on sony controller,   pick specimen off wall
+                state = State.SPECIMEN;
+                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_PICK_SPECIMEN, 1000);
+            } else if (gamepad2.y) { //triangle on sony controller
+                if (state == State.SPECIMEN) {
+                    dropSpecimen();
+                } else if (state == State.SAMPLE) {
+                    viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET, 1000);
+                }
             }
 
-            if (gamepad2.y) {
-                //Move Viper Slide
-                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED,  26, 100.0);  // S1: Forward 47 Inches with 5 Sec timeout
-            }
+
+
 
 //            if (!isViperPositionClose(viperPosition)) {
 //                viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
@@ -242,9 +260,9 @@ public class DriveTest extends LinearOpMode {
             telemetry.addData("Elbow Position", elbowPosition);
             telemetry.addData("Roller Position", rollerPosition);
             telemetry.addData("Claw Position", claw.getPosition());
-            telemetry.addData("GAME_PAD_RIGHT_Y", "%7d", gamepad2.right_stick_y);
+            telemetry.addData("GAME_PAD_RIGHT_Y",  gamepad2.right_stick_y);
             telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
-            telemetry.addData("Viper Position Inches", viper.getCurrentPosition() / XBot.COUNTS_PER_INCH);
+            telemetry.addData("Viper Position Inches", (viper.getCurrentPosition() / XBot.COUNTS_PER_INCH));
 
             // Show the elapsed game time and wheel power.
             telemetry.addData("Status", "Run Time: " + runtime.toString());
@@ -261,6 +279,23 @@ public class DriveTest extends LinearOpMode {
        if (viperPosition < 0) return true;
        return false;
     }
+
+    private void dropSpecimen() {
+        //(viper slide is at drop sepcimen level)
+        if (opModeIsActive()) {
+            //drop specimen level viper slide
+            viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.DROPPED_SPECIMEN, 1000);
+            sleep(200);
+            claw.setPosition(XBot.CLAW_OPEN);
+            sleep(500);
+            viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
+        }
+        //move the viper slide to DROPPED SPECIMEn
+        //Open claw
+        //return viper home
+    }
+
+
 
     private void viperDrive(double speed, int inches, double timeoutS) {
         int newTarget;
@@ -291,7 +326,7 @@ public class DriveTest extends LinearOpMode {
         }
     }
 
-    private void viperDriveToPositionInInches(double speed, int inches, double timeoutS) {
+    private void viperDriveToPositionInInches(double speed, double inches, double timeoutS) {
         int newTarget;
 
         // Ensure that the OpMode is still active
@@ -316,7 +351,7 @@ public class DriveTest extends LinearOpMode {
             }
 
             // Stop all motion;
-            viper.setPower(0);
+            viper.setPower(0.015);
         }
     }
 
