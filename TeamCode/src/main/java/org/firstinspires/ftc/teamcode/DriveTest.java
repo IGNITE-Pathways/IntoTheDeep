@@ -180,10 +180,12 @@ public class DriveTest extends LinearOpMode {
 // intaking sample
 
             if (gamepad2.b) {           //circle on sony controller
+                state = State.SAMPLE;
                 extendoPosition = XBot.EXTENDO_MAX;
                 elbowPosition = XBot.ELBOW_MAX;
             }
             if (gamepad2.a) {           // x on sony controller
+                state = State.SAMPLE;
                 extendoPosition = XBot.EXTENDO_MIN;
                 elbowPosition = XBot.ELBOW_MIN;
                 extendo.setPosition(extendoPosition);
@@ -243,11 +245,16 @@ public class DriveTest extends LinearOpMode {
 
 
             if (gamepad2.dpad_up) {//high basket dpad up
+                state = State.SAMPLE;
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2.0, 1000);
                 clawPosition = XBot.CLAW_FULLY_OPEN;
                 claw.setPosition(clawPosition);
             } else if (gamepad2.dpad_down) {//high chamber dpad down
-                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
+                if (state == State.SPECIMEN) {
+                    viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
+                } else if (state == State.SAMPLE) {
+                    elbowPosition = XBot.ELBOW_VERTICAL - 0.5;
+                }
             } else if (gamepad2.x) { //square on sony controller,   pick specimen off wall
                 state = State.SPECIMEN;
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_PICK_SPECIMEN, 1000);
@@ -257,6 +264,12 @@ public class DriveTest extends LinearOpMode {
                 } else if (state == State.SAMPLE) {
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET, 1000);
                 }
+            } else if (gamepad2.dpad_right) { //return viper home
+                state = State.SPECIMEN;
+                clawPosition = XBot.CLAW_CLOSE;
+                claw.setPosition(clawPosition);
+                sleep(200);
+                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
             }
 
             //Set the color based on state
