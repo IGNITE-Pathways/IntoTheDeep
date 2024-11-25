@@ -5,9 +5,9 @@ public class XBot {
     static final double     EXTENDO_HALF = 0.75; // Extendo in half extended position
     static final double     EXTENDO_MAX = 0.5; // Extendo in fully extended position
 
-    static final double     ELBOW_MIN = 0.95; // Elbow folded back
+    static final double     ELBOW_MIN = 0.94; // Elbow folded back
     static final double     ELBOW_STRAIGHT = 0.1; // Elbow up front - but straight
-    static final double     ELBOW_MAX = 0.025; // Elbow up front - but dropped down to pick sample
+    static final double     ELBOW_MAX = 0.04; // Elbow up front - but dropped down to pick sample
     static final double     ELBOW_VERTICAL = 0.42; // Elbow up front - but dropped down to pick sample
 
 

@@ -191,10 +191,10 @@ public class DriveTest extends LinearOpMode {
                 extendo.setPosition(extendoPosition);
                 elbow.setPosition(elbowPosition);
                 sleep(1000);
-                // roll the roller to drop the sample
-                rollerPosition = XBot.ROLLER_BACKWARD;
-                roller.setPosition(rollerPosition);
-                sleep(1000);
+//                // roll the roller to drop the sample
+//                rollerPosition = XBot.ROLLER_BACKWARD;
+//                roller.setPosition(rollerPosition);
+//                sleep(1000);
                 // make elbow vertical once the sample is dropped
                 elbowPosition = XBot.ELBOW_VERTICAL; // bringing the elbow a little bit up after it drops the sample
                 elbow.setPosition(elbowPosition);
