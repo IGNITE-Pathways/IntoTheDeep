@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.qualcomm.robotcore.hardware.LED;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -49,6 +52,9 @@ public class DriveTest extends LinearOpMode {
     private Servo roller = null;
     private Servo claw = null;
     boolean rolling = false;
+    private DigitalChannel redLED;
+    private DigitalChannel greenLED;
+
 
     private enum State {
         SAMPLE,
@@ -66,6 +72,8 @@ public class DriveTest extends LinearOpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftback");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
+        redLED = hardwareMap.get(DigitalChannel.class, "redled");//7
+        greenLED = hardwareMap.get(DigitalChannel.class, "greenled");//6
 
         //Initialize the Servo variables
         extendo = hardwareMap.get(Servo.class, "extendo"); // chub 0
@@ -113,6 +121,9 @@ public class DriveTest extends LinearOpMode {
         telemetry.update();
         waitForStart();
         runtime.reset();
+        // change LED mode from input to output
+        redLED.setMode(DigitalChannel.Mode.OUTPUT);
+        greenLED.setMode(DigitalChannel.Mode.OUTPUT);
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -248,7 +259,17 @@ public class DriveTest extends LinearOpMode {
                 }
             }
 
-
+            //Set the color based on state
+            //SAMPLE = RED, SPECIMEN = GREEN
+            switch (state) {
+                case SAMPLE:
+                    greenLED.setState(false);
+                    redLED.setState(true);
+                    break;
+                case SPECIMEN:
+                    greenLED.setState(true);
+                    redLED.setState(false);
+            }
 
 
 //            if (!isViperPositionClose(viperPosition)) {
@@ -256,6 +277,7 @@ public class DriveTest extends LinearOpMode {
 //            }
 
             // Telemetry
+            telemetry.addData("GAME State", state);
             telemetry.addData("Extendo Position", extendoPosition);
             telemetry.addData("Elbow Position", elbowPosition);
             telemetry.addData("Roller Position", rollerPosition);
