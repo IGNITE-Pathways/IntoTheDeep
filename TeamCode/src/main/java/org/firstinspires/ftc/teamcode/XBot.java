@@ -19,7 +19,6 @@ public class XBot {
     static final double     ROLLER_BACKWARD = 0.0; // Roller Spinning backward - releasing sample
     static final double     ROLLER_STOP = 0.5; // Roller Stopped Spinning
 
-
     static final double     SERVO_MIN = 0.0; // Minimum servo position
     static final double     SERVO_MAX = 1.0; // Maximum servo position
 

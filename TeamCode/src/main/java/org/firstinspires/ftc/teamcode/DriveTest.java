@@ -330,9 +330,7 @@ public class DriveTest extends LinearOpMode {
         //return viper home
     }
 
-
-
-    private void viperDrive(double speed, int inches, double timeoutS) {
+    private void viperDrive(double maxSpeed, int inches, double timeoutS) {
         int newTarget;
 
         // Ensure that the OpMode is still active
@@ -343,7 +341,7 @@ public class DriveTest extends LinearOpMode {
             // Turn On RUN_TO_POSITION
             viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             runtime.reset();
-            viper.setPower(Math.abs(speed));
+            viper.setPower(Math.abs(maxSpeed));
 
             // keep looping while we are still active, and there is time left, and viper motor is running.
             // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
@@ -361,8 +359,80 @@ public class DriveTest extends LinearOpMode {
         }
     }
 
-    private void viperDriveToPositionInInches(double speed, double inches, double timeoutS) {
+
+    /* PID CONTROLLER CODE
+
+    private void viperDrive(double maxSpeed, int inches, double timeoutS) {
+        int targetPosition;
+        double Kp = 0.1; // Proportional gain (tune this value)
+        double Ki = 0.01; // Integral gain (tune this value)
+        double Kd = 0.01; // Derivative gain (tune this value)
+        double previousError = 0; // Store the error from the previous iteration
+        double integralSum = 0; // Accumulate the error over time
+        double power;
+        double error;
+        double derivative;
+
+        // Ensure that the OpMode is still active
+        if (opModeIsActive()) {
+            // Calculate the target position
+            targetPosition = viper.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
+            viper.setTargetPosition(targetPosition);
+
+            // Turn On RUN_TO_POSITION
+            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            runtime.reset();
+
+            // Loop until timeout or position reached
+            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
+                // Calculate the error
+                error = targetPosition - viper.getCurrentPosition();
+
+                // Accumulate the error for the integral term
+                integralSum += error;
+
+                // Calculate the derivative (rate of change of error)
+                derivative = error - previousError;
+
+                // Compute control power
+                power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+
+                // Limit power to the maximum speed
+                power = Math.max(-Math.abs(maxSpeed), Math.min(Math.abs(maxSpeed), power));
+
+                // Set motor power
+                viper.setPower(power);
+
+                // Update the previous error for the next loop
+                previousError = error;
+
+                // Display information for the driver
+                telemetry.addData("Viper Target", targetPosition);
+                telemetry.addData("Current Position", viper.getCurrentPosition());
+                telemetry.addData("Error", error);
+                telemetry.addData("Integral Sum", integralSum);
+                telemetry.addData("Derivative", derivative);
+                telemetry.addData("Power", power);
+                telemetry.update();
+            }
+
+            // Stop all motion
+            viper.setPower(0);
+        }
+    }
+
+*/
+
+    private void viperDriveToPositionInInches(double maxSpeed, double inches, double timeoutS) {
         int newTarget;
+        double Kp = 0.1; // Proportional gain (tune this value)
+        double Ki = 0.01; // Integral gain (tune this value)
+        double Kd = 0.01; // Derivative gain (tune this value)
+        double previousError = 0; // Store the error from the previous iteration
+        double integralSum = 0; // Accumulate the error over time
+        double power;
+        double error;
+        double derivative;
 
         // Ensure that the OpMode is still active
         if (opModeIsActive()) {
@@ -372,16 +442,45 @@ public class DriveTest extends LinearOpMode {
             // Turn On RUN_TO_POSITION
             viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             runtime.reset();
-            viper.setPower(Math.abs(speed));
+            viper.setPower(Math.abs(maxSpeed));
 
             // keep looping while we are still active, and there is time left, and viper motor is running.
             // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
             // its target position, the motion will stop.  This is "safer" in the event that the robot will
             // always end the motion as soon as possible.
             while (opModeIsActive() && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
-                // Display it for the driver.
-                telemetry.addData("Viper Running to",  " %7d", newTarget);
-                telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
+                // Calculate the error
+                error = newTarget - viper.getCurrentPosition();
+
+                // Accumulate the error for the integral term
+                integralSum += error;
+
+                // Calculate the derivative (rate of change of error)
+                derivative = error - previousError;
+
+
+                // Compute control power
+                power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
+
+
+                // Limit power to the maximum speed
+                power = Math.max(-Math.abs(maxSpeed), Math.min(Math.abs(maxSpeed), power));
+
+
+                // Set motor power
+                viper.setPower(power);
+
+                // Update the previous error for the next loop
+                previousError = error;
+
+
+                // Display information for the driver
+                telemetry.addData("Viper Target", newTarget);
+                telemetry.addData("Current Position", viper.getCurrentPosition());
+                telemetry.addData("Error", error);
+                telemetry.addData("Integral Sum", integralSum);
+                telemetry.addData("Derivative", derivative);
+                telemetry.addData("Power", power);
                 telemetry.update();
             }
 
