@@ -127,9 +127,7 @@ public class MeepMeepTesting {
                 .lineToY(60) // moves a little down for a clean spline to hook fourth the specimen
                 .splineToLinearHeading(new Pose2d(-8, 31, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook fourth specimen
                 .waitSeconds(1)// drops specimen on the chamber
-                .strafeTo(new Vector2d(33,31)) // drives to the right
-                .strafeTo(new Vector2d(33,15)) // drives down
-                .strafeTo(new Vector2d(21.5,10)) // parks!
+//                .strafeTo(new Vector2d(-47,65))
 
                 .build();
 
@@ -159,7 +157,7 @@ public class MeepMeepTesting {
                 .waitSeconds(2) // extendo extends and takes in the third sample
                 .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(-135)), Math.toRadians(0)) // splines goes to drop third sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .splineToLinearHeading(new Pose2d(21.5, -10, Math.toRadians(360)), Math.toRadians(-180)) // splines to rung for level 1 ascent (3 points)
+                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(360)), Math.toRadians(-180)) // splines to rung for level 1 ascent (3 points)
 
                 .build();
 
