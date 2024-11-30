@@ -64,21 +64,21 @@ public class DriveTest extends LinearOpMode {
     }
     private DriveTest.State state = State.SAMPLE; // Default no state
 
-
     @Override
     public void runOpMode() {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-//        leftFrontDrive = hardwareMap.get(DcMotor.class, "leftfront");
-//        leftBackDrive = hardwareMap.get(DcMotor.class, "leftback");
-//        rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
-//        rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
+        leftFrontDrive = hardwareMap.get(DcMotor.class, "leftfront");
+        leftBackDrive = hardwareMap.get(DcMotor.class, "leftback");
+        rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
+        rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
 
-        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "rightback"); //rightback
-        leftBackDrive = hardwareMap.get(DcMotorEx.class, "rightfront"); //rightfront`
-        rightBackDrive = hardwareMap.get(DcMotorEx.class, "leftfront"); //leftfront
-        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "leftback"); //leftback
+        //Uncomment below and comment above if we want robot to go in reverse
+//        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "rightback"); //rightback
+//        leftBackDrive = hardwareMap.get(DcMotorEx.class, "rightfront"); //rightfront`
+//        rightBackDrive = hardwareMap.get(DcMotorEx.class, "leftfront"); //leftfront
+//        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "leftback"); //leftback
 
         redLED = hardwareMap.get(DigitalChannel.class, "redled");//7
         greenLED = hardwareMap.get(DigitalChannel.class, "greenled");//6
@@ -111,8 +111,6 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
         // Wait for the game to start (driver presses START)
-
-
         double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
         double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
         double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller

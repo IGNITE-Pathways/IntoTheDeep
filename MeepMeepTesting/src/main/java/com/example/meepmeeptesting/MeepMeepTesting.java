@@ -288,35 +288,42 @@ public class MeepMeepTesting {
                 // We set this bot to be blue
                 .setColorScheme(new ColorSchemeBlueLight())
                 .setConstraints(70, 70, Math.toRadians(180), Math.toRadians(180), 15)
-                .setDimensions(14,14)
+                .setDimensions(14,16)
                 .build();
 
         // defining the action of our next bot, blue right
-        Action blueRightAction = blueLeft.getDrive().actionBuilder(new Pose2d(13, 63, Math.toRadians(90)))
-                .strafeTo(new Vector2d(12.5,31)) // drives to the chamber
-                .waitSeconds(1)// drops preloaded specimen on the chamber
-                .splineToLinearHeading(new Pose2d(12.5, 37, Math.toRadians(345)), Math.toRadians(90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+        Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(12.5, 63, Math.toRadians(-90)))
+                .lineToYConstantHeading(31)
+                // drops preloaded specimen on the chamber
+                .waitSeconds(2)
+                //go to pick next yellow sample
+                .splineToLinearHeading(new Pose2d(12.5, 37, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
                 .strafeTo(new Vector2d(26,32)) // moves in the direction of the sample and extendo extends
-                .waitSeconds(1) // extendo takes in the sample
-                .strafeTo(new Vector2d(26,34)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(-135)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
+                // extendo takes in the sample
+                .waitSeconds(1)
+                //drop the sample
+                .splineTo(new Vector2d(55, 56), Math.toRadians(45))
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .splineToLinearHeading(new Pose2d(33, 26, Math.toRadians(360)), Math.toRadians(270)) // robot aligns itself to get the second sample
+                //Pick next one
+                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
                 .waitSeconds(2) // extendo extends and takes in the second sample
-                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(-135)), Math.toRadians(90)) // splines goes to drop second sample in the high basket!
+                //drop again
+                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .splineToLinearHeading(new Pose2d(47, 26, Math.toRadians(360)), Math.toRadians(270)) // robot aligns itself to get the third sample
-                .waitSeconds(2) // extendo extends and takes in the third sample
-                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(-135)), Math.toRadians(0)) // splines goes to drop third sample in the high basket!
+                //Pick again
+                .splineToLinearHeading(new Pose2d(50, 40, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
+                .waitSeconds(2) // extendo extends and takes in the second sample
+                //drop again
+                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(360)), Math.toRadians(-180)) // splines to rung for level 1 ascent (3 points)
-
+                .strafeTo(new Vector2d(50, 38)) // splines goes drop first sample in the high basket!
+                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(0)), Math.toRadians(90)) // splines to rung for level 1 ascent (3 points)
                 .build();
 
-        redRight.runAction(redRightAction);
-        redLeft.runAction(redLeftAction);
+//        redRight.runAction(redRightAction);
+//        redLeft.runAction(redLeftAction);
    //     blueLeft.runAction(blueLeftAction);
-        blueLeft.runAction(blueLeftActionOLDGAMESTRATEGY);
+//        blueLeft.runAction(blueLeftActionOLDGAMESTRATEGY);
         blueRight.runAction(blueRightAction);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
@@ -326,8 +333,8 @@ public class MeepMeepTesting {
                 // Add both of our declared bot entities
         //        .addEntity(redRight)  // opens the first bot in the meep meep visualizer
           //      .addEntity(redLeft) // opens the second bot in the meep meep visualizer
-              .addEntity(blueLeft)
-           //     .addEntity(blueRight)
+//              .addEntity(blueLeft)
+                .addEntity(blueRight)
                 .start();
 
 
