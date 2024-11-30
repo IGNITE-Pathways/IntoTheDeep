@@ -269,6 +269,10 @@ public class DriveTest extends LinearOpMode {
                     dropSpecimen();
                 } else if (state == State.SAMPLE) {
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET, 1000);
+                    sleep(1000);
+                    clawPosition = XBot.CLAW_CLOSE;
+                    claw.setPosition(clawPosition);
+                    viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
                 }
             } else if (gamepad2.dpad_right) { //return viper home
                 state = State.SPECIMEN;
