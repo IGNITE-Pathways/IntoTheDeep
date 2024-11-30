@@ -4,6 +4,8 @@ import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.LED;
@@ -68,10 +70,16 @@ public class DriveTest extends LinearOpMode {
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
-        leftFrontDrive = hardwareMap.get(DcMotor.class, "leftfront");
-        leftBackDrive = hardwareMap.get(DcMotor.class, "leftback");
-        rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
-        rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
+//        leftFrontDrive = hardwareMap.get(DcMotor.class, "leftfront");
+//        leftBackDrive = hardwareMap.get(DcMotor.class, "leftback");
+//        rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
+//        rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
+
+        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "rightback"); //rightback
+        leftBackDrive = hardwareMap.get(DcMotorEx.class, "rightfront"); //rightfront`
+        rightBackDrive = hardwareMap.get(DcMotorEx.class, "leftfront"); //leftfront
+        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "leftback"); //leftback
+
         redLED = hardwareMap.get(DigitalChannel.class, "redled");//7
         greenLED = hardwareMap.get(DigitalChannel.class, "greenled");//6
 
@@ -164,12 +172,12 @@ public class DriveTest extends LinearOpMode {
             //      the setDirection() calls above.
             // Once the correct motors move in the correct direction re-comment this code.
 
-            /*
-            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
-            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
-            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
-            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
-            */
+
+//            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
+//            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
+//            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
+//            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
+
 
             // Send calculated power to wheels
             leftFrontDrive.setPower(leftFrontPower);
@@ -425,9 +433,9 @@ public class DriveTest extends LinearOpMode {
 
     private void viperDriveToPositionInInches(double maxSpeed, double inches, double timeoutS) {
         int newTarget;
-        double Kp = 0.1; // Proportional gain (tune this value)
-        double Ki = 0.01; // Integral gain (tune this value)
-        double Kd = 0.01; // Derivative gain (tune this value)
+        double Kp = 0; // Proportional gain (tune this value)
+        double Ki = 0; // Integral gain (tune this value)
+        double Kd = 0; // Derivative gain (tune this value)
         double previousError = 0; // Store the error from the previous iteration
         double integralSum = 0; // Accumulate the error over time
         double power;
@@ -458,21 +466,17 @@ public class DriveTest extends LinearOpMode {
                 // Calculate the derivative (rate of change of error)
                 derivative = error - previousError;
 
-
                 // Compute control power
-                power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
-
+                power = (Kp * error) + (Ki * integralSum) + (Kd * derivative) + maxSpeed; //Remove maxSpeed after tuning
 
                 // Limit power to the maximum speed
                 power = Math.max(-Math.abs(maxSpeed), Math.min(Math.abs(maxSpeed), power));
-
 
                 // Set motor power
                 viper.setPower(power);
 
                 // Update the previous error for the next loop
                 previousError = error;
-
 
                 // Display information for the driver
                 telemetry.addData("Viper Target", newTarget);
