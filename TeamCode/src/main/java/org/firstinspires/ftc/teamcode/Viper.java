@@ -1,15 +1,21 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Thread.sleep;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.opencv.core.Mat;
 
 public class Viper {
     private DcMotor viper = null;
+    private Servo claw = null;
     private ElapsedTime runtime = new ElapsedTime();
 
     public Viper(HardwareMap hardwareMap) {
@@ -18,80 +24,106 @@ public class Viper {
         viper.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        claw = hardwareMap.get(Servo.class, "claw"); // ehub 3
     }
 
-    public class GetReadyToDropSpecimen implements Action {
-        private boolean initialized = false;
+    public void initialize() {
+        claw.setPosition(XBot.CLAW_CLOSE);
+    }
 
-        @Override
-        public boolean run(@NonNull TelemetryPacket packet) {
-            if (!initialized) {
-                viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
-                initialized = true;
+    public Action driveToPositionInInches(double inches) {
+        return new Action () {
+            private boolean initialized = false;
+
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+                driveToPosition(XBot.VIPER_DRIVE_SPEED, inches, 1000, packet);
+                    initialized = true;
+                }
+                double pos = viper.getCurrentPosition();
+                packet.put("viper position", pos);
+                return Math.abs(pos - inches) < 2;
             }
-
-            double pos = viper.getCurrentPosition();
-            packet.put("viper position", pos);
-            return pos > XBot.VIPER_DROP_SPECIMEN - 5;
-        }
-
-        private void viperDriveToPositionInInches(double maxSpeed, double inches, double timeoutS) {
-            int newTarget;
-            double Kp = 0; // Proportional gain (tune this value)
-            double Ki = 0; // Integral gain (tune this value)
-            double Kd = 0; // Derivative gain (tune this value)
-            double power;
-
-            // Ensure that the OpMode is still active
-                newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
-                viper.setTargetPosition(newTarget);
-
-                // Turn On RUN_TO_POSITION
-                viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                runtime.reset();
-                viper.setPower(Math.abs(maxSpeed));
-
-                // keep looping while we are still active, and there is time left, and viper motor is running.
-                // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
-                // its target position, the motion will stop.  This is "safer" in the event that the robot will
-                // always end the motion as soon as possible.
-                while ((runtime.seconds() < timeoutS) && (viper.isBusy())) {
-                    // Set motor power
-                    viper.setPower(maxSpeed);
-                    
-                    // Display information for the driver
-//                    telemetry.addData("Viper Target", newTarget);
-//                    telemetry.addData("Current Position", viper.getCurrentPosition());
-//                    telemetry.addData("Power", power);
-//                    telemetry.update();
-
-                // Stop all motion;
-                viper.setPower(0.015);
-            }
-        }
+        };
     }
 
     public Action getReadyToDropSpecimen() {
-        return new GetReadyToDropSpecimen();
+        return new Action () {
+                private boolean initialized = false;
+
+                @Override
+                public boolean run(@NonNull TelemetryPacket packet) {
+                    if (!initialized) {
+                        driveToPosition(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000, packet);
+                        initialized = true;
+                    }
+
+                    double pos = viper.getCurrentPosition();
+                    packet.put("viper position", pos);
+                    return Math.abs(pos - XBot.VIPER_DROP_SPECIMEN) < 2;
+                }
+            };
     }
 
 //    public Action dropSpecimen() {
-//        return new TodoAction();
+//        return new Action () {
+//            @Override
+//            public boolean run(@NonNull TelemetryPacket packet) {
+//                driveToPosition(XBot.VIPER_DRIVE_SPEED, XBot.DROPPED_SPECIMEN, 1000, packet);
+//                try {
+//                    sleep(200);
+//                    claw.setPosition(XBot.CLAW_OPEN);
+//                    sleep(200);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                driveToPosition(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000, packet);
+//                return false;
+//            }
+//        };
 //    }
 
+    public Action openClaw() {
+        return new Action () {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                claw.setPosition(XBot.CLAW_OPEN);
+                return false;
+            }
+        };
+    }
+
+    public Action closeClaw() {
+        return new Action () {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                claw.setPosition(XBot.CLAW_CLOSE);
+                return false;
+            }
+        };
+    }
+
+    private void driveToPosition(double maxSpeed, double inches, double timeoutS, TelemetryPacket packet) {
+        // Ensure that the OpMode is still active
+        int newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
+        viper.setTargetPosition(newTarget);
+
+        // Turn On RUN_TO_POSITION
+        viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        viper.setPower(Math.abs(maxSpeed));
+
+        // keep looping while we are still active, and there is time left, and viper motor is running.
+        // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
+        // its target position, the motion will stop.  This is "safer" in the event that the robot will
+        // always end the motion as soon as possible.
+        while ((runtime.seconds() < timeoutS) && (viper.isBusy())) {
+            // Set motor power
+            viper.setPower(maxSpeed);
+            packet.put("viper position", viper.getCurrentPosition());
+        }
+        // Stop all motion;
+        viper.setPower(0.015);
+    }
 }
-
-//private void dropSpecimen() {
-//    //(viper slide is at drop sepcimen level)
-//    if (opModeIsActive()) {
-//        //drop specimen level viper slide
-//        viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.DROPPED_SPECIMEN, 1000);
-//        sleep(200);
-//        claw.setPosition(XBot.CLAW_OPEN);
-//        sleep(500);
-//        viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
-//    }
-//    //move the viper slide to DROPPED SPECIMEn
-//    //Open claw
-//    //return viper home
-//}
