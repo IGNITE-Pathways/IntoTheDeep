@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.ParallelAction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -92,26 +93,27 @@ public class AutoRun extends LinearOpMode {
                 drive.actionBuilder(new Pose2d(22, 35, Math.toRadians(165)))
                         .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
                         .waitSeconds(2)
-                        .build(), extendo.elbowMin()//, extendo.elbowVertical()
+                        .build(),
+                        extendo.elbowMin()
                 );
 
         //Spline to drop Sample to bucket
         Action driveTowardsBucket = drive.actionBuilder(new Pose2d(23, 33, Math.toRadians(165)))
-                        .splineTo(new Vector2d(52, 52), Math.toRadians(45))
+                        .splineTo(new Vector2d(52, 49), Math.toRadians(45))
                         .build();
 
-        Actions.runBlocking(new SequentialAction(intakeSequence, driveTowardsBucket));
+        SequentialAction sa2 = new SequentialAction(intakeSequence, driveTowardsBucket);
 
         //Move viper up while positioning
-        ParallelAction dropSample = new ParallelAction(driveTowardsBucket,
+        SequentialAction dropSample = new SequentialAction(sa2, extendo.elbowVertical(), new SleepAction(0.5),
                 viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2));
 
         //Drop sample to high basket
-        SequentialAction dropSampleSequence = new SequentialAction(intakeSequence, dropSample,
-                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET));
+        SequentialAction dropSampleSequence = new SequentialAction(dropSample,
+                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), new SleepAction(1));
 
-//        Actions.runBlocking(dropSampleSequence);
-//        telemetry.addData("Time Used", runtime.seconds());
+        Actions.runBlocking(dropSampleSequence);
+        telemetry.addData("Time Used", runtime.seconds());
 
 //                //Pick next one
 //                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample

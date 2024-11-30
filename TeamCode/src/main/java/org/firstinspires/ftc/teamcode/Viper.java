@@ -38,12 +38,12 @@ public class Viper {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                driveToPosition(XBot.VIPER_DRIVE_SPEED, inches, 1000, packet);
+                    driveToPosition(XBot.VIPER_DRIVE_SPEED, inches, 1000, packet);
                     initialized = true;
                 }
                 double pos = viper.getCurrentPosition();
                 packet.put("viper position", pos);
-                return Math.abs(pos - inches) < 2;
+                return Math.abs(pos - inches) < 1;
             }
         };
     }
