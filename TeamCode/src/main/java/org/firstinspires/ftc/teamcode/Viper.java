@@ -26,7 +26,6 @@ public class Viper {
         @Override
         public boolean run(@NonNull TelemetryPacket packet) {
             if (!initialized) {
-//                motor.setPower(0.8);
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
                 initialized = true;
             }

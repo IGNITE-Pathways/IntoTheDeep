@@ -78,6 +78,10 @@ Additionally, when you run AngularRampLogger,
 you can ignore the odometry position graphs and only use the trackWidthTicks one.
 
 Once you have completed the official docs for tuning, you should be good to go to use Roadrunner as normal!
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 
 The readme.md file located in the [/TeamCode/src/main/java/org/firstinspires/ftc/teamcode](TeamCode/src/main/java/org/firstinspires/ftc/teamcode) folder contains an explanation of the sample naming convention, and instructions on how to copy them to your own project space.
 
