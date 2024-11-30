@@ -52,6 +52,7 @@ public class DriveTest extends LinearOpMode {
     boolean rolling = false;
     private DigitalChannel redLED;
     private DigitalChannel greenLED;
+    private double robotSpeed = 1.0;
 
 
     private enum State {
@@ -111,6 +112,7 @@ public class DriveTest extends LinearOpMode {
         double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
         double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
         double clawPosition = XBot.CLAW_OPEN;  // position for claw opening
+
 
 //        int viperPosition = 0;
 
@@ -174,10 +176,10 @@ public class DriveTest extends LinearOpMode {
 
 
             // Send calculated power to wheels
-            leftFrontDrive.setPower(leftFrontPower);
-            rightFrontDrive.setPower(rightFrontPower);
-            leftBackDrive.setPower(leftBackPower);
-            rightBackDrive.setPower(rightBackPower);
+            leftFrontDrive.setPower(leftFrontPower * robotSpeed);
+            rightFrontDrive.setPower(rightFrontPower * robotSpeed);
+            leftBackDrive.setPower(leftBackPower * robotSpeed);
+            rightBackDrive.setPower(rightBackPower * robotSpeed);
 
 // intaking sample
 
@@ -251,15 +253,18 @@ public class DriveTest extends LinearOpMode {
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2.0, 1000);
                 clawPosition = XBot.CLAW_FULLY_OPEN;
                 claw.setPosition(clawPosition);
+                robotSpeed = 0.8;
             } else if (gamepad2.dpad_down) {//high chamber dpad down
                 if (state == State.SPECIMEN) {
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
                 } else if (state == State.SAMPLE) {
-                    elbowPosition = XBot.ELBOW_VERTICAL - 0.5;
+                    elbowPosition = XBot.ELBOW_VERTICAL - 0.1;
                 }
+                robotSpeed = 1.0;
             } else if (gamepad2.x) { //square on sony controller,   pick specimen off wall
                 state = State.SPECIMEN;
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_PICK_SPECIMEN, 1000);
+                robotSpeed = 1.0;
             } else if (gamepad2.y) { //triangle on sony controller
                 if (state == State.SPECIMEN) {
                     dropSpecimen();
@@ -270,12 +275,14 @@ public class DriveTest extends LinearOpMode {
                     claw.setPosition(clawPosition);
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
                 }
+                robotSpeed = 1.0;
             } else if (gamepad2.dpad_right) { //return viper home
                 state = State.SPECIMEN;
                 clawPosition = XBot.CLAW_CLOSE;
                 claw.setPosition(clawPosition);
                 sleep(200);
                 viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
+                robotSpeed = 1.0;
             }
 
             //Set the color based on state
