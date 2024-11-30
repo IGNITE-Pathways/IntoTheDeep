@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.hardware.rev.RevBlinkinLedDriver;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.LED;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 
 /*
@@ -223,9 +219,9 @@ public class DriveTest extends LinearOpMode {
             if ((gamepad2.right_trigger < 0.5) && (gamepad2.left_trigger < 0.5)) { // both of them aren't touched
                 rollerPosition = XBot.ROLLER_STOP;
             } else if (gamepad2.right_trigger > 0.5) {
-                rollerPosition = XBot.ROLLER_BACKWARD;
+                rollerPosition = XBot.ROLLER_GRAB_SAMPLE;
             } else if (gamepad2.left_trigger > 0.5) {
-                rollerPosition = XBot.ROLLER_FORWARD;
+                rollerPosition = XBot.ROLLER_DUMP_SAMPLE;
             }
 
             //

@@ -15,8 +15,8 @@ public class XBot {
     static final double     CLAW_OPEN = 0.78; // Position when we pick Specimen or open claw to drop
     static final double     CLAW_FULLY_OPEN = 1.0; // Maximum open position - may be used when dropping Sample to bucket
 
-    static final double     ROLLER_FORWARD = 1.0; // Roller spinning forward - picking sample
-    static final double     ROLLER_BACKWARD = 0.0; // Roller Spinning backward - releasing sample
+    static final double     ROLLER_DUMP_SAMPLE = 1.0; // Roller spinning forward - picking sample
+    static final double     ROLLER_GRAB_SAMPLE = 0.0; // Roller Spinning backward - releasing sample
     static final double     ROLLER_STOP = 0.5; // Roller Stopped Spinning
 
     static final double     SERVO_MIN = 0.0; // Minimum servo position
@@ -34,8 +34,8 @@ public class XBot {
     //All values in Inches
     static final double     VIPER_HOME = 0.0; // Viper zero position
     static final double     VIPER_PICK_SPECIMEN = 3.0; // Viper zero position 521
-    static final double     VIPER_DROP_SPECIMEN = 18.08; // Viper zero position 2064
-    static final double     DROPPED_SPECIMEN = VIPER_DROP_SPECIMEN - 2.7; // Viper position to specimen on bar
+    static final double     VIPER_DROP_SPECIMEN = 18.5; // Viper zero position 2064
+    static final double     DROPPED_SPECIMEN = VIPER_DROP_SPECIMEN - 3.5; // Viper position to specimen on bar
 
     static final double     VIPER_DROP_SAMPLE_LOWER_BUCKET = 19.5; // Viper zero position 2223
     static final double     VIPER_DROP_SAMPLE_HIGHER_BUCKET = 37.3; // Higher Bucket, also max position 4138

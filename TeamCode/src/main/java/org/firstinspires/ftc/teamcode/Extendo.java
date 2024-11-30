@@ -4,7 +4,6 @@ import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -21,24 +20,25 @@ public class Extendo {
 
     public void initialize() {
         extendo.setPosition(XBot.EXTENDO_MIN);
-        elbow.setPosition(XBot.ELBOW_VERTICAL);
+        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.05);
     }
 
     public Action extend() {
         return new Action () {
             private boolean initialized = false;
 
+            //Run called repeatedly unless return false
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 if (!initialized) {
-                    roller.setPosition(XBot.ROLLER_FORWARD);
+                    roller.setPosition(XBot.ROLLER_GRAB_SAMPLE);
                     elbow.setPosition(XBot.ELBOW_MAX);
                     extendo.setPosition(XBot.EXTENDO_MAX);
                     initialized = true;
                 }
                 double pos = extendo.getPosition();
                 packet.put("extendo position", pos);
-                return false;
+                return Math.abs(pos - XBot.EXTENDO_MAX) > 0.1;
             }
         };
     }
@@ -55,9 +55,9 @@ public class Extendo {
                     extendo.setPosition(XBot.EXTENDO_MIN);
                     initialized = true;
                 }
-                double pos = extendo.getPosition();
+                double pos = elbow.getPosition();
                 packet.put("extendo position", pos);
-                return false;
+                return Math.abs(pos - XBot.ELBOW_VERTICAL) > 0.05;
             }
         };
     }
@@ -76,7 +76,7 @@ public class Extendo {
                 }
                 double pos = elbow.getPosition();
                 packet.put("Elbow position", pos);
-                return false;
+                return Math.abs(pos - XBot.ELBOW_MIN) > 0.02;
             }
         };
     }

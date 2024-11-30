@@ -61,9 +61,27 @@ public class Viper {
 
                     double pos = viper.getCurrentPosition();
                     packet.put("viper position", pos);
-                    return Math.abs(pos - XBot.VIPER_DROP_SPECIMEN) < 2;
+                    return Math.abs(pos - XBot.VIPER_DROP_SPECIMEN) < 1;
                 }
             };
+    }
+
+    public Action testAction() {
+        return new Action() {
+            private int count = 0;
+
+            @Override
+            public boolean run(TelemetryPacket packet) {
+                count++;
+                System.out.println("Run call #" + count);
+                packet.put("Run call #: ", count);
+                boolean isComplete = (count > 10); // Mark action as complete after 10 iterations
+                System.out.println("Returning: " + isComplete);
+                packet.put("Returning: ", isComplete);
+                System.out.flush();
+                return isComplete;
+            }
+        };
     }
 
 //    public Action dropSpecimen() {
