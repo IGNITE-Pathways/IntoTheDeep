@@ -62,20 +62,14 @@ public class AutoRun extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        // Wait for the game to start (driver presses START)
-        double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
-        double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
-        double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
-        double clawPosition = XBot.CLAW_OPEN;  // position for claw opening
-
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Extendo Position", extendoPosition);
-        telemetry.addData("Elbow position", elbowPosition);
         telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
         telemetry.update();
         // change LED mode from input to output
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+
+        initializeSystems();
 
         Pose2d beginPose = new Pose2d(0, 0, 0);
         PinpointDrive drive = new PinpointDrive(hardwareMap, new Pose2d(12.5, 63, Math.toRadians(-90)));
@@ -88,6 +82,9 @@ public class AutoRun extends LinearOpMode {
                 // drops preloaded specimen on the chamber
                 .afterDisp(10, () -> {
                     // Move viperSlide to a specific height
+                    getReadyToDropSpecimen();
+                })
+                .afterTime(1000, () -> {
                     dropSpecimen();
                 })
                 //go to pick next yellow sample
@@ -121,6 +118,16 @@ public class AutoRun extends LinearOpMode {
 
             // Show the elapsed game time and wheel power.
             telemetry.update();
+    }
+
+    private void initializeSystems() {
+        extendo.setPosition(XBot.EXTENDO_MIN);
+        elbow.setPosition(XBot.ELBOW_VERTICAL);
+        claw.setPosition(XBot.CLAW_CLOSE);
+    }
+
+    private void getReadyToDropSpecimen() {
+        viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SPECIMEN, 1000);
     }
 
     private void dropSpecimen() {
