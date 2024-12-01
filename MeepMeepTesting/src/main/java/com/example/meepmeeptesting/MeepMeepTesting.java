@@ -91,7 +91,7 @@ public class MeepMeepTesting {
 
 
         // defining the actions of the bot, blue left, THIS IS THE OLD ONE
-        Action blueLeftActionOLDGAMESTRATEGYUPDATED = blueLeft.getDrive().actionBuilder(new Pose2d(-13, 63, Math.toRadians(90)))
+        Action blueLeftActionOLDGAMESTRATEGYUPDATED = blueLeft.getDrive().actionBuilder(new Pose2d(-13, 63, Math.toRadians(-90)))
 
                 // *FIRST SPECIMEN*
 
