@@ -270,6 +270,8 @@ public class DriveTest extends LinearOpMode {
                 } else if (state == State.SAMPLE) {
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET, 1000);
                     sleep(1000);
+
+                    moveForward(0.5, 300);
                     clawPosition = XBot.CLAW_CLOSE;
                     claw.setPosition(clawPosition);
                     viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
