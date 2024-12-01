@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "AutoRun", group = "Linear OpMode")
+@Autonomous(name = "Auto Blue Obs Zone", group = "Linear OpMode")
 public class AutonomousBlueObservationZone extends LinearOpMode {
 
     boolean rolling = false;

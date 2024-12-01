@@ -13,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "AutoRun", group = "Linear OpMode")
+@Autonomous(name = "Auto Blue Basket", group = "Linear OpMode")
 public class AutonomousBlueBasket extends LinearOpMode {
 
     boolean rolling = false;

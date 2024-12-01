@@ -53,7 +53,11 @@ public class DriveTest extends LinearOpMode {
     private DigitalChannel redLED;
     private DigitalChannel greenLED;
     private double robotSpeed = 1.0;
-
+    // Wait for the game to start (driver presses START)
+    double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
+    double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
+    double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
+    double clawPosition = XBot.CLAW_CLOSE;  // position for claw opening
 
     private enum State {
         SAMPLE,
@@ -107,13 +111,8 @@ public class DriveTest extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        // Wait for the game to start (driver presses START)
-        double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
-        double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
-        double rollerPosition = XBot.ROLLER_STOP;  // Midpoint for roller
-        double clawPosition = XBot.CLAW_OPEN;  // position for claw opening
 
-
+        initializeSystems();
 //        int viperPosition = 0;
 
         telemetry.addData("Status", "Initialized");
@@ -318,6 +317,27 @@ public class DriveTest extends LinearOpMode {
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
         }
+    }
+
+    private void initializeSystems() {
+        claw.setPosition(clawPosition);
+        extendo.setPosition(extendoPosition);
+        elbow.setPosition(elbowPosition);
+        //Viper Slide - Magnetic Switch
+    }
+
+    private void moveForward(double speed, int milliSeconds) {
+        leftFrontDrive.setPower(speed);
+        rightFrontDrive.setPower(speed);
+        leftBackDrive.setPower(speed);
+        rightBackDrive.setPower(speed);
+
+        sleep(milliSeconds);
+
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
     }
 
     private boolean isViperPositionClose(double viperPosition) {
