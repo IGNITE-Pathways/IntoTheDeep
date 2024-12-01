@@ -355,7 +355,7 @@ public class MeepMeepTesting {
                 .strafeTo(new Vector2d(21.5,35)) // moves in the direction of the sample and extendo extends
                 .waitSeconds(1) // extendo takes in the sample
                 .strafeTo(new Vector2d(27,43))
-                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
+                .splineToLinearHeading(new Pose2d(52, 49, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
                 //Pick next one
                 .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(160)), Math.toRadians(-90)) // robot aligns itself to get the second sample

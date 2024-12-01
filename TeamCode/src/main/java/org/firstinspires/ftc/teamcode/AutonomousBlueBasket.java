@@ -59,11 +59,15 @@ public class AutonomousBlueBasket extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+
         Action moveToDropSpecimenLocation = drive.actionBuilder(new Pose2d(8, 63, Math.toRadians(-90)))
                 .lineToYConstantHeading(34).build();
 
+
         //Move to drop specimen while rising
-        SequentialAction raiseViperWhenMovingToDropSpecimen = new SequentialAction(viper.getReadyToDropSpecimen(), moveToDropSpecimenLocation);
+        SequentialAction raiseViperWhenMovingToDropSpecimen = new SequentialAction(
+                viper.getReadyToDropSpecimen(),
+                moveToDropSpecimenLocation);
 
         // drops preloaded specimen on the chamber
         SequentialAction dropSpecimenSequence = new SequentialAction(
@@ -76,7 +80,7 @@ public class AutonomousBlueBasket extends LinearOpMode {
         Action moveToPickSample =
                 drive.actionBuilder(new Pose2d(8, 34, Math.toRadians(-90)))
                 //go to pick next yellow sample
-                .splineToLinearHeading(new Pose2d(8, 40, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                .splineToLinearHeading(new Pose2d(8, 40, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
                 .strafeTo(new Vector2d(22, 35)) // moves in the direction of the sample and extendo extends
                 .build();
 
@@ -94,7 +98,7 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
         SequentialAction intakeSequence = new SequentialAction(extendo.extend(),
-                drive.actionBuilder(new Pose2d(22, 35, Math.toRadians(165))) // moves away from the submersible
+                drive.actionBuilder(new Pose2d(22, 35, Math.toRadians(170))) // moves away from the submersible
                         .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
                         .waitSeconds(2)
                         .build(),
@@ -103,13 +107,17 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         //Spline to drop Sample to bucket
         Action driveTowardsBucket =
-                drive.actionBuilder(new Pose2d(23, 33, Math.toRadians(165)))
-                        .splineTo(new Vector2d(50, 49), Math.toRadians(45))
+                drive.actionBuilder(new Pose2d(23, 33, Math.toRadians(170)))
+                        .strafeTo(new Vector2d(23,35))
+                        .splineTo(new Vector2d(52, 48), Math.toRadians(20))
                         .build();
+
 
         SequentialAction takeInSampleThenDriveTowardsBucket = new SequentialAction(
                 intakeSequence,
                 driveTowardsBucket);
+
+
 
         //Move viper up while positioning
         SequentialAction dropSample = new SequentialAction(
@@ -118,12 +126,23 @@ public class AutonomousBlueBasket extends LinearOpMode {
                 new SleepAction(0.5),
                 viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2));
 
+        Action goaLittleBackCuzTheCLAWWILLHITTHEBASKET =
+                drive.actionBuilder(new Pose2d(50, 48, Math.toRadians(45)))
+                        .strafeTo(new Vector2d(46, 45))
+                        .build();
+
         //Drop sample to high basket
-        SequentialAction dropSampleSequence = new SequentialAction(dropSample,
-                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), new SleepAction(1),
-                //@todo: Move Back
-                viper.driveToPositionInInches(XBot.VIPER_HOME)
+        SequentialAction dropSampleSequence = new SequentialAction(
+                dropSample,
+                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET),
+                new SleepAction(1),
+                goaLittleBackCuzTheCLAWWILLHITTHEBASKET,
+                viper.driveToPositionInInches(XBot.VIPER_HOME),
+                new SleepAction(1)
         );
+
+
+
 
         Actions.runBlocking(dropSampleSequence);
 
