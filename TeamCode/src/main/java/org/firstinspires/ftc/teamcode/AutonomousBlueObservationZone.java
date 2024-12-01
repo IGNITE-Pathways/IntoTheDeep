@@ -49,7 +49,7 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
 
-        Pose2d beginPose = new Pose2d(8, 63, Math.toRadians(-90));
+        Pose2d beginPose = new Pose2d(-8, 63, Math.toRadians(-90));
         PinpointDrive drive = new PinpointDrive(hardwareMap, beginPose);
         Viper viper = new Viper(hardwareMap);
         Extendo extendo = new Extendo(hardwareMap);
@@ -61,7 +61,8 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
 
         Action moveToDropSpecimenLocation = drive.actionBuilder(
                 new Pose2d(-8, 63, Math.toRadians(-90)))
-                .lineToYConstantHeading(34).build();
+                .strafeTo(new Vector2d(-2, 33.5))
+                .build();
 
         //Move to drop specimen while rising
         SequentialAction raiseViperWhenMovingToDropSpecimen = new SequentialAction(
@@ -87,24 +88,18 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.VIPER_HOME),
                 moveToThePositionOfFIRSTSample);
 
+        Actions.runBlocking(moveViperDownWhenMovingToTheFIRSTSample);
+
         Action pushTheSampleIntoTheObservationZone =
                 drive.actionBuilder(new Pose2d(-46, 16, Math.toRadians(360)))
                         .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
                         .build();
 
-
-
         SequentialAction SequenceOfActions = new SequentialAction(
                 dropSpecimenSequence,
                 moveViperDownWhenMovingToTheFIRSTSample,
                 pushTheSampleIntoTheObservationZone
-                )
-
-        ;
-
-
-
-        Actions.runBlocking(SequenceOfActions);
+                );
 
         telemetry.addData("Time Used", runtime.seconds());
 

@@ -81,7 +81,7 @@ public class AutonomousBlueBasket extends LinearOpMode {
                 drive.actionBuilder(new Pose2d(8, 34, Math.toRadians(-90)))
                 //go to pick next yellow sample
                 .splineToLinearHeading(new Pose2d(8, 40, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                .strafeTo(new Vector2d(22, 35)) // moves in the direction of the sample and extendo extends
+                .strafeTo(new Vector2d(21, 36)) // moves in the direction of the sample and extendo extends
                 .build();
 
         //Move the viper slide down while moving to the position to pick next sample
@@ -98,26 +98,24 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
         SequentialAction intakeSequence = new SequentialAction(extendo.extend(),
-                drive.actionBuilder(new Pose2d(22, 35, Math.toRadians(170))) // moves away from the submersible
-                        .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
-                        .waitSeconds(2)
-                        .build(),
+//                drive.actionBuilder(new Pose2d(21, 36, Math.toRadians(170))) // moves away from the submersible
+//                        .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
+//                        .waitSeconds(2)
+//                        .build(),
+                        new SleepAction(2),
                         extendo.elbowMin()
                 );
 
         //Spline to drop Sample to bucket
         Action driveTowardsBucket =
                 drive.actionBuilder(new Pose2d(23, 33, Math.toRadians(170)))
-                        .strafeTo(new Vector2d(23,35))
-                        .splineTo(new Vector2d(52, 48), Math.toRadians(20))
+//                        .strafeTo(new Vector2d(23,35))
+                        .splineTo(new Vector2d(52, 48), Math.toRadians(45))
                         .build();
-
 
         SequentialAction takeInSampleThenDriveTowardsBucket = new SequentialAction(
                 intakeSequence,
                 driveTowardsBucket);
-
-
 
         //Move viper up while positioning
         SequentialAction dropSample = new SequentialAction(
@@ -141,10 +139,8 @@ public class AutonomousBlueBasket extends LinearOpMode {
                 new SleepAction(1)
         );
 
+        Actions.runBlocking(dropSampleSequence); //TAG1
 
-
-
-        Actions.runBlocking(dropSampleSequence);
 
         SequentialAction gotoSecondSample = new SequentialAction(
                 drive.actionBuilder(new Pose2d(50, 49, Math.toRadians(45)))
