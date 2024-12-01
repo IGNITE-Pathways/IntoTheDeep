@@ -166,7 +166,7 @@ public class MeepMeepTesting {
 
                 .lineToY(60) // moves a little down for a clean spline to hook the second specimen
                 .splineToLinearHeading(new Pose2d(-4, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook second specimen
-                .waitSeconds(2)// drops specimen on the chamber
+                .waitSeconds(1.5)// drops specimen on the chamber
 
 
                 .splineToLinearHeading(new Pose2d(-55, 16, Math.toRadians(360)), Math.toRadians(180)) // splines to 2nd sample
@@ -182,7 +182,7 @@ public class MeepMeepTesting {
                 .strafeTo(new Vector2d(-50,48))
                 .splineToLinearHeading(new Pose2d(-6, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook third specimen
                 //drops specimen on chamber
-                .waitSeconds(2)// drops specimen on the chamber
+                .waitSeconds(1.5)// drops specimen on the chamber
 
                 // *PARKING*
 
@@ -190,7 +190,7 @@ public class MeepMeepTesting {
                 .strafeTo(new Vector2d(-34,64))
                 .lineToY(60) // moves a little down for a clean spline to hook the second specimen
                 .splineToLinearHeading(new Pose2d(-8, 32, Math.toRadians(90)), Math.toRadians(315)) // splines to chamber to hook second specimen
-                .waitSeconds(2)// drops specimen on the chamber
+                .waitSeconds(1.5)// drops specimen on the chamber
 
                 .strafeTo(new Vector2d(-44,62))
 
@@ -210,7 +210,7 @@ public class MeepMeepTesting {
                 .waitSeconds(0.3) // closes the claw, grabs the specimen, and viper slides start to move up to take the specimen away from the wall
                 .splineToLinearHeading(new Pose2d(-4, 35, Math.toRadians(90)), Math.toRadians(360)) // splines and approaches the chamber to hook second specimen
                 .strafeTo(new Vector2d(-4, 32)) // goes a little forward and hooks the specimen
-                .waitSeconds(2) // hooks the specimen on the chamber
+                .waitSeconds(1.5) // hooks the specimen on the chamber
 //                .strafeTo(new Vector2d(-29,35)) // moves away from the chamber and to the left
 //                .splineToLinearHeading(new Pose2d(-62.5,16, Math.toRadians(360)), Math.toRadians(180)) // splines to third sample
 //                .strafeTo(new Vector2d(-62,52.8)) // pushes third sample to the observation zone
@@ -229,7 +229,7 @@ public class MeepMeepTesting {
                 .waitSeconds(0.3) // closes the claw, grabs the specimen, and viper slides start to move up to take the specimen away from the wall
                 .splineToLinearHeading(new Pose2d(-4, 35, Math.toRadians(90)), Math.toRadians(360)) // splines and approaches the chamber to hook second specimen
                 .strafeTo(new Vector2d(-4, 32)) // goes a little forward and hooks the specimen on the chamber
-                .waitSeconds(2) // hooks the specimen on the chamber
+                .waitSeconds(1.5) // hooks the specimen on the chamber
 //                .strafeTo(new Vector2d(-29,35)) // moves away from the chamber and to the left
 //                .splineToLinearHeading(new Pose2d(-60.5,57, Math.toRadians(360)), Math.toRadians(120)) // splines to get fourth specimen
 //                .waitSeconds(0.1) // opens claw to get the specimen
@@ -348,34 +348,35 @@ public class MeepMeepTesting {
                 .build();
 
         // defining the action of our next bot, blue right
-        Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(13, 63, Math.toRadians(90)))
-                .strafeTo(new Vector2d(12.5,32.5)) // drives to the chamber
+        Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(8, 63, Math.toRadians(90)))
+                .strafeTo(new Vector2d(8,34)) // drives to the chamber
                 .waitSeconds(1)// drops preloaded specimen on the chamber
-                .splineToLinearHeading(new Pose2d(12.5, 37, Math.toRadians(345)), Math.toRadians(90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                .strafeTo(new Vector2d(26,32)) // moves in the direction of the sample and extendo extends
+                .splineToLinearHeading(new Pose2d(8, 39, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                .strafeTo(new Vector2d(21.5,35)) // moves in the direction of the sample and extendo extends
                 .waitSeconds(1) // extendo takes in the sample
-                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(-135)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
+                .strafeTo(new Vector2d(27,43))
+                .splineToLinearHeading(new Pose2d(55, 56, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
                 //Pick next one
-                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
+                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(160)), Math.toRadians(-90)) // robot aligns itself to get the second sample
                 .waitSeconds(2) // extendo extends and takes in the second sample
                 //drop again
-                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
+                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop second sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
                 //Pick again
-                .splineToLinearHeading(new Pose2d(50, 40, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
-                .waitSeconds(2) // extendo extends and takes in the second sample
+                .splineToLinearHeading(new Pose2d(50, 35, Math.toRadians(170)), Math.toRadians(-90)) // robot aligns itself to get the third sample
+                .waitSeconds(2) // extendo and takes in the third sample
                 //drop again
-                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
+                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop third sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .strafeTo(new Vector2d(50, 38)) // splines goes drop first sample in the high basket!
-                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(0)), Math.toRadians(90)) // splines to rung for level 1 ascent (3 points)
+                .splineToLinearHeading(new Pose2d(45, 13, Math.toRadians(0)), Math.toRadians(270)) // splines down to get ready to park
+                .strafeTo(new Vector2d(25,13))  // splines to rung for level 1 ascent (3 points)
                 .build();
 
         redRight.runAction(redRightAction);
         redLeft.runAction(redLeftAction);
    //     blueLeft.runAction(blueLeftAction);
-        blueLeft.runAction(blueLEFTACTIONOLD2);
+        blueLeft.runAction(blueLeftActionOLDGAMESTRATEGYUPDATED);
         blueRight.runAction(blueRightAction);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
