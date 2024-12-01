@@ -94,7 +94,6 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
         SequentialAction intakeSequence = new SequentialAction(extendo.extend(),
-
                 drive.actionBuilder(new Pose2d(22, 35, Math.toRadians(165))) // moves away from the submersible
                         .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
                         .waitSeconds(2)
@@ -121,14 +120,19 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         //Drop sample to high basket
         SequentialAction dropSampleSequence = new SequentialAction(dropSample,
-                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), new SleepAction(1)
+                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), new SleepAction(1),
+                //@todo: Move Back
+                viper.driveToPositionInInches(XBot.VIPER_HOME)
         );
 
-        SequentialAction gotoSecondSample = new SequentialAction(viper.driveToPositionInInches(XBot.VIPER_HOME),
+        Actions.runBlocking(dropSampleSequence);
+
+        SequentialAction gotoSecondSample = new SequentialAction(
                 drive.actionBuilder(new Pose2d(50, 49, Math.toRadians(45)))
                         .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90))
                         .build()
         );
+
 
 //        SequentialAction gotoThirdSample = new SequentialAction(viper.driveToPositionInInches(XBot.VIPER_HOME),
 //                drive.actionBuilder(new Pose2d(38, 38, Math.toRadians(170)))
@@ -136,12 +140,12 @@ public class AutonomousBlueBasket extends LinearOpMode {
 //                        .build()
 //        );
 
-        SequentialAction dropTheFirstSampleThenMoveToSecondSampleAndRepeat = new SequentialAction(dropSample,
+        SequentialAction dropTheFirstSampleThenMoveToSecondSampleAndRepeat = new SequentialAction(
                 gotoSecondSample,
                 takeInSampleThenDriveTowardsBucket);
 
 
-        Actions.runBlocking(dropTheFirstSampleThenMoveToSecondSampleAndRepeat);
+//        Actions.runBlocking(dropTheFirstSampleThenMoveToSecondSampleAndRepeat);
         telemetry.addData("Time Used", runtime.seconds());
 
 //                //Pick next one
