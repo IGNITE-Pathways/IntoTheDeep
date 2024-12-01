@@ -95,7 +95,7 @@ public class MeepMeepTesting {
 
                 // *FIRST SPECIMEN*
 
-                .strafeTo(new Vector2d(-2,32)) // drives to the chamber
+                .strafeTo(new Vector2d(-2,34)) // drives to the chamber
                 .waitSeconds(2)// drops preloaded first specimen on the chamber
 
                 // *SECOND SPECIMEN*
@@ -348,7 +348,7 @@ public class MeepMeepTesting {
                 .build();
 
         // defining the action of our next bot, blue right
-        Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(8, 63, Math.toRadians(90)))
+        Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(8, 63, Math.toRadians(-90)))
                 .strafeTo(new Vector2d(8,34)) // drives to the chamber
                 .waitSeconds(1)// drops preloaded specimen on the chamber
                 .splineToLinearHeading(new Pose2d(8, 39, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
@@ -387,7 +387,7 @@ public class MeepMeepTesting {
         //        .addEntity(redRight)  // opens the first bot in the meep meep visualizer
           //      .addEntity(redLeft) // opens the second bot in the meep meep visualizer
                    .addEntity(blueLeft)
-                .addEntity(blueRight)
+          //      .addEntity(blueRight)
                 .start();
 
     }
