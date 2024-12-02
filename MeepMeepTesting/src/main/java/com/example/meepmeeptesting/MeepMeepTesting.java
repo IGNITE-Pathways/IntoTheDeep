@@ -94,7 +94,7 @@ public class MeepMeepTesting {
 
                 // *FIRST SPECIMEN*
 
-                .strafeTo(new Vector2d(-2,35)) // drives to the chamber
+                .strafeTo(new Vector2d(-2,36)) // drives to the chamber
                 .waitSeconds(2)// drops preloaded first specimen on the chamber
 
                 // *SECOND SPECIMEN*
@@ -108,7 +108,7 @@ public class MeepMeepTesting {
 //                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
                 .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .setReversed(false)
-                .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
+                .strafeTo(new Vector2d(-55, 53)) // pushes 2nd sample into the observation zone
 
                 .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW
                 //           .splineToConstantHeading(new Vector2d(-34,60), Math.toRadians(90)) // splines to the edge of observation zone to get specimen made by human player
@@ -116,7 +116,7 @@ public class MeepMeepTesting {
                 //    .lineToY(63) // moves forward
                 .waitSeconds(0.3)  // hooks the specimen in the claw and moves viper slides up
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-4, 32, Math.toRadians(-90)), Math.toRadians(270)) // splines to chamber to hook second specimen
+                .splineToLinearHeading(new Pose2d(-12, 32, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
                 .waitSeconds(2)// drops second specimen on the chamber
 
                 // *THIRD SPECIMEN*

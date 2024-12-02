@@ -76,7 +76,7 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
                 viper.openClaw());
 
         Action moveToThePositionOfFIRSTSample =
-                drive.actionBuilder(new Pose2d(-8, 36, Math.toRadians(-90)))
+                drive.actionBuilder(new Pose2d(-2, 36, Math.toRadians(-90)))
                         .strafeToConstantHeading(new Vector2d(-33, 40)) // drives to the left
                         .strafeToConstantHeading((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
                         .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90))
@@ -104,12 +104,12 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
         Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(-46, 52, Math.toRadians(180)))
 //                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
                 .setReversed(true)
-                .splineToConstantHeading(new Vector2d(-57, 10), Math.toRadians(180))  // goes to second sample
+                .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .setReversed(false)
                 .strafeTo(new Vector2d(-55, 53)) // pushes 2nd sample into the observation zone
                 .build();
 
-        Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(-55, 52, Math.toRadians(180)))
+        Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(-55, 53, Math.toRadians(180)))
                 .strafeTo(new Vector2d(-62.5, 57))
                 .build();
 
