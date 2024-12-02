@@ -102,7 +102,6 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
         telemetry.addData("Time Used", runtime.seconds());
 
         Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(-46, 52, Math.toRadians(180)))
-//                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
                 .setReversed(true)
                 .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .setReversed(false)
@@ -118,7 +117,8 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
                 pickSecondSpecimen,
                 viper.closeClaw(),
                 new SleepAction(.2),
-                viper.getReadyToDropSpecimen());
+                viper.getReadyToDropSpecimen(),
+                new SleepAction(.2));
 
         Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(-62.5, 57, Math.toRadians(180)))
                 .setReversed(true)
@@ -132,7 +132,8 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
         Action parkAction = drive.actionBuilder(new Pose2d(-12, 32, Math.toRadians(-90)))
                                 .strafeTo(new Vector2d(-44,62)).build();
 
-        Actions.runBlocking(parkAction);
+        Actions.runBlocking(new SequentialAction(parkAction, extendo.elbowVertical(),
+                viper.driveToPositionInInches(XBot.VIPER_HOME)));
         // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
 
