@@ -83,9 +83,8 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity blueLeft = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be blue
                 .setColorScheme(new ColorSchemeBlueLight())
-                .setConstraints(70, 70, Math.toRadians(180), Math.toRadians(180), 20)
+                .setConstraints(100, 70, Math.toRadians(180), Math.toRadians(180), 16)
                 .setDimensions(14, 16)
-
                 .build();
 
 
@@ -95,20 +94,24 @@ public class MeepMeepTesting {
 
                 // *FIRST SPECIMEN*
 
-                .strafeTo(new Vector2d(-2,33.5)) // drives to the chamber
+                .strafeTo(new Vector2d(-2,35)) // drives to the chamber
                 .waitSeconds(2)// drops preloaded first specimen on the chamber
 
                 // *SECOND SPECIMEN*
 
-                .strafeTo(new Vector2d(-31, 34)) // drives to the left
-                .strafeTo((new Vector2d(-33, 28))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
-                .splineToLinearHeading(new Pose2d(-46, 16, Math.toRadians(360)), Math.toRadians(120)) // splines to the first sample
+                .strafeToConstantHeading(new Vector2d(-33, 40)) // drives to the left
+                .strafeToConstantHeading((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
+                .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90))
                 .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
+
                 .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
                 .splineToConstantHeading(new Vector2d(-55, 16), Math.toRadians(180))  // goes to second sample
                 .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
-                .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW
 
+
+
+
+                .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW
                 //           .splineToConstantHeading(new Vector2d(-34,60), Math.toRadians(90)) // splines to the edge of observation zone to get specimen made by human player
                 //           .waitSeconds(0.3) // waits a little to open the claw
                 //    .lineToY(63) // moves forward

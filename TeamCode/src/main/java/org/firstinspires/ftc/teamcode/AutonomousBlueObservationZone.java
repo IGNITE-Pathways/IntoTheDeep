@@ -61,7 +61,7 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
 
         Action moveToDropSpecimenLocation = drive.actionBuilder(
                 new Pose2d(-8, 63, Math.toRadians(-90)))
-                .strafeTo(new Vector2d(-2, 33.5))
+                .strafeTo(new Vector2d(-2, 36))
                 .build();
 
         //Move to drop specimen while rising
@@ -76,32 +76,38 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
                 viper.openClaw());
 
         Action moveToThePositionOfFIRSTSample =
-                drive.actionBuilder(new Pose2d(8, 63, Math.toRadians(-90)))
-                //go to pick next yellow sample
-                        .strafeTo(new Vector2d(-31, 34)) // drives to the left
-                        .strafeTo((new Vector2d(-33, 28))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
-                        .splineToLinearHeading(new Pose2d(-46, 16, Math.toRadians(360)), Math.toRadians(120)) // splines to the first sample
-                .build();
+                drive.actionBuilder(new Pose2d(-8, 36, Math.toRadians(-90)))
+                        .strafeToConstantHeading(new Vector2d(-33, 40)) // drives to the left
+                        .strafeToConstantHeading((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
+                        .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90))
+                        .build();
 
         //Move the viper slide down while moving to the position to pick next sample
         SequentialAction moveViperDownWhenMovingToTheFIRSTSample = new SequentialAction(
                 viper.driveToPositionInInches(XBot.VIPER_HOME),
                 moveToThePositionOfFIRSTSample);
 
-        Actions.runBlocking(moveViperDownWhenMovingToTheFIRSTSample);
 
         Action pushTheSampleIntoTheObservationZone =
-                drive.actionBuilder(new Pose2d(-46, 16, Math.toRadians(360)))
+                drive.actionBuilder(new Pose2d(-46, 10, Math.toRadians(180)))
                         .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
                         .build();
 
         SequentialAction SequenceOfActions = new SequentialAction(
                 dropSpecimenSequence,
                 moveViperDownWhenMovingToTheFIRSTSample,
-                pushTheSampleIntoTheObservationZone
-                );
+                pushTheSampleIntoTheObservationZone);
 
+        Actions.runBlocking(SequenceOfActions);
         telemetry.addData("Time Used", runtime.seconds());
+
+        Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(-46, 52, Math.toRadians(180)))
+                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
+                .splineToConstantHeading(new Vector2d(-55, 16), Math.toRadians(180))  // goes to second sample
+                .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
+                .build();
+
+        Actions.runBlocking(pushSecondSampleToObsZone);
 
 //                //Pick next one
 //                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
