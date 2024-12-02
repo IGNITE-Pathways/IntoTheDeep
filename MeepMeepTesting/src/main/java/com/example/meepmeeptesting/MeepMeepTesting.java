@@ -105,41 +105,39 @@ public class MeepMeepTesting {
                 .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
 
                 .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
-                .splineToConstantHeading(new Vector2d(-55, 16), Math.toRadians(180))  // goes to second sample
+                .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
-
-
-
 
                 .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW
                 //           .splineToConstantHeading(new Vector2d(-34,60), Math.toRadians(90)) // splines to the edge of observation zone to get specimen made by human player
                 //           .waitSeconds(0.3) // waits a little to open the claw
                 //    .lineToY(63) // moves forward
                 .waitSeconds(0.3)  // hooks the specimen in the claw and moves viper slides up
-                .splineToLinearHeading(new Pose2d(-4, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook second specimen
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-4, 32, Math.toRadians(-90)), Math.toRadians(270)) // splines to chamber to hook second specimen
                 .waitSeconds(2)// drops second specimen on the chamber
 
                 // *THIRD SPECIMEN*
-
-                .strafeTo(new Vector2d(-32, 34)) // drives to the left
-                .splineToLinearHeading(new Pose2d(-64, 15, Math.toRadians(270)), Math.toRadians(180)) // splines to third sample
-                .strafeTo(new Vector2d(-64, 52)) // pushes it to the observation zone
-                .splineToConstantHeading(new Vector2d(-34, 60), Math.toRadians(90)) // splines to the edge of observation zone to get third specimen put by the human player
-                .waitSeconds(0.1) // waits a little to open the claw
-                .lineToY(63) // moves forward
-                .waitSeconds(0.5)  // hooks the specimen in the claw and moves viper slides up
-                .splineToLinearHeading(new Pose2d(-6, 31, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook third specimen
-                .waitSeconds(1)// puts third specimen on the chamber
-
-                // *FOURTH SPECIMEN*
-
-                .splineToLinearHeading(new Pose2d(-34, 60, Math.toRadians(270)), Math.toRadians(60)) // splines to the edge of observation zone to get fourth specimen made by human player
-                .waitSeconds(0.1) // waits a little to open the claw
-                .lineToY(63) // moves forward
-                .waitSeconds(0.5)  // hooks the fourth specimen in the claw and moves viper slides up
-                .lineToY(60) // moves a little down for a clean spline to hook fourth the specimen
-                .splineToLinearHeading(new Pose2d(-8, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook fourth specimen
-                .waitSeconds(2)// drops specimen on the chamber
+//
+//                .strafeTo(new Vector2d(-32, 34)) // drives to the left
+//                .splineToLinearHeading(new Pose2d(-64, 15, Math.toRadians(270)), Math.toRadians(180)) // splines to third sample
+//                .strafeTo(new Vector2d(-64, 52)) // pushes it to the observation zone
+//                .splineToConstantHeading(new Vector2d(-34, 60), Math.toRadians(90)) // splines to the edge of observation zone to get third specimen put by the human player
+//                .waitSeconds(0.1) // waits a little to open the claw
+//                .lineToY(63) // moves forward
+//                .waitSeconds(0.5)  // hooks the specimen in the claw and moves viper slides up
+//                .splineToLinearHeading(new Pose2d(-6, 31, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook third specimen
+//                .waitSeconds(1)// puts third specimen on the chamber
+//
+//                // *FOURTH SPECIMEN*
+//
+//                .splineToLinearHeading(new Pose2d(-34, 60, Math.toRadians(270)), Math.toRadians(60)) // splines to the edge of observation zone to get fourth specimen made by human player
+//                .waitSeconds(0.1) // waits a little to open the claw
+//                .lineToY(63) // moves forward
+//                .waitSeconds(0.5)  // hooks the fourth specimen in the claw and moves viper slides up
+//                .lineToY(60) // moves a little down for a clean spline to hook fourth the specimen
+//                .splineToLinearHeading(new Pose2d(-8, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook fourth specimen
+//                .waitSeconds(2)// drops specimen on the chamber
 
                 // *PARKING*
 

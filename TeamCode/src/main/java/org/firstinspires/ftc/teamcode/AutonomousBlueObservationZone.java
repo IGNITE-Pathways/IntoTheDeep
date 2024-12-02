@@ -103,32 +103,34 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
 
         Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(-46, 52, Math.toRadians(180)))
                 .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
-                .splineToConstantHeading(new Vector2d(-55, 16), Math.toRadians(180))  // goes to second sample
+                .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
                 .build();
 
-        Actions.runBlocking(pushSecondSampleToObsZone);
-
-//                //Pick next one
-//                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
-//                .waitSeconds(2) // extendo extends and takes in the second sample
-//                //drop again
-//                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
-//                .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-//                //Pick again
-//                .splineToLinearHeading(new Pose2d(50, 40, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
-//                .waitSeconds(2) // extendo extends and takes in the second sample
-//                //drop again
-//                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
-//                .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-
-        Action parkingAction = drive.actionBuilder(new Pose2d(55, 56, Math.toRadians(45)))
-                .strafeTo(new Vector2d(50, 38)) // splines goes drop first sample in the high basket!
-                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(0)), Math.toRadians(90)) // splines to rung for level 1 ascent (3 points)
+        Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(-55, 52, Math.toRadians(180)))
+                .strafeTo(new Vector2d(-62.5, 57))
                 .build();
 
-//        Actions.runBlocking(parkingAction);
+        SequentialAction pickAction = new SequentialAction(pushSecondSampleToObsZone,
+                viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
+                pickSecondSpecimen,
+                viper.closeClaw(),
+                new SleepAction(.2),
+                viper.getReadyToDropSpecimen());
 
+        Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(-62.5, 57, Math.toRadians(180)))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-4, 35, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
+                .build();
+
+        Actions.runBlocking(new SequentialAction(pickAction, moveToDropSecondSpecimen,
+                viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
+                viper.openClaw()));
+
+        Action parkAction = drive.actionBuilder(new Pose2d(-4, 35, Math.toRadians(-90)))
+                                .strafeTo(new Vector2d(-44,62)).build();
+
+        Actions.runBlocking(parkAction);
         // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
 

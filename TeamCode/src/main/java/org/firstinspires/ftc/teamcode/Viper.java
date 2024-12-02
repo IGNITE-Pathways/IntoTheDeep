@@ -108,6 +108,7 @@ public class Viper {
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(XBot.CLAW_OPEN);
                 return false;
+                //return Math.abs(claw.getPosition() - XBot.CLAW_OPEN) > 0.1;
             }
         };
     }
@@ -118,6 +119,7 @@ public class Viper {
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(XBot.CLAW_CLOSE);
                 return false;
+//                return Math.abs(claw.getPosition() - XBot.CLAW_CLOSE) > 0.1;
             }
         };
     }
