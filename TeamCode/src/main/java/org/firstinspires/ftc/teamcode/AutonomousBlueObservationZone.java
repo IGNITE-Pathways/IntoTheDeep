@@ -102,9 +102,11 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
         telemetry.addData("Time Used", runtime.seconds());
 
         Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(-46, 52, Math.toRadians(180)))
-                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
-                .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
-                .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
+//                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
+                .setReversed(true)
+                .splineToConstantHeading(new Vector2d(-57, 10), Math.toRadians(180))  // goes to second sample
+                .setReversed(false)
+                .strafeTo(new Vector2d(-55, 53)) // pushes 2nd sample into the observation zone
                 .build();
 
         Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(-55, 52, Math.toRadians(180)))
@@ -120,14 +122,14 @@ public class AutonomousBlueObservationZone extends LinearOpMode {
 
         Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(-62.5, 57, Math.toRadians(180)))
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-4, 35, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
+                .splineToLinearHeading(new Pose2d(-12, 32, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
                 .build();
 
         Actions.runBlocking(new SequentialAction(pickAction, moveToDropSecondSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
                 viper.openClaw()));
 
-        Action parkAction = drive.actionBuilder(new Pose2d(-4, 35, Math.toRadians(-90)))
+        Action parkAction = drive.actionBuilder(new Pose2d(-12, 32, Math.toRadians(-90)))
                                 .strafeTo(new Vector2d(-44,62)).build();
 
         Actions.runBlocking(parkAction);

@@ -103,9 +103,11 @@ public class MeepMeepTesting {
                 .strafeToConstantHeading((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
                 .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90))
                 .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
+                .setReversed(true)
 
-                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
+//                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
                 .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
+                .setReversed(false)
                 .strafeTo(new Vector2d(-55, 52)) // pushes 2nd sample into the observation zone
 
                 .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW

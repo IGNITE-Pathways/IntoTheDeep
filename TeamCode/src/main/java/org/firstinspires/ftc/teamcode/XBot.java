@@ -11,7 +11,7 @@ public class XBot {
     static final double     ELBOW_VERTICAL = 0.42; // Elbow up front - but dropped down to pick sample
 
 
-    static final double     CLAW_CLOSE = 0.5; // Close position, Specimen in hand
+    static final double     CLAW_CLOSE = 0.45; // Close position, Specimen in hand
     static final double     CLAW_OPEN = 0.78; // Position when we pick Specimen or open claw to drop
     static final double     CLAW_FULLY_OPEN = 1.0; // Maximum open position - may be used when dropping Sample to bucket
 
