@@ -77,7 +77,7 @@ public class MeepMeepTesting {
 
                 .strafeTo(new Vector2d(31, -40)) // drives to the right
                 .strafeTo((new Vector2d(35, -35))) // gets ready to do a nice spline, without hitting the truss holding up the submersible
-                .splineToLinearHeading(new Pose2d(46, -10, Math.toRadians(360)), Math.toRadians(270)) // splines to the first sample
+                .splineToLinearHeading(new Pose2d(46, -10, Math.toRadians(-90)), Math.toRadians(270)) // splines to the first sample
                 .strafeTo(new Vector2d(46, -52)) // pushes 1st sample into to the observation zone
                 .setReversed(true)
                 .splineToConstantHeading(new Vector2d(55, -10), Math.toRadians(360))  // goes to second sample

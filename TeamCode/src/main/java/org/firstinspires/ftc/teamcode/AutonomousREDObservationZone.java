@@ -16,9 +16,9 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 @Autonomous(name = "Auto RED Obs Zone", group = "Linear OpMode")
 public class AutonomousREDObservationZone extends LinearOpMode {
 
-    boolean rolling = false;
     // Declare OpMode members for each of the 4 motors.
     private final ElapsedTime runtime = new ElapsedTime();
+    boolean rolling = false;
     private DcMotor leftFrontDrive = null;
     private DcMotor leftBackDrive = null;
     private DcMotor rightFrontDrive = null;
@@ -49,7 +49,7 @@ public class AutonomousREDObservationZone extends LinearOpMode {
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
 
-        Pose2d beginPose = new Pose2d(8, -63, Math.toRadians(90));
+        Pose2d beginPose = new Pose2d(8, -62, Math.toRadians(90));
         PinpointDrive drive = new PinpointDrive(hardwareMap, beginPose);
         Viper viper = new Viper(hardwareMap);
         Extendo extendo = new Extendo(hardwareMap);
@@ -59,9 +59,8 @@ public class AutonomousREDObservationZone extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        Action moveToDropSpecimenLocation = drive.actionBuilder(
-                new Pose2d(8, -63, Math.toRadians(90)))
-                .strafeTo(new Vector2d(2,-36))
+        Action moveToDropSpecimenLocation = drive.actionBuilder(new Pose2d(8, -62, Math.toRadians(90)))
+                .strafeTo(new Vector2d(2, -36))
                 .build();
 
         //Move to drop specimen while rising
@@ -69,82 +68,74 @@ public class AutonomousREDObservationZone extends LinearOpMode {
                 viper.getReadyToDropSpecimen(),
                 moveToDropSpecimenLocation);
 
-
-//         drops preloaded specimen on the chamber
+        //drops preloaded specimen on the chamber
         SequentialAction dropSpecimenSequence = new SequentialAction(
                 raiseViperWhenMovingToDropSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
                 viper.openClaw());
 
-
         Action moveToThePositionOfFIRSTSample =
                 drive.actionBuilder(new Pose2d(2, -36, Math.toRadians(90)))
-                        .strafeTo(new Vector2d(31, -34)) // drives to the right
-                        .strafeTo((new Vector2d(33, -28))) // gets ready to do a nice spline, without hitting the truss holding up the submersible
-                        .splineToLinearHeading(new Pose2d(46, -20, Math.toRadians(360)), Math.toRadians(270)) // splines to the first sample
+                        .strafeTo(new Vector2d(33, -40)) // drives to the right
+                        .strafeTo((new Vector2d(35, -35))) // gets ready to do a nice spline, without hitting the truss holding up the submersible
+                        .splineToLinearHeading(new Pose2d(46, -10, Math.toRadians(-90)), Math.toRadians(270)) // splines to the first sample
                         .build();
 
-
-
-//        //Move the viper slide down while moving to the position to pick next sample
+        //Move the viper slide down while moving to the position to pick next sample
         SequentialAction moveViperDownWhenMovingToTheFIRSTSample = new SequentialAction(
                 dropSpecimenSequence,
                 viper.driveToPositionInInches(XBot.VIPER_HOME),
                 moveToThePositionOfFIRSTSample);
-//
-        Action pushTheSampleIntoTheObservationZone =
-                drive.actionBuilder(new Pose2d(46, -20, Math.toRadians(360)))
-                        .strafeTo(new Vector2d(46, -55)) // pushes first sample into observation zone
-                        .build();
 
+        Action pushTheSampleIntoTheObservationZone =
+                drive.actionBuilder(new Pose2d(46, -10, Math.toRadians(-90)))
+                        .strafeTo(new Vector2d(46, -60)) // pushes first sample into observation zone
+                        .build();
 
         SequentialAction SequenceOfActions = new SequentialAction(
                 dropSpecimenSequence,
                 moveViperDownWhenMovingToTheFIRSTSample,
                 pushTheSampleIntoTheObservationZone);
 
-        Actions.runBlocking(new SequentialAction(SequenceOfActions));
-
-
         Actions.runBlocking(SequenceOfActions);
         telemetry.addData("Time Used", runtime.seconds());
 
-        Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(46, -55, Math.toRadians(360)))
-                .setReversed(true)
-                .splineToConstantHeading(new Vector2d(55, -16), Math.toRadians(360))  // goes to second sample
-                .setReversed(false)
-                .strafeTo(new Vector2d(55, -55)) // pushes 2nd sample into the observation zone
-                .build();
-
-        Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(55, -55, Math.toRadians(360)))
-                .strafeTo(new Vector2d(62.5, -57)) // goes to hook specimen with the CLAW
-                .build();
-
-
-        Actions.runBlocking(pushSecondSampleToObsZone);
-
-//        SequentialAction pickAction = new SequentialAction(pushSecondSampleToObsZone,
-//                viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
-//                pickSecondSpecimen,
-//                viper.closeClaw(),
-//                new SleepAction(.2),
-//                viper.getReadyToDropSpecimen(),
-//                new SleepAction(.2));
-//
-//        Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(-62.5, 57, Math.toRadians(180)))
+//        Action pushSecondSampleToObsZone = drive.actionBuilder(new Pose2d(46, -55, Math.toRadians(360)))
 //                .setReversed(true)
-//                .splineToLinearHeading(new Pose2d(-12, 32, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
+//                .splineToConstantHeading(new Vector2d(55, -16), Math.toRadians(360))  // goes to second sample
+//                .setReversed(false)
+//                .strafeTo(new Vector2d(55, -55)) // pushes 2nd sample into the observation zone
 //                .build();
-//
-//        Actions.runBlocking(new SequentialAction(pickAction, moveToDropSecondSpecimen,
-//                viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
-//                viper.openClaw()));
-//
-//        Action parkAction = drive.actionBuilder(new Pose2d(-12, 32, Math.toRadians(-90)))
-//                                .strafeTo(new Vector2d(-44,62)).build();
-//
-//        Actions.runBlocking(new SequentialAction(parkAction, extendo.elbowVertical(),
-//                viper.driveToPositionInInches(XBot.VIPER_HOME)));
+
+//        Action pickSecondSpecimen = drive.actionBuilder(new Pose2d(46, -60, Math.toRadians(-90)))
+//                .strafeTo(new Vector2d(62.5, -57)) // goes to hook specimen with the CLAW
+//                .build();
+
+//        Actions.runBlocking(pushSecondSampleToObsZone);
+
+        SequentialAction pickAction = new SequentialAction(
+                viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
+                new SleepAction(.2),
+                viper.closeClaw(),
+                new SleepAction(.2),
+                viper.getReadyToDropSpecimen(),
+                new SleepAction(.2));
+
+        Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(46, -60, Math.toRadians(-90)))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(12, -32, Math.toRadians(90)), Math.toRadians(90)) // splines to chamber to hook second specimen
+                .build();
+
+        Actions.runBlocking(new SequentialAction(pickAction, moveToDropSecondSpecimen,
+                viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
+                viper.openClaw()));
+
+        Action parkAction = drive.actionBuilder(new Pose2d(12, -32, Math.toRadians(90)))
+                                .strafeTo(new Vector2d(-44,62)).build();
+
+        Actions.runBlocking(new SequentialAction(parkAction, extendo.elbowVertical(),
+                viper.driveToPositionInInches(XBot.VIPER_HOME)));
+
         // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
 

@@ -20,7 +20,7 @@ public class Extendo {
 
     public void initialize() {
         extendo.setPosition(XBot.EXTENDO_MIN);
-        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.05);
+        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.06);
     }
 
     public Action extend() {
