@@ -132,7 +132,7 @@ public class MeepMeepTesting {
                 .waitSeconds(2)// drops preloaded first specimen on the chamber
 
                 // *SECOND SPECIMEN*
-desxw3
+
                 .strafeTo(new Vector2d(-33, 40)) // drives to the left
                 .strafeTo((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
                 .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90)) // splines to the first sample
