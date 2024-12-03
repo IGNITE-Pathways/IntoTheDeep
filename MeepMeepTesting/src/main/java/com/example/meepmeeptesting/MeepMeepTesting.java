@@ -19,37 +19,7 @@ public class MeepMeepTesting {
 
     private static void FourBots(MeepMeep meepMeep) { // declaring a class if their is four bots being on the Field
 
-        //Declare our First bot, red right
-        RoadRunnerBotEntity redRight = new DefaultBotBuilder(meepMeep)
-                .setColorScheme(new ColorSchemeRedDark())                 // We set this bot to be blue
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
-                .setDimensions(14, 14)
-                .build();
-
-
-        // defining the actions of red right
-        Action redRightAction = redRight.getDrive().actionBuilder(new Pose2d(10, -56, Math.toRadians(-90)))
-                .lineToY(-37)//Drop Preloaded specimen on the chamber
-                .waitSeconds(1)
-                .turn(Math.toRadians(90))//turn towards spike mark
-                .lineToX(39)//drive towards spike mark 1
-                .turn(Math.toRadians(25))//turn to pick up
-                .waitSeconds(1)//Picked up
-                .turn(Math.toRadians(-85))//face bucket
-                .lineToY(-47)//drive bucket
-                .waitSeconds(1)//drop in
-                .turn(Math.toRadians(125))//drive towards spike 3
-                .lineToY(-37)//pick up from spike 3
-                .waitSeconds(1)
-                .turn(Math.toRadians(-155))
-                .lineToY(-50)
-                .waitSeconds(1)
-                .lineToY(-12)//drive back towards submersible
-                .turn(Math.toRadians(90))//face towards park
-                .lineToX(26)//drive into park
-                .build();
-
-        // Declare our second bot, red left
+        // Declare our first bot, red left
         RoadRunnerBotEntity redLeft = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be red
                 .setColorScheme(new ColorSchemeRedLight())
@@ -83,14 +53,78 @@ public class MeepMeepTesting {
         RoadRunnerBotEntity blueLeft = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be blue
                 .setColorScheme(new ColorSchemeBlueLight())
-                .setConstraints(100, 70, Math.toRadians(180), Math.toRadians(180), 16)
+                .setConstraints(70, 70, Math.toRadians(180), Math.toRadians(180), 20)
                 .setDimensions(14, 16)
+
+                .build();
+
+        //Declare our First bot, red right
+        RoadRunnerBotEntity redRight = new DefaultBotBuilder(meepMeep)
+                .setColorScheme(new ColorSchemeRedDark())                 // We set this bot to be blue
+                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 15)
+                .setDimensions(14, 16)
+                .build();
+
+
+        // defining the actions of red right
+        Action redRightAction = redRight.getDrive().actionBuilder(new Pose2d(8, -63, Math.toRadians(90)))
+                // *FIRST SPECIMEN*
+
+                .strafeTo(new Vector2d(2,-36)) // drives to the chamber
+                .waitSeconds(2)// drops preloaded first specimen on the chamber
+
+                // *SECOND SPECIMEN*
+
+                .strafeTo(new Vector2d(31, -40)) // drives to the right
+                .strafeTo((new Vector2d(35, -35))) // gets ready to do a nice spline, without hitting the truss holding up the submersible
+                .splineToLinearHeading(new Pose2d(46, -10, Math.toRadians(360)), Math.toRadians(270)) // splines to the first sample
+                .strafeTo(new Vector2d(46, -52)) // pushes 1st sample into to the observation zone
+                .setReversed(true)
+                .splineToConstantHeading(new Vector2d(55, -10), Math.toRadians(360))  // goes to second sample
+                .setReversed(false)
+                .strafeTo(new Vector2d(55, -53)) // pushes 2nd sample into the observation zone
+                .strafeTo(new Vector2d(62.5, -57)) // goes to hook specimen with the CLAW
+
+                //           .splineToConstantHeading(new Vector2d(-34,60), Math.toRadians(90)) // splines to the edge of observation zone to get specimen made by human player
+                //           .waitSeconds(0.3) // waits a little to open the claw
+                //    .lineToY(63) // moves forward
+                .waitSeconds(0.3)  // hooks the specimen in the claw and moves viper slides up
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(12, -32, Math.toRadians(90)), Math.toRadians(90)) // splines to chamber to hook second specimen
+                .waitSeconds(2)// drops second specimen on the chamber
+//
+//                // *THIRD SPECIMEN*
+//
+//                .strafeTo(new Vector2d(-32, 34)) // drives to the left
+//                .splineToLinearHeading(new Pose2d(-64, 15, Math.toRadians(270)), Math.toRadians(180)) // splines to third sample
+//                .strafeTo(new Vector2d(-64, 52)) // pushes it to the observation zone
+//                .splineToConstantHeading(new Vector2d(34, -60), Math.toRadians(270)) // splines to the edge of observation zone to get third specimen put by the human player
+//                .waitSeconds(0.1) // waits a little to open the claw
+//                .lineToY(-63) // moves forward
+//                .waitSeconds(0.5)  // hooks the specimen in the claw and moves viper slides up
+//                .splineToLinearHeading(new Pose2d(6, 31, Math.toRadians(270)), Math.toRadians(270)) // splines to chamber to hook third specimen
+//                .waitSeconds(1)// puts third specimen on the chamber
+//
+//                // *FOURTH SPECIMEN*
+//
+//                .splineToLinearHeading(new Pose2d(-34, 60, Math.toRadians(270)), Math.toRadians(60)) // splines to the edge of observation zone to get fourth specimen made by human player
+//                .waitSeconds(0.1) // waits a little to open the claw
+//                .lineToY(63) // moves forward
+//                .waitSeconds(0.5)  // hooks the fourth specimen in the claw and moves viper slides up
+//                .lineToY(60) // moves a little down for a clean spline to hook fourth the specimen
+//                .splineToLinearHeading(new Pose2d(-8, 32, Math.toRadians(90)), Math.toRadians(270)) // splines to chamber to hook fourth specimen
+//                .waitSeconds(2)// drops specimen on the chamber
+
+                // *PARKING*
+
+                .strafeTo(new Vector2d(44,-62))
+
                 .build();
 
 
 
         // defining the actions of the bot, blue left, THIS IS THE OLD ONE
-        Action blueLeftActionOLDGAMESTRATEGYUPDATED = blueLeft.getDrive().actionBuilder(new Pose2d(-8, 63, Math.toRadians(-90)))
+        Action blueLeftActionOLDGAMESTRATEGYUPDATED = blueLeft.getDrive().actionBuilder(new Pose2d(-13, 63, Math.toRadians(-90)))
 
                 // *FIRST SPECIMEN*
 
@@ -99,18 +133,17 @@ public class MeepMeepTesting {
 
                 // *SECOND SPECIMEN*
 
-                .strafeToConstantHeading(new Vector2d(-33, 40)) // drives to the left
-                .strafeToConstantHeading((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
-                .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90))
+                .strafeTo(new Vector2d(-31, 40)) // drives to the left
+                .strafeTo((new Vector2d(-35, 35))) // gets ready to do a nice spline, without hitting the top left stand bar holding up the submersible
+                .splineToLinearHeading(new Pose2d(-46, 10, Math.toRadians(180)), Math.toRadians(90)) // splines to the first sample
                 .strafeTo(new Vector2d(-46, 52)) // pushes 1st sample into to the observation zone
-                .setReversed(true)
 
-//                .strafeTo(new Vector2d(-45, 35)) // strafes a little down and right to make a smooth spline
+                .setReversed(true)
                 .splineToConstantHeading(new Vector2d(-55, 10), Math.toRadians(180))  // goes to second sample
                 .setReversed(false)
                 .strafeTo(new Vector2d(-55, 53)) // pushes 2nd sample into the observation zone
-
                 .strafeTo(new Vector2d(-62.5, 57)) // goes to hook specimen with the CLAW
+
                 //           .splineToConstantHeading(new Vector2d(-34,60), Math.toRadians(90)) // splines to the edge of observation zone to get specimen made by human player
                 //           .waitSeconds(0.3) // waits a little to open the claw
                 //    .lineToY(63) // moves forward
@@ -119,7 +152,7 @@ public class MeepMeepTesting {
                 .splineToLinearHeading(new Pose2d(-12, 32, Math.toRadians(-90)), Math.toRadians(-90)) // splines to chamber to hook second specimen
                 .waitSeconds(2)// drops second specimen on the chamber
 
-                // *THIRD SPECIMEN*
+//                // *THIRD SPECIMEN*
 //
 //                .strafeTo(new Vector2d(-32, 34)) // drives to the left
 //                .splineToLinearHeading(new Pose2d(-64, 15, Math.toRadians(270)), Math.toRadians(180)) // splines to third sample
@@ -354,17 +387,14 @@ public class MeepMeepTesting {
         Action blueRightAction = blueRight.getDrive().actionBuilder(new Pose2d(8, 63, Math.toRadians(-90)))
                 .strafeTo(new Vector2d(8,34)) // drives to the chamber
                 .waitSeconds(1)// drops preloaded specimen on the chamber
-                .splineToLinearHeading(new Pose2d(8, 40, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                .strafeTo(new Vector2d(22,35)) // moves in the direction of the sample and extendo extends
-                .waitSeconds(1) // extendo takes in the sample
-                .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
+                .splineToLinearHeading(new Pose2d(8, 39, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                .strafeTo(new Vector2d(21,36)) // moves in the direction of the sample and extendo extends
+                .waitSeconds(2) // extendo takes in the sample
 
-                .strafeTo(new Vector2d(23,35))
+      //          .strafeTo(new Vector2d(23,33)) // backs up
 
                 .splineToLinearHeading(new Pose2d(52, 48, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                //TAG1
-
                 //Pick next one
                 .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(160)), Math.toRadians(-90)) // robot aligns itself to get the second sample
                 .waitSeconds(2) // extendo extends and takes in the second sample
@@ -392,10 +422,10 @@ public class MeepMeepTesting {
                 .setBackgroundAlpha(1000f)  // sets background transparency
 
                 // Add both of our declared bot entities
-        //        .addEntity(redRight)  // opens the first bot in the meep meep visualizer
+                .addEntity(redRight)  // opens the first bot in the meep meep visualizer
           //      .addEntity(redLeft) // opens the second bot in the meep meep visualizer
                    .addEntity(blueLeft)
-          //      .addEntity(blueRight)
+             //   .addEntity(blueRight)
                 .start();
 
     }
