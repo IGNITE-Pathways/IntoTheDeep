@@ -12,7 +12,6 @@ public class MeepMeepTestingObsZone {
     public static void main(String[] args) {   // this code executes first in any Java application
         MeepMeep meepMeep = new MeepMeep(800);
         BlueBot(meepMeep); // this is allowing four bots to run in the same meep meep environment
-        double RedBucketDropLine = -50;
     }
 
     private static void BlueBot(MeepMeep meepMeep) { // declaring a class if their is four bots being on the Field
