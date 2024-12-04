@@ -43,7 +43,7 @@ public class Viper {
                 }
                 double pos = viper.getCurrentPosition();
                 packet.put("viper position", pos);
-                return Math.abs(pos - inches) < 1;
+                return Math.abs(pos - inches) < 0.5;
             }
         };
     }
@@ -61,7 +61,7 @@ public class Viper {
 
                     double pos = viper.getCurrentPosition();
                     packet.put("viper position", pos);
-                    return Math.abs(pos - XBot.VIPER_DROP_SPECIMEN) < 1;
+                    return Math.abs(pos - XBot.VIPER_DROP_SPECIMEN) < 0.5;
                 }
             };
     }

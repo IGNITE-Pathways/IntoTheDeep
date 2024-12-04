@@ -17,33 +17,35 @@ public class MeepMeepTestingObsZone {
     private static void BlueBot(MeepMeep meepMeep) { // declaring a class if their is four bots being on the Field
 
         //declaring our third bot, blue left
-        RoadRunnerBotEntity blueLeft = new DefaultBotBuilder(meepMeep)
+        RoadRunnerBotEntity blueOrRed = new DefaultBotBuilder(meepMeep)
                 // We set this bot to be blue
                 .setColorScheme(new ColorSchemeBlueLight())
                 .setConstraints(70, 70, Math.toRadians(180), Math.toRadians(180), 20)
                 .setDimensions(14, 16)
                 .build();
 
-        int startingYPosition = 62;
-        int moveRobotByInches = 28;
-        int firstSpecimenXPosition = -2;
-        int secondSpecimenXPosition = -6;
-        int thirdSpecimenXPosition = -10;
-        int parkingXPosition = -44;
+        double startingYPosition = 62;
+        double moveRobotByInches = 26.5;
+        double firstSpecimenXPosition = 0;
+        double secondSpecimenXPosition = -5;
+        double thirdSpecimenXPosition = -10;
+        double parkingXPosition = -44;
 
         // defining the actions of the bot, blue left, THIS IS THE OLD ONE
-        Action blueObsZone = blueLeft.getDrive().actionBuilder(new Pose2d(-8, startingYPosition, Math.toRadians(-90)))
+        Action blueOrRedObsZone = blueOrRed.getDrive().actionBuilder(new Pose2d(-8, startingYPosition, Math.toRadians(-90)))
                 // moveToDropPreloadedSpecimen
                 .strafeTo(new Vector2d(firstSpecimenXPosition, startingYPosition - moveRobotByInches)) //Y=35
                 .waitSeconds(2)
 
                 // dragSampleFromSpikeMarkToObsZone
-//                .strafeTo(new Vector2d(-34, startingYPosition - moveRobotByInches + 4)) //Y=39
-//                .strafeTo((new Vector2d(-34, startingYPosition - moveRobotByInches - 7))) //Y=28
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-34, startingYPosition - moveRobotByInches - 7, Math.toRadians(0)), Math.toRadians(-90)) //Y=29
-                .splineToLinearHeading(new Pose2d(-46, startingYPosition - 52, Math.toRadians(90)), Math.toRadians(90)) //Y=10
-                .strafeTo(new Vector2d(-46, startingYPosition - 1)) //Y=61
+                .strafeTo(new Vector2d(-34, startingYPosition - moveRobotByInches + 4)) //Y=39
+                .strafeTo((new Vector2d(-34, startingYPosition - moveRobotByInches - 15))) //Y=20
+                .splineToLinearHeading(new Pose2d(parkingXPosition, startingYPosition - 52, Math.toRadians(90)), Math.toRadians(90)) //Y=10
+                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 8)) //Y=54
+                .waitSeconds(.1)
+                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 14)) //Y=48
+                .waitSeconds(.1)
+                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 1)) //Y=60
                 .waitSeconds(0.3) //PICK SPECIMEN FROM WALL
 
                 // sequence1: DONE
@@ -56,8 +58,8 @@ public class MeepMeepTestingObsZone {
 
                 // splineToPickThirdSpecimenFromObservationZone
                 .setReversed(true)
-                .splineToLinearHeading(new Pose2d(-46, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
-                .strafeTo(new Vector2d(-46, startingYPosition - 1)) //Y=61
+                .splineToLinearHeading(new Pose2d(parkingXPosition, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
+                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 1)) //Y=61
                 .waitSeconds(0.3)
 
                 // sequence2: DONE
@@ -71,17 +73,17 @@ public class MeepMeepTestingObsZone {
                 // sequence3: DONE
 
                 // parking
-                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 1 )) //Y=61
+                .strafeTo(new Vector2d(parkingXPosition, startingYPosition - 5 )) //Y=61
 
                 // sequence4: DONE
                 .build();
 
-        blueLeft.runAction(blueObsZone);
+        blueOrRed.runAction(blueOrRedObsZone);
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
                 .setDarkMode(true) // activates dark mode
                 .setBackgroundAlpha(1000f)  // sets background transparency
-                .addEntity(blueLeft)
+                .addEntity(blueOrRed)
                 .start();
 
     }
