@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -47,12 +48,10 @@ public class DriveTest extends LinearOpMode {
     private DcMotor viper = null;
     private Servo extendo = null;
     private Servo elbow = null;
-    private Servo roller = null;
     private Servo claw = null;
-    boolean rolling = false;
-    private DigitalChannel redLED;
-    private DigitalChannel greenLED;
+    TouchSensor viperReset = null;
     private double robotSpeed = 1.0;
+
     // Wait for the game to start (driver presses START)
     double extendoPosition = XBot.EXTENDO_MIN; // Midpoint for extendo
     double elbowPosition = XBot.ELBOW_VERTICAL;   // Midpoint for elbow
@@ -75,18 +74,12 @@ public class DriveTest extends LinearOpMode {
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback");
 
-        //Uncomment below and comment above if we want robot to go in reverse
-//        leftFrontDrive = hardwareMap.get(DcMotorEx.class, "rightback"); //rightback
-//        leftBackDrive = hardwareMap.get(DcMotorEx.class, "rightfront"); //rightfront`
-//        rightBackDrive = hardwareMap.get(DcMotorEx.class, "leftfront"); //leftfront
-//        rightFrontDrive = hardwareMap.get(DcMotorEx.class, "leftback"); //leftback
-
-        redLED = hardwareMap.get(DigitalChannel.class, "redled");//7
-        greenLED = hardwareMap.get(DigitalChannel.class, "greenled");//6
+        DigitalChannel redLED = hardwareMap.get(DigitalChannel.class, "redled");//7
+        DigitalChannel greenLED = hardwareMap.get(DigitalChannel.class, "greenled");//6
 
         //Initialize the Servo variables
         extendo = hardwareMap.get(Servo.class, "extendo"); // chub 0
-        roller = hardwareMap.get(Servo.class, "roller"); // chub 1
+        Servo roller = hardwareMap.get(Servo.class, "roller"); // chub 1
         elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
         claw = hardwareMap.get(Servo.class, "claw"); // ehub 3
 
@@ -96,37 +89,25 @@ public class DriveTest extends LinearOpMode {
         viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         viper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        // ########################################################################################
-        // !!!            IMPORTANT Drive Information. Test your motor directions.            !!!!!
-        // ########################################################################################
-        // Most robots need the motors on one side to be reversed to drive forward.
-        // The motor reversals shown here are for a "direct drive" robot (the wheels turn the same direction as the motor shaft)
-        // If your robot has additional gear reductions or uses a right-angled drive, it's important to ensure
-        // that your motors are turning in the correct direction.  So, start out with the reversals here, BUT
-        // when you first test your robot, push the left joystick forward and observe the direction the wheels turn.
-        // Reverse the direction (flip FORWARD <-> REVERSE ) of any wheel that runs backward
-        // Keep testing until ALL the wheels move the robot forward when you push the left joystick forward.
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-
         initializeSystems();
-//        int viperPosition = 0;
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Extendo Position", extendoPosition);
         telemetry.addData("Elbow position", elbowPosition);
-
-//        telemetry.addData("COUNTS_PER_INCH", "%7d", COUNTS_PER_INCH);
         telemetry.addData("Viper Position",  "%7d", viper.getCurrentPosition());
         telemetry.update();
-        waitForStart();
-        runtime.reset();
+
         // change LED mode from input to output
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
+
+        waitForStart();
+        runtime.reset();
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
@@ -167,7 +148,6 @@ public class DriveTest extends LinearOpMode {
             //      the setDirection() calls above.
             // Once the correct motors move in the correct direction re-comment this code.
 
-
 //            leftFrontPower  = gamepad1.x ? 1.0 : 0.0;  // X gamepad
 //            leftBackPower   = gamepad1.a ? 1.0 : 0.0;  // A gamepad
 //            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
@@ -180,7 +160,7 @@ public class DriveTest extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * robotSpeed);
             rightBackDrive.setPower(rightBackPower * robotSpeed);
 
-// intaking sample
+            // intaking sample
 
             if (gamepad2.b) {           //circle on sony controller
                 state = State.SAMPLE;
@@ -203,7 +183,6 @@ public class DriveTest extends LinearOpMode {
                 elbow.setPosition(elbowPosition);
             }
 
-
 //            if (gamepad2.dpad_up) {
 //                extendoPosition += XBot.SERVO_INCREMENT; // Increase position
 //            } else if (gamepad2.dpad_down) {
@@ -225,14 +204,11 @@ public class DriveTest extends LinearOpMode {
                 rollerPosition = XBot.ROLLER_DUMP_SAMPLE;
             }
 
-            //
-
             if (gamepad2.left_bumper) {
                 claw.setPosition(XBot.CLAW_CLOSE);
             } else if (gamepad2.right_bumper) {
                 claw.setPosition(XBot.CLAW_OPEN);
             }
-
 
             extendoPosition = Math.min(Math.max(extendoPosition, XBot.EXTENDO_MAX), XBot.EXTENDO_MIN);
             elbowPosition = Math.min(Math.max(elbowPosition, XBot.ELBOW_MAX), XBot.EXTENDO_MIN);
@@ -298,11 +274,6 @@ public class DriveTest extends LinearOpMode {
                     redLED.setState(false);
             }
 
-
-//            if (!isViperPositionClose(viperPosition)) {
-//                viperDrive(VIPER_DRIVE_SPEED, (int)(viperPosition / COUNTS_PER_INCH), 100);
-//            }
-
             // Telemetry
             telemetry.addData("GAME State", state);
             telemetry.addData("Extendo Position", extendoPosition);
@@ -325,7 +296,32 @@ public class DriveTest extends LinearOpMode {
         claw.setPosition(clawPosition);
         extendo.setPosition(extendoPosition);
         elbow.setPosition(elbowPosition);
+        viperReset = hardwareMap.get(TouchSensor.class, "magnetic_switch");
+
         //Viper Slide - Magnetic Switch
+        runtime.reset();
+        viper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        viper.setPower(-XBot.VIPER_DRIVE_SPEED); //-ve speed to move viper slide down
+
+        // keep looping while we are still active, and there is time left, and viper motor is running.
+        // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
+        // its target position, the motion will stop.  This is "safer" in the event that the robot will
+        // always end the motion as soon as possible.
+        while (!viperReset.isPressed()) {
+            // Display it for the driver.
+            telemetry.addData("Resetting Viper Running: ",  " %7d", runtime.seconds());
+            telemetry.update();
+        }
+
+        // Stop all motion;
+        viper.setPower(0);
+
+        //reset viper slide motor encoder
+        viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        viper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        telemetry.addData("Viper Reset", "Done");
+        telemetry.update();
     }
 
     private void moveForward(double speed, int milliSeconds) {
@@ -342,14 +338,6 @@ public class DriveTest extends LinearOpMode {
         rightBackDrive.setPower(0);
     }
 
-    private boolean isViperPositionClose(double viperPosition) {
-       int currentPosition = viper.getCurrentPosition();
-       if ((viperPosition < currentPosition + 10) && (viperPosition > currentPosition - 10)) return true;
-       if (viperPosition > 3000) return true;
-       if (viperPosition < 0) return true;
-       return false;
-    }
-
     private void dropSpecimen() {
         //(viper slide is at drop sepcimen level)
         if (opModeIsActive()) {
@@ -360,9 +348,6 @@ public class DriveTest extends LinearOpMode {
             sleep(500);
             viperDriveToPositionInInches(XBot.VIPER_DRIVE_SPEED, XBot.VIPER_HOME, 1000);
         }
-        //move the viper slide to DROPPED SPECIMEn
-        //Open claw
-        //return viper home
     }
 
     private void viperDrive(double maxSpeed, int inches, double timeoutS) {
@@ -393,70 +378,6 @@ public class DriveTest extends LinearOpMode {
             viper.setPower(0);
         }
     }
-
-
-    /* PID CONTROLLER CODE
-
-    private void viperDrive(double maxSpeed, int inches, double timeoutS) {
-        int targetPosition;
-        double Kp = 0.1; // Proportional gain (tune this value)
-        double Ki = 0.01; // Integral gain (tune this value)
-        double Kd = 0.01; // Derivative gain (tune this value)
-        double previousError = 0; // Store the error from the previous iteration
-        double integralSum = 0; // Accumulate the error over time
-        double power;
-        double error;
-        double derivative;
-
-        // Ensure that the OpMode is still active
-        if (opModeIsActive()) {
-            // Calculate the target position
-            targetPosition = viper.getCurrentPosition() + (int)(inches * COUNTS_PER_INCH);
-            viper.setTargetPosition(targetPosition);
-
-            // Turn On RUN_TO_POSITION
-            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            runtime.reset();
-
-            // Loop until timeout or position reached
-            while (opModeIsActive() && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
-                // Calculate the error
-                error = targetPosition - viper.getCurrentPosition();
-
-                // Accumulate the error for the integral term
-                integralSum += error;
-
-                // Calculate the derivative (rate of change of error)
-                derivative = error - previousError;
-
-                // Compute control power
-                power = (Kp * error) + (Ki * integralSum) + (Kd * derivative);
-
-                // Limit power to the maximum speed
-                power = Math.max(-Math.abs(maxSpeed), Math.min(Math.abs(maxSpeed), power));
-
-                // Set motor power
-                viper.setPower(power);
-
-                // Update the previous error for the next loop
-                previousError = error;
-
-                // Display information for the driver
-                telemetry.addData("Viper Target", targetPosition);
-                telemetry.addData("Current Position", viper.getCurrentPosition());
-                telemetry.addData("Error", error);
-                telemetry.addData("Integral Sum", integralSum);
-                telemetry.addData("Derivative", derivative);
-                telemetry.addData("Power", power);
-                telemetry.update();
-            }
-
-            // Stop all motion
-            viper.setPower(0);
-        }
-    }
-
-*/
 
     private void viperDriveToPositionInInches(double maxSpeed, double inches, double timeoutS) {
         int newTarget;
@@ -517,33 +438,6 @@ public class DriveTest extends LinearOpMode {
 
             // Stop all motion;
             viper.setPower(0.015);
-        }
-    }
-
-    private void viperDriveRunToPosition(double speed, int position, double timeoutS) {
-
-        // Ensure that the OpMode is still active
-        if (opModeIsActive()) {
-            viper.setTargetPosition(position);
-
-            // Turn On RUN_TO_POSITION
-            viper.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            runtime.reset();
-            viper.setPower(Math.abs(speed));
-
-            // keep looping while we are still active, and there is time left, and viper motor is running.
-            // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
-            // its target position, the motion will stop.  This is "safer" in the event that the robot will
-            // always end the motion as soon as possible.
-            while (opModeIsActive()  && (runtime.seconds() < timeoutS) && (viper.isBusy())) {
-                // Display it for the driver.
-                telemetry.addData("Viper Running to",  " %7d", position);
-                telemetry.addData("Currently at",  " at %7d", viper.getCurrentPosition());
-                telemetry.update();
-            }
-
-            // Stop all motion;
-            viper.setPower(0);
         }
     }
 }
