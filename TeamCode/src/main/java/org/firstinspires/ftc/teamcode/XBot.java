@@ -7,7 +7,7 @@ public class XBot {
 
     static final double     ELBOW_MIN = 0.94; // Elbow folded back
     static final double     ELBOW_STRAIGHT = 0.1; // Elbow up front - but straight
-    static final double     ELBOW_MAX = 0.03; // Elbow up front - but dropped down to pick sample
+    static final double     ELBOW_MAX = 0.02; // Elbow up front - but dropped down to pick sample
     static final double     ELBOW_VERTICAL = 0.42; // Elbow up front - but dropped down to pick sample
 
     static final double     CLAW_CLOSE = 0.45; // Close position, Specimen in hand
