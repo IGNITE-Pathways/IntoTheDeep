@@ -309,7 +309,7 @@ public class DriveTest extends LinearOpMode {
         // always end the motion as soon as possible.
         while (!viperReset.isPressed()) {
             // Display it for the driver.
-            telemetry.addData("Resetting Viper Running: ",  " %7d", runtime.seconds());
+            telemetry.addData("Resetting Viper Running: ",  runtime.seconds());
             telemetry.update();
         }
 
