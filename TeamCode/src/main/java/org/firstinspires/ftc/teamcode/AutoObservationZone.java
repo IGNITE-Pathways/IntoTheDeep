@@ -57,7 +57,7 @@ public class AutoObservationZone extends LinearOpMode {
         // DEFINE X POSITIONS
         double firstSpecimenXPosition = -2;
         double secondSpecimenXPosition = -5;
-        double thirdSpecimenXPosition = -7;
+        double thirdSpecimenXPosition = -6;
         double obsZoneXPosition = -44;
         double obsZoneSpecimenPickupYPositionError = 2;
 
@@ -72,7 +72,7 @@ public class AutoObservationZone extends LinearOpMode {
                         .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 52, Math.toRadians(90)), Math.toRadians(90)) //Y=10
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 9)) //Y=53
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 16)) //Y=46
-                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError)) //Y=60 >> Moving 50 inches straight
+                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60 >> Moving 50 inches straight
                         .build();
 
         SequentialAction sequence1 = new SequentialAction(
@@ -83,7 +83,7 @@ public class AutoObservationZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
                 dragSampleFromSpikeMarkToObsZone);
 
-        Action moveToDropSecondSpecimen1 = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError, Math.toRadians(90)))
+        Action moveToDropSecondSpecimen1 = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5, Math.toRadians(90)))
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches + 2, Math.toRadians(-90)), Math.toRadians(-90)) //Y=37
                 .build();
@@ -96,11 +96,11 @@ public class AutoObservationZone extends LinearOpMode {
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
                 //@ToDo: Tune Y position to make sure robot can grab the Specimen
-                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError))
+                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5))
                 .build();
 
         SequentialAction sequence2 = new SequentialAction(
-                viper.closeClaw(), new SleepAction(1), //Grabs Specimen from the wall
+                viper.closeClaw(), new SleepAction(.5), //Grabs Specimen from the wall
                 viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN + 4),
                 new SleepAction(.2),
                 moveToDropSecondSpecimen1,
@@ -111,12 +111,12 @@ public class AutoObservationZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
                 splineToPickThirdSpecimenFromObservationZone);
 
-        Action moveToDropThirdSpecimen = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError, Math.toRadians(90)))
+        Action moveToDropThirdSpecimen = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5, Math.toRadians(90)))
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches + 2, Math.toRadians(-90)), Math.toRadians(-90)) //Y=37
                 //@ToDo: Ideally the Robot should come back to original (startingYPosition - moveRobotByInches) position, but if not, we tune this
                 .afterDisp(.1, viper.getReadyToDropSpecimen())
-                .strafeTo(new Vector2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches)) //Y=35
+                .strafeTo(new Vector2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches - 1.5)) //Y=35
                 .build();
 
         SequentialAction sequence3 = new SequentialAction(
@@ -126,7 +126,7 @@ public class AutoObservationZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
                 viper.openClaw());
 
-        Action parkingAction = drive.actionBuilder(new Pose2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90)))
+        Action parkingAction = drive.actionBuilder(new Pose2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches - 1.5, Math.toRadians(-90)))
                 //@ToDo: Tune Y position to make sure robot can grab the Specimen
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=57
                 .build();
@@ -141,6 +141,8 @@ public class AutoObservationZone extends LinearOpMode {
         //sequence1 = 1st Specimen dropped, 2nd Specimen in Obs Zone, Robot in Obs Zone
         Actions.runBlocking(sequence1);
         telemetry.addData("First Sequence:", runtime.seconds());
+
+        Actions.runBlocking(viper.closeClaw());
 
         //sequence2 = 2nd Specimen dropped, Robot in Obs Zone
         Actions.runBlocking(sequence2);

@@ -166,6 +166,7 @@ public class DriveTest extends LinearOpMode {
                 state = State.SAMPLE;
                 extendoPosition = XBot.EXTENDO_MAX;
                 elbowPosition = XBot.ELBOW_MAX;
+                robotSpeed = 0.7; //Slow down when extendo is pulled out
             }
             if (gamepad2.a) {           // x on sony controller
                 state = State.SAMPLE;
@@ -181,6 +182,7 @@ public class DriveTest extends LinearOpMode {
                 // make elbow vertical once the sample is dropped
                 elbowPosition = XBot.ELBOW_VERTICAL; // bringing the elbow a little bit up after it drops the sample
                 elbow.setPosition(elbowPosition);
+                robotSpeed = 1.0;
             }
 
 //            if (gamepad2.dpad_up) {

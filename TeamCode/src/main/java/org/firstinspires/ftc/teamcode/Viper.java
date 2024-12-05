@@ -118,8 +118,8 @@ public class Viper {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
                 claw.setPosition(XBot.CLAW_CLOSE);
-                return false;
-//                return Math.abs(claw.getPosition() - XBot.CLAW_CLOSE) > 0.1;
+//                return false;
+                return Math.abs(claw.getPosition() - XBot.CLAW_CLOSE) > 0.1;
             }
         };
     }
