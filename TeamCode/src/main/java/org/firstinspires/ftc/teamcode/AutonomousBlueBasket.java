@@ -161,22 +161,8 @@ public class AutonomousBlueBasket extends LinearOpMode {
                 gotoSecondSample,
                 takeInSampleThenDriveTowardsBucket);
 
-
 //        Actions.runBlocking(dropTheFirstSampleThenMoveToSecondSampleAndRepeat);
         telemetry.addData("Time Used", runtime.seconds());
-
-//                //Pick next one
-//                .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
-//                .waitSeconds(2) // extendo extends and takes in the second sample
-//                //drop again
-//                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
-//                .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-//                //Pick again
-//                .splineToLinearHeading(new Pose2d(50, 40, Math.toRadians(135)), Math.toRadians(-90)) // robot aligns itself to get the second sample
-//                .waitSeconds(2) // extendo extends and takes in the second sample
-//                //drop again
-//                .splineTo(new Vector2d(55, 56), Math.toRadians(45)) // splines goes drop first sample in the high basket!
-//                .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
 
         Action parkingAction = drive.actionBuilder(new Pose2d(55, 56, Math.toRadians(45)))
                 .strafeTo(new Vector2d(50, 38)) // splines goes drop first sample in the high basket!

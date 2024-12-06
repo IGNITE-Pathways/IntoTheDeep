@@ -11,12 +11,19 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
+import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 @Autonomous(name = "Auto Obs Zone", group = "Linear OpMode")
 public class AutoObservationZone extends LinearOpMode {
 
-    private final ElapsedTime runtime = new ElapsedTime();
+    protected final ElapsedTime runtime = new ElapsedTime();
+    SequentialAction sequence1 = null;
+    SequentialAction sequence2 = null;
+    SequentialAction sequence3 = null;
+    SequentialAction sequence4 = null;
+
+    protected boolean pick2Samples = true;
 
     @Override
     public void runOpMode() {
@@ -46,7 +53,7 @@ public class AutoObservationZone extends LinearOpMode {
         // GAME FIELD CAN BE DIFFERENT BECAUSE OF HOW IT IS ASSEMBLED OR HOW THE MATS ARE PLACED / CUT
         double startingXPosition = -8;
         double startingYPosition = 62;
-        double moveRobotByInches = 26.5;
+        double moveRobotByInches = 26.4;
 
         Pose2d beginPose = new Pose2d(startingXPosition, startingYPosition, Math.toRadians(-90));
         PinpointDrive drive = new PinpointDrive(hardwareMap, beginPose);
@@ -68,11 +75,13 @@ public class AutoObservationZone extends LinearOpMode {
                         .strafeTo((new Vector2d(-34, startingYPosition - moveRobotByInches - 15))) //Y=20
                         .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 52, Math.toRadians(90)), Math.toRadians(90)) //Y=10
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 9)) //Y=53
-                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 16)) //Y=46 -- go back
+                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 17)) //Y=45 -- go back
+                        //@TODO: ADD DELAY So Human Player can clip Sample to make a Specimen
+                        .waitSeconds(4)
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60 >> Moving 50 inches straight
                         .build();
 
-        SequentialAction sequence1 = new SequentialAction(
+        sequence1 = new SequentialAction(
                 viper.getReadyToDropSpecimen(),
                 moveToDropFirstSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
@@ -83,7 +92,6 @@ public class AutoObservationZone extends LinearOpMode {
         Action moveBackAndPickSpecimentAtTheSameTime = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5, Math.toRadians(90)))
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=48
                 .afterDisp(.1, viper.getReadyToDropSpecimen()) // viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN + 4)
-                .waitSeconds(.1)
                 .build();
 
         Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - 5, Math.toRadians(90)))
@@ -92,20 +100,26 @@ public class AutoObservationZone extends LinearOpMode {
                 .strafeTo(new Vector2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches)) //Y=35
                 .build();
 
+        //If pick2Samples = false
         Action splineToPickThirdSpecimenFromObservationZone = drive.actionBuilder(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90)))
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5))
                 .build();
 
-        SequentialAction sequence2 = new SequentialAction(
-                viper.closeClaw(), new SleepAction(.5), //Grabs Specimen from the wall
+        //If pick2Samples = true
+        Action splineToPickSampleFromObservationZoneAndPark = drive.actionBuilder(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90)))
+                .setReversed(true)
+                .splineToLinearHeading(new Pose2d(-38, startingYPosition -6 , Math.toRadians(0)), Math.toRadians(180)) //Y=54
+                .build();
+
+        sequence2 = new SequentialAction(
+                viper.closeClaw(), new SleepAction(.4), //Grabs Specimen from the wall
                 moveBackAndPickSpecimentAtTheSameTime,
                 moveToDropSecondSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
                 viper.openClaw(),
-                viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN),
-                splineToPickThirdSpecimenFromObservationZone);
+                viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN));
 
         Action moveBackAndPickSpecimentAtTheSameTime1 = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5, Math.toRadians(90)))
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=48
@@ -120,8 +134,8 @@ public class AutoObservationZone extends LinearOpMode {
                 .strafeTo(new Vector2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches - 1.5)) //Y=35
                 .build();
 
-        SequentialAction sequence3 = new SequentialAction(
-                viper.closeClaw(), new SleepAction(.5), //Grabs Specimen from the wall
+        sequence3 = new SequentialAction(
+                viper.closeClaw(), new SleepAction(.4), //Grabs Specimen from the wall
                 moveBackAndPickSpecimentAtTheSameTime1,
                 moveToDropThirdSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
@@ -131,7 +145,7 @@ public class AutoObservationZone extends LinearOpMode {
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=57
                 .build();
 
-        SequentialAction sequence4 = new SequentialAction(viper.closeClaw(), parkingAction, viper.driveToPositionInInches(XBot.VIPER_HOME));
+        sequence4 = new SequentialAction(viper.closeClaw(), parkingAction, viper.driveToPositionInInches(XBot.VIPER_HOME));
 
         telemetry.addData("Status", "Initialized");
         telemetry.update();
@@ -151,13 +165,22 @@ public class AutoObservationZone extends LinearOpMode {
         Actions.runBlocking(sequence2);
         telemetry.addData("Second Sequence:", runtime.seconds());
 
-        //sequence3 = 3rd Specimen dropped
-        Actions.runBlocking(sequence3); //3nd Specimen dropped
-        telemetry.addData("Third Sequence:", runtime.seconds());
+        if (pick2Samples) {
+            Actions.runBlocking(new SequentialAction(
+                    splineToPickSampleFromObservationZoneAndPark,
+                    viper.driveToPositionInInches(XBot.VIPER_HOME),
+                    extendo.elbowDown()));
+        } else {
+            Actions.runBlocking(splineToPickThirdSpecimenFromObservationZone);
 
-        //sequence4 = Robot Parked
-        Actions.runBlocking(sequence4);
-        telemetry.addData("Forth Sequence:", runtime.seconds());
+            //sequence3 = 3rd Specimen dropped
+            Actions.runBlocking(sequence3); //3nd Specimen dropped
+            telemetry.addData("Third Sequence:", runtime.seconds());
+
+            //sequence4 = Robot Parked
+            Actions.runBlocking(sequence4);
+            telemetry.addData("Forth Sequence:", runtime.seconds());
+        }
 
         telemetry.update();
     }

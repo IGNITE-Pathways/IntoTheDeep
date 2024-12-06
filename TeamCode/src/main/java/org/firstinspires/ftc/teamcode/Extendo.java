@@ -20,7 +20,7 @@ public class Extendo {
 
     public void initialize() {
         extendo.setPosition(XBot.EXTENDO_MIN);
-        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.07 );
+        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.045);
     }
 
     public Action extend() {
@@ -43,6 +43,27 @@ public class Extendo {
         };
     }
 
+    //Only dropping elbow, not extending extendo
+    public Action elbowDown() {
+        return new Action () {
+            private boolean initialized = false;
+
+            //Run called repeatedly unless return false
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                if (!initialized) {
+//                    roller.setPosition(XBot.ROLLER_GRAB_SAMPLE);
+                    elbow.setPosition(XBot.ELBOW_MAX);
+                    extendo.setPosition(XBot.EXTENDO_MIN);
+                    initialized = true;
+                }
+                double pos = extendo.getPosition();
+                packet.put("elbow position", pos);
+                return Math.abs(pos - XBot.ELBOW_VERTICAL) > 0.05;
+            }
+        };
+    }
+
     public Action elbowVertical() {
         return new Action () {
             private boolean initialized = false;
@@ -56,7 +77,7 @@ public class Extendo {
                     initialized = true;
                 }
                 double pos = elbow.getPosition();
-                packet.put("extendo position", pos);
+                packet.put("elbow position", pos);
                 return Math.abs(pos - XBot.ELBOW_VERTICAL) > 0.05;
             }
         };

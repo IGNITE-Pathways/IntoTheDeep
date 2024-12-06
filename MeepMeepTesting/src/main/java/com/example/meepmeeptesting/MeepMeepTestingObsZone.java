@@ -2,6 +2,7 @@ package com.example.meepmeeptesting;
 
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
 import com.noahbres.meepmeep.core.colorscheme.scheme.ColorSchemeBlueLight;
@@ -15,6 +16,8 @@ public class MeepMeepTestingObsZone {
     }
 
     private static void BlueOrRedBot(MeepMeep meepMeep) { // declaring a class if their is four bots being on the Field
+
+        boolean pick2Samples = false;
 
         //declaring our third bot, blue left
         RoadRunnerBotEntity blueOrRed = new DefaultBotBuilder(meepMeep)
@@ -64,14 +67,28 @@ public class MeepMeepTestingObsZone {
                 .strafeTo(new Vector2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches)) //Y=35
                 .waitSeconds(2)
 
-                // splineToPickThirdSpecimenFromObservationZone
-                .setReversed(true)
-                .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
-                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5)) //Y=61
-                .waitSeconds(0.3)
-
                 // sequence2: DONE
+                .build();
 
+        Action splineBackToObsZone = null;
+        if (pick2Samples) {
+            splineBackToObsZone = blueOrRed.getDrive().actionBuilder(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90)))
+                    // splineToPickSampleFromObservationZoneAndPark
+                    .setReversed(true)
+                    .splineToLinearHeading(new Pose2d(-38, startingYPosition -2 , Math.toRadians(0)), Math.toRadians(180)) //Y=54
+                    .waitSeconds(1)
+                    .build();
+        } else {
+            splineBackToObsZone = blueOrRed.getDrive().actionBuilder(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90)))
+                    // splineToPickThirdSpecimenFromObservationZone
+                    .setReversed(true)
+                    .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 8, Math.toRadians(90)), Math.toRadians(90)) //Y=54
+                    .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5)) //Y=61
+                    .waitSeconds(0.3)
+                    .build();
+        }
+
+        Action blueOrRedObsZone2 = blueOrRed.getDrive().actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError + 1.5, Math.toRadians(90)))
                 // moveToDropThirdSpecimen
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(thirdSpecimenXPosition, startingYPosition - moveRobotByInches + 2, Math.toRadians(-90)), Math.toRadians(-90)) //Y=37
@@ -86,7 +103,12 @@ public class MeepMeepTestingObsZone {
                 // sequence4: DONE
                 .build();
 
-        blueOrRed.runAction(blueOrRedObsZone);
+        if (pick2Samples) {
+            blueOrRed.runAction(new SequentialAction(blueOrRedObsZone, splineBackToObsZone));
+        } else {
+            blueOrRed.runAction(new SequentialAction(blueOrRedObsZone, splineBackToObsZone, blueOrRedObsZone2));
+        }
+
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_JUICE_DARK)  // sets background to INTO THE DEEP
                 .setDarkMode(true) // activates dark mode
