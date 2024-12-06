@@ -82,6 +82,7 @@ public class DriveTest extends LinearOpMode {
         Servo roller = hardwareMap.get(Servo.class, "roller"); // chub 1
         elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
         claw = hardwareMap.get(Servo.class, "claw"); // ehub 3
+        viperReset = hardwareMap.get(TouchSensor.class, "magnetic_switch");
 
         viper = hardwareMap.get(DcMotor.class, "viper");
         viper.setDirection(DcMotor.Direction.REVERSE);
@@ -298,7 +299,6 @@ public class DriveTest extends LinearOpMode {
         claw.setPosition(clawPosition);
         extendo.setPosition(extendoPosition);
         elbow.setPosition(elbowPosition);
-        viperReset = hardwareMap.get(TouchSensor.class, "magnetic_switch");
 
         //Viper Slide - Magnetic Switch
         runtime.reset();
