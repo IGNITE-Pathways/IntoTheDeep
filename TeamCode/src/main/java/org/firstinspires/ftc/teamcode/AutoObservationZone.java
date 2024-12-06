@@ -33,9 +33,6 @@ public class AutoObservationZone extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        telemetry.addData("Status", "Initialized");
-        telemetry.update();
-
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
 
@@ -71,7 +68,7 @@ public class AutoObservationZone extends LinearOpMode {
                         .strafeTo((new Vector2d(-34, startingYPosition - moveRobotByInches - 15))) //Y=20
                         .splineToLinearHeading(new Pose2d(obsZoneXPosition, startingYPosition - 52, Math.toRadians(90)), Math.toRadians(90)) //Y=10
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 9)) //Y=53
-                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 16)) //Y=46
+                        .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 16)) //Y=46 -- go back
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60 >> Moving 50 inches straight
                         .build();
 
@@ -134,7 +131,10 @@ public class AutoObservationZone extends LinearOpMode {
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=57
                 .build();
 
-        SequentialAction sequence4 = new SequentialAction(viper.closeClaw(), viper.driveToPositionInInches(XBot.VIPER_HOME), parkingAction);
+        SequentialAction sequence4 = new SequentialAction(viper.closeClaw(), parkingAction, viper.driveToPositionInInches(XBot.VIPER_HOME));
+
+        telemetry.addData("Status", "Initialized");
+        telemetry.update();
 
         waitForStart();
         runtime.reset();
