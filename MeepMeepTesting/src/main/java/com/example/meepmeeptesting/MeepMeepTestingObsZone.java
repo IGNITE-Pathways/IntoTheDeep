@@ -53,6 +53,8 @@ public class MeepMeepTestingObsZone {
                 .waitSeconds(.1)
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60
                 .waitSeconds(0.3) //PICK SPECIMEN FROM WALL
+                //Move Back to pull the specimen
+                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=48
 
                 // sequence1: DONE
 
