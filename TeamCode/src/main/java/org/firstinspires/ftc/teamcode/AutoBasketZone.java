@@ -7,18 +7,15 @@ import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Auto Blue Basket", group = "Linear OpMode")
-@Disabled
-public class AutonomousBlueBasket extends LinearOpMode {
+@Autonomous(name = "Auto Basket Zone", group = "Linear OpMode")
+public class AutoBasketZone extends LinearOpMode {
 
-    boolean rolling = false;
     // Declare OpMode members for each of the 4 motors.
     private final ElapsedTime runtime = new ElapsedTime();
     private DcMotor leftFrontDrive = null;
@@ -28,6 +25,7 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
     private DigitalChannel redLED;
     private DigitalChannel greenLED;
+    SequentialAction sequence1 = null;
 
     @Override
     public void runOpMode() {
@@ -51,52 +49,36 @@ public class AutonomousBlueBasket extends LinearOpMode {
         redLED.setMode(DigitalChannel.Mode.OUTPUT);
         greenLED.setMode(DigitalChannel.Mode.OUTPUT);
 
-        Pose2d beginPose = new Pose2d(8, 63, Math.toRadians(-90));
+        double startingXPosition = 8;
+        double startingYPosition = 62;
+        double moveRobotByInches = 26.5;
+        double firstSpecimenXPosition = 8;
+
+        Pose2d beginPose = new Pose2d(startingXPosition, startingYPosition, Math.toRadians(-90));
         PinpointDrive drive = new PinpointDrive(hardwareMap, beginPose);
+
         Viper viper = new Viper(hardwareMap);
         Extendo extendo = new Extendo(hardwareMap);
         viper.initialize();
         extendo.initialize();
 
-        waitForStart();
-        runtime.reset();
-
-
-        Action moveToDropSpecimenLocation = drive.actionBuilder(new Pose2d(8, 63, Math.toRadians(-90)))
-                .lineToYConstantHeading(34).build();
-
-
-        //Move to drop specimen while rising
-        SequentialAction raiseViperWhenMovingToDropSpecimen = new SequentialAction(
-                viper.getReadyToDropSpecimen(),
-                moveToDropSpecimenLocation);
-
-        // drops preloaded specimen on the chamber
-        SequentialAction dropSpecimenSequence = new SequentialAction(
-                raiseViperWhenMovingToDropSpecimen,
-                viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
-                viper.openClaw());
-
-//        Actions.runBlocking(dropSpecimenSequence);
-
-        Action moveToPickSample =
-                drive.actionBuilder(new Pose2d(8, 34, Math.toRadians(-90)))
-                //go to pick next yellow sample
-                .splineToLinearHeading(new Pose2d(8, 40, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                .strafeTo(new Vector2d(21, 36)) // moves in the direction of the sample and extendo extends
+        Action moveToDropFirstSpecimen = drive.actionBuilder(beginPose)
+                .strafeTo(new Vector2d(firstSpecimenXPosition, startingYPosition - moveRobotByInches))
                 .build();
 
-        //Move the viper slide down while moving to the position to pick next sample
-        SequentialAction moveViperDownWhenMovingToPickSample = new SequentialAction(
-                viper.driveToPositionInInches(XBot.VIPER_HOME), moveToPickSample);
+        Action moveTowardsYellowSample =
+                drive.actionBuilder(new Pose2d(firstSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90))) //35
+                        .splineToLinearHeading(new Pose2d(startingXPosition, startingYPosition - moveRobotByInches + 4, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                        .strafeTo(new Vector2d(22,startingYPosition - moveRobotByInches)) // moves in the direction of the sample and extendo extends
+                        .build();
 
-        SequentialAction readyToPickSampleSequence = new SequentialAction(
-                dropSpecimenSequence,
-                moveViperDownWhenMovingToPickSample);
-
-        Actions.runBlocking(readyToPickSampleSequence);
-
-        telemetry.addData("Time Used", runtime.seconds());
+        sequence1 = new SequentialAction(
+                viper.getReadyToDropSpecimen(),
+                moveToDropFirstSpecimen,
+                viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
+                viper.openClaw(),
+                viper.driveToPositionInInches(XBot.VIPER_HOME),
+                moveTowardsYellowSample);
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
         SequentialAction intakeSequence = new SequentialAction(extendo.extend(),
@@ -110,10 +92,10 @@ public class AutonomousBlueBasket extends LinearOpMode {
 
         //Spline to drop Sample to bucket
         Action driveTowardsBucket =
-                drive.actionBuilder(new Pose2d(23, 33, Math.toRadians(170)))
-//                        .strafeTo(new Vector2d(23,35))
-                        .splineTo(new Vector2d(52, 48), Math.toRadians(45))
+                drive.actionBuilder(new Pose2d(22, startingYPosition - moveRobotByInches, Math.toRadians(170)))
+                        .splineToLinearHeading(new Pose2d(53, 48.5, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
                         .build();
+
 
         SequentialAction takeInSampleThenDriveTowardsBucket = new SequentialAction(
                 intakeSequence,
@@ -126,51 +108,38 @@ public class AutonomousBlueBasket extends LinearOpMode {
                 new SleepAction(0.5),
                 viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2));
 
-        Action goaLittleBackCuzTheCLAWWILLHITTHEBASKET =
-                drive.actionBuilder(new Pose2d(50, 48, Math.toRadians(45)))
+        Action goaLittleBackCuzTheClawMayHitTheBasket =
+                drive.actionBuilder(new Pose2d(53, 48.5, Math.toRadians(45)))
                         .strafeTo(new Vector2d(46, 45))
                         .build();
 
         //Drop sample to high basket
-        SequentialAction dropSampleSequence = new SequentialAction(
+        SequentialAction sequence2 = new SequentialAction(
                 dropSample,
-                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET),
+                viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), //DROP
                 new SleepAction(1),
-                goaLittleBackCuzTheCLAWWILLHITTHEBASKET,
-                viper.driveToPositionInInches(XBot.VIPER_HOME),
-                new SleepAction(1)
+                goaLittleBackCuzTheClawMayHitTheBasket,
+                viper.driveToPositionInInches(XBot.VIPER_HOME)
+//                new SleepAction(1)
         );
 
-        Actions.runBlocking(dropSampleSequence); //TAG1
-
-
-        SequentialAction gotoSecondSample = new SequentialAction(
-                drive.actionBuilder(new Pose2d(50, 49, Math.toRadians(45)))
-                        .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90))
+        SequentialAction goPark = new SequentialAction(
+                drive.actionBuilder(new Pose2d(46, 45, Math.toRadians(45)))
+                        .splineToLinearHeading(new Pose2d(45, 9, Math.toRadians(180)), Math.toRadians(270)) // splines down to get ready to park
+                        .strafeTo(new Vector2d(21,9))  // splines to rung for level 1 ascent (3 points)
                         .build()
         );
 
+        waitForStart();
+        runtime.reset();
 
-//        SequentialAction gotoThirdSample = new SequentialAction(viper.driveToPositionInInches(XBot.VIPER_HOME),
-//                drive.actionBuilder(new Pose2d(38, 38, Math.toRadians(170)))
-//                        .splineToLinearHeading(new Pose2d(38, 38, Math.toRadians(135)), Math.toRadians(-90))
-//                        .build()
-//        );
+        Actions.runBlocking(sequence1);
+        telemetry.addData("Sequence1 Time Used", runtime.seconds());
 
-        SequentialAction dropTheFirstSampleThenMoveToSecondSampleAndRepeat = new SequentialAction(
-                gotoSecondSample,
-                takeInSampleThenDriveTowardsBucket);
-
-//        Actions.runBlocking(dropTheFirstSampleThenMoveToSecondSampleAndRepeat);
+        Actions.runBlocking(sequence2); //TAG1
         telemetry.addData("Time Used", runtime.seconds());
 
-        Action parkingAction = drive.actionBuilder(new Pose2d(55, 56, Math.toRadians(45)))
-                .strafeTo(new Vector2d(50, 38)) // splines goes drop first sample in the high basket!
-                .splineToLinearHeading(new Pose2d(21.5, 10, Math.toRadians(0)), Math.toRadians(90)) // splines to rung for level 1 ascent (3 points)
-                .build();
-
-//        Actions.runBlocking(parkingAction);
-
+        Actions.runBlocking(new SequentialAction(viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN)));
         // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
 

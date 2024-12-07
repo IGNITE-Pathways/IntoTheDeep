@@ -77,7 +77,7 @@ public class AutoObservationZone extends LinearOpMode {
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 9)) //Y=53
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 17)) //Y=45 -- go back
                         //@TODO: ADD DELAY So Human Player can clip Sample to make a Specimen
-                        .waitSeconds(4)
+                        .waitSeconds(pick2Samples ? 4: 0)
                         .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60 >> Moving 50 inches straight
                         .build();
 
