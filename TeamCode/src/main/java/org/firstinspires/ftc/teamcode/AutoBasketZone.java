@@ -68,8 +68,8 @@ public class AutoBasketZone extends LinearOpMode {
 
         Action moveTowardsYellowSample =
                 drive.actionBuilder(new Pose2d(firstSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90))) //35
-                        .splineToLinearHeading(new Pose2d(startingXPosition, startingYPosition - moveRobotByInches + 4, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
-                        .strafeTo(new Vector2d(22,startingYPosition - moveRobotByInches)) // moves in the direction of the sample and extendo extends
+                        .splineToLinearHeading(new Pose2d(startingXPosition, startingYPosition - moveRobotByInches + 4, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                        .strafeTo(new Vector2d(21,startingYPosition - moveRobotByInches)) // moves in the direction of the sample and extendo extends
                         .build();
 
         sequence1 = new SequentialAction(
@@ -81,19 +81,18 @@ public class AutoBasketZone extends LinearOpMode {
                 moveTowardsYellowSample);
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
-        SequentialAction intakeSequence = new SequentialAction(extendo.extend(),
-//                drive.actionBuilder(new Pose2d(21, 36, Math.toRadians(170))) // moves away from the submersible
-//                        .strafeTo(new Vector2d(23, 33)) //@todo: TUNE
-//                        .waitSeconds(2)
-//                        .build(),
-                        new SleepAction(2),
+        SequentialAction intakeSequence = new SequentialAction(extendo.extend(), new SleepAction(0.5),
+                drive.actionBuilder(new Pose2d(21, startingYPosition - moveRobotByInches, Math.toRadians(165))) // moves away from the submersible
+                        .strafeTo(new Vector2d(23.5, startingYPosition - moveRobotByInches)) //@todo: TUNE
+                        .waitSeconds(2)
+                        .build(),
                         extendo.elbowMin()
                 );
 
         //Spline to drop Sample to bucket
         Action driveTowardsBucket =
-                drive.actionBuilder(new Pose2d(22, startingYPosition - moveRobotByInches, Math.toRadians(170)))
-                        .splineToLinearHeading(new Pose2d(53, 48.5, Math.toRadians(45)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
+                drive.actionBuilder(new Pose2d(23.5, startingYPosition - moveRobotByInches, Math.toRadians(165)))
+                        .splineToLinearHeading(new Pose2d(55, 50.5, Math.toRadians(43)), Math.toRadians(90)) // splines goes drop first sample in the high basket!
                         .build();
 
 
@@ -109,7 +108,7 @@ public class AutoBasketZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET - 2));
 
         Action goaLittleBackCuzTheClawMayHitTheBasket =
-                drive.actionBuilder(new Pose2d(53, 48.5, Math.toRadians(45)))
+                drive.actionBuilder(new Pose2d(55, 50.5, Math.toRadians(43)))
                         .strafeTo(new Vector2d(46, 45))
                         .build();
 
@@ -119,8 +118,7 @@ public class AutoBasketZone extends LinearOpMode {
                 viper.driveToPositionInInches(XBot.VIPER_DROP_SAMPLE_HIGHER_BUCKET), //DROP
                 new SleepAction(1),
                 goaLittleBackCuzTheClawMayHitTheBasket,
-                viper.driveToPositionInInches(XBot.VIPER_HOME)
-//                new SleepAction(1)
+                viper.driveToPositionInInches(XBot.VIPER_LEVEL1ASCENT)
         );
 
         SequentialAction goPark = new SequentialAction(
@@ -139,7 +137,7 @@ public class AutoBasketZone extends LinearOpMode {
         Actions.runBlocking(sequence2); //TAG1
         telemetry.addData("Time Used", runtime.seconds());
 
-        Actions.runBlocking(new SequentialAction(viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN)));
+        Actions.runBlocking(new SequentialAction(goPark, new SleepAction(1), viper.driveToPositionInInches(XBot.VIPER_LEVEL1ASCENT + 2)));
         // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
 

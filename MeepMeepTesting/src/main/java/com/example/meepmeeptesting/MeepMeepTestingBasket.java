@@ -40,15 +40,17 @@ public class MeepMeepTestingBasket {
                 // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
                 .splineToLinearHeading(new Pose2d(startingXPosition, startingYPosition - moveRobotByInches + 4, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
                 // moves in the direction of the sample and extendo extends
-                .strafeTo(new Vector2d(22,startingYPosition - moveRobotByInches + 1)) //36.5
+                //@ToDo: Move forward
+                .strafeTo(new Vector2d(23,startingYPosition - moveRobotByInches)) //36.5
                 .waitSeconds(2) // extendo takes in the sample
 
                 // splines goes drop first sample in the high basket!
-                .splineToLinearHeading(new Pose2d(53, 48.5, Math.toRadians(45)), Math.toRadians(90))
-                .strafeTo(new Vector2d(46, 45))
+                //@ToDo: move closer
+                .splineToLinearHeading(new Pose2d(53, 50, Math.toRadians(45)), Math.toRadians(90))
+                .strafeTo(new Vector2d(46, 45)) //Move back
                 .waitSeconds(3) // viper slides go up and robot drops the sample in the basket
-                .splineToLinearHeading(new Pose2d(45, 10, Math.toRadians(180)), Math.toRadians(270)) // splines down to get ready to park
-                .strafeTo(new Vector2d(21,10))  // splines to rung for level 1 ascent (3 points)
+                .splineToLinearHeading(new Pose2d(45, 9, Math.toRadians(180)), Math.toRadians(270)) // splines down to get ready to park
+                .strafeTo(new Vector2d(21,9))  // splines to rung for level 1 ascent (3 points)
                 .build();
 
         blueOrRed.runAction(blueRightAction);
