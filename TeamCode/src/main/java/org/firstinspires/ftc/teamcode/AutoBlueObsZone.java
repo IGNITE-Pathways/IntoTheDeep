@@ -11,11 +11,10 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.SwitchableLight;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "Auto Obs Zone", group = "Linear OpMode")
-public class AutoObservationZone extends LinearOpMode {
+@Autonomous(name = "Auto blue obs Zone", group = "Linear OpMode")
+public class AutoBlueObsZone extends LinearOpMode {
 
     protected final ElapsedTime runtime = new ElapsedTime();
     SequentialAction sequence1 = null;
@@ -83,6 +82,7 @@ public class AutoObservationZone extends LinearOpMode {
 
         sequence1 = new SequentialAction(
                 viper.getReadyToDropSpecimen(),
+                new SleepAction(3.0),
                 moveToDropFirstSpecimen,
                 viper.driveToPositionInInches(XBot.DROPPED_SPECIMEN),
                 viper.openClaw(),
@@ -90,11 +90,11 @@ public class AutoObservationZone extends LinearOpMode {
                 dragSampleFromSpikeMarkToObsZone);
 
         Action moveBackAndPickSpecimentAtTheSameTime = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5, Math.toRadians(90)))
-                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=48
+                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 4)) //Y=48
                 .afterDisp(.1, viper.getReadyToDropSpecimen()) // viper.driveToPositionInInches(XBot.VIPER_PICK_SPECIMEN + 4)
                 .build();
 
-        Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - 5, Math.toRadians(90)))
+        Action moveToDropSecondSpecimen = drive.actionBuilder(new Pose2d(obsZoneXPosition, startingYPosition - 4, Math.toRadians(90)))
                 .setReversed(true)
                 .splineToLinearHeading(new Pose2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches + 2, Math.toRadians(-90)), Math.toRadians(-90)) //Y=37
                 .strafeTo(new Vector2d(secondSpecimenXPosition, startingYPosition - moveRobotByInches)) //Y=35

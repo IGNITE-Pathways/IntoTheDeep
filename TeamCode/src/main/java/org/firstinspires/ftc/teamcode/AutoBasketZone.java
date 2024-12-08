@@ -68,7 +68,7 @@ public class AutoBasketZone extends LinearOpMode {
 
         Action moveTowardsYellowSample =
                 drive.actionBuilder(new Pose2d(firstSpecimenXPosition, startingYPosition - moveRobotByInches, Math.toRadians(-90))) //35
-                        .splineToLinearHeading(new Pose2d(startingXPosition, startingYPosition - moveRobotByInches + 4, Math.toRadians(165)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
+                        .splineToLinearHeading(new Pose2d(startingXPosition-1, startingYPosition - moveRobotByInches + 5, Math.toRadians(170)), Math.toRadians(-90)) // goes back so it doesn't hit the hitting the top right stand bar holding up the submersible
                         .strafeTo(new Vector2d(21,startingYPosition - moveRobotByInches)) // moves in the direction of the sample and extendo extends
                         .build();
 
@@ -82,7 +82,7 @@ public class AutoBasketZone extends LinearOpMode {
 
         // Sample Intake - Extend, move, stop, move extendo up, move elbow vertical
         SequentialAction intakeSequence = new SequentialAction(extendo.extend(), new SleepAction(0.5),
-                drive.actionBuilder(new Pose2d(21, startingYPosition - moveRobotByInches, Math.toRadians(165))) // moves away from the submersible
+                drive.actionBuilder(new Pose2d(21, startingYPosition - moveRobotByInches, Math.toRadians(170))) // moves away from the submersible
                         .strafeTo(new Vector2d(23.5, startingYPosition - moveRobotByInches)) //@todo: TUNE
                         .waitSeconds(2)
                         .build(),

@@ -17,7 +17,7 @@ public class MeepMeepTestingObsZone {
 
     private static void BlueOrRedBot(MeepMeep meepMeep) { // declaring a class if their is four bots being on the Field
 
-        boolean pick2Samples = false;
+        boolean pick2Samples = true;
 
         //declaring our third bot, blue left
         RoadRunnerBotEntity blueOrRed = new DefaultBotBuilder(meepMeep)
@@ -54,7 +54,7 @@ public class MeepMeepTestingObsZone {
                 .waitSeconds(.1)
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 16)) //Y=48
                 .waitSeconds(.1)
-                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError - 0.5)) //Y=60
+                .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - obsZoneSpecimenPickupYPositionError+0.5)) //Y=60
                 .waitSeconds(0.3) //PICK SPECIMEN FROM WALL
                 //Move Back to pull the specimen
                 .strafeTo(new Vector2d(obsZoneXPosition, startingYPosition - 5)) //Y=48
