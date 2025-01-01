@@ -422,9 +422,9 @@ public class MeepMeepTesting {
                 .setBackgroundAlpha(1000f)  // sets background transparency
 
                 // Add both of our declared bot entities
-                .addEntity(redRight)  // opens the first bot in the meep meep visualizer
+            //    .addEntity(redRight)  // opens the first bot in the meep meep visualizer
           //      .addEntity(redLeft) // opens the second bot in the meep meep visualizer
-                   .addEntity(blueLeft)
+            //       .addEntity(blueLeft)
              //   .addEntity(blueRight)
                 .start();
 
