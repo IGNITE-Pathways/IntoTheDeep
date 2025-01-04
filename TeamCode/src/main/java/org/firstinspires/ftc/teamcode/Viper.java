@@ -125,6 +125,7 @@ public class Viper {
     }
 
     private void driveToPosition(double maxSpeed, double inches, double timeoutS, TelemetryPacket packet) {
+
         // Ensure that the OpMode is still active
         int newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
         viper.setTargetPosition(newTarget);
