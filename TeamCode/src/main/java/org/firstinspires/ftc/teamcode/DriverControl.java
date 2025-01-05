@@ -132,18 +132,25 @@ public class DriverControl extends LinearOpMode {
                 //Extends horizontal slides and rotate claw to pickup
                 state = State.SAMPLE;
                 extendo.extendFully();
-//                diffy.moveToPickPosition();
+                diffy.moveToPickPosition();
             }
             if (gamepad2.square) { //PICK SPECIMEN //X
                 //extend h-misumi out, move diffy down
                 state = State.SPECIMEN;
-//                diffy.moveToTransferPosition();
+                extendo.extendFully();
+                diffy.moveToPickPosition();
             }
 
-            if (gamepad2.x) { //A
+            if (gamepad2.cross) { //A
                 //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
                 //else any other sample -- move diffy up, bring h-misumi back
-                diffy.pickSample();
+                diffy.intakeClaw.setPosition(0.5);
+                extendo.moveToTransferPosition();
+                diffy.moveToTransferPosition();
+            }
+
+            if (gamepad2.triangle) { //Y
+
             }
 
             if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500) ) {

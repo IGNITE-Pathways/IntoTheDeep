@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -52,6 +51,14 @@ public class Extendo {
     }
 
     public void extendFully() {
-        driveToPosition(1,5, 5);
+        driveToPosition(1,9, 5);
+    }
+
+    public void moveToTransferPosition() {
+        driveToPosition(1,2, 5);
+    }
+
+    public void collapse() {
+        driveToPosition(1,0, 5);
     }
 }
