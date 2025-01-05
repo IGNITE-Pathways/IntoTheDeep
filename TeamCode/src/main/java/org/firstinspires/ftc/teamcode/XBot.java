@@ -40,4 +40,9 @@ public class XBot {
     static final double     VIPER_DROP_SAMPLE_HIGHER_BUCKET = 37.3; // Higher Bucket, also max position 4138
     static final double     VIPER_MAX = VIPER_DROP_SAMPLE_HIGHER_BUCKET; // Viper max position
     static final double     VIPER_LEVEL1ASCENT = VIPER_DROP_SPECIMEN - 11;
+
+    static final double     DIFFY_PICK_ANGLE = 0;
+    static final double     DIFFY_TRANFER_ANGLE = 0;
+
+    //@TODO: Make sure to change the value of DIFFY_PICK_ANGLE
 }

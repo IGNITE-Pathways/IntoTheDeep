@@ -9,13 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 public class FConstants { //This is how we change Follower Constants
     static {
         // Select our localizer
-        FollowerConstants.localizers = Localizers.TWO_WHEEL;
+        FollowerConstants.localizers = Localizers.PINPOINT;
 
 // hardware map names
-        FollowerConstants.leftFrontMotorName = "leftFront";
-        FollowerConstants.leftRearMotorName = "leftRear";
-        FollowerConstants.rightFrontMotorName = "rightFront";
-        FollowerConstants.rightRearMotorName = "rightRear";
+        FollowerConstants.leftFrontMotorName = "leftfront";
+        FollowerConstants.leftRearMotorName = "leftback";
+        FollowerConstants.rightFrontMotorName = "rightfront";
+        FollowerConstants.rightRearMotorName = "rightback";
 
         FollowerConstants.leftFrontMotorDirection = DcMotorSimple.Direction.REVERSE;
         FollowerConstants.leftRearMotorDirection = DcMotorSimple.Direction.REVERSE;
@@ -23,7 +23,7 @@ public class FConstants { //This is how we change Follower Constants
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
 
         // We can change the value of any variable/constant of FollowerConstants
-        FollowerConstants.mass = 10; // In kg
+        FollowerConstants.mass = 11.33; // In kg
 
     }
 }
