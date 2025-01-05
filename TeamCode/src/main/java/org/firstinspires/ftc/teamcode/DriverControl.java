@@ -137,20 +137,23 @@ public class DriverControl extends LinearOpMode {
             if (gamepad2.circle) { //PICK SAMPLE
                 //Extends horizontal slides and rotate claw to pickup
                 state = State.SAMPLE;
+                diffy.setDiffyPositions(1,1);
             }
             if (gamepad2.square) { //PICK SPECIMEN
                 //extend h-misumi out, move diffy down
                 state = State.SPECIMEN;
+                diffy.setDiffyPositions(0.5,0.5);
             }
 
             if (gamepad2.x) {
                 //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
                 //else any other sample -- move diffy up, bring h-misumi back
+                diffy.setDiffyPositions(0,0);
             }
 
             if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500) ) {
                 int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-                diffy.rotate(45 * sign);
+                diffy.rotate(24.5 * sign);
                 lastDiffyDegreesChanged = runtime.milliseconds();
             }
 
@@ -164,6 +167,9 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("GAME State", state);
             telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtakeDCLeft.getCurrentPosition(), outtakeDCRight.getCurrentPosition());
             telemetry.addData("Status", "Run Time: " + runtime.toString());
+            telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", diffy.diffyLeft.getPosition(), diffy.diffyRight.getPosition());
+            telemetry.addData("diffyDegrees", "%7d", diffy.diffyDegrees);
+            telemetry.addData("diffyVerticalAngle", "%7d", diffy.diffyVerticalAngle);
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
@@ -171,9 +177,6 @@ public class DriverControl extends LinearOpMode {
     }
 
     private void initializeSystems() {
-        diffy.rotate(0);
-        diffy.rotateUp(0);
-
         telemetry.addData("Initialized", "Done");
         telemetry.update();
     }
