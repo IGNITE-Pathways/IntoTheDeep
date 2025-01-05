@@ -125,7 +125,7 @@ public class DriverControl extends LinearOpMode {
         runtime.reset();
 
         int diffyDegrees = 0;
-        int diffyVerticalAngle = 0; //zero angle means diffy poiinting downward
+        int diffyVerticalAngle = 0; //zero angle means diffy pointing downward
 
         double lastDiffyDegreesChanged = runtime.milliseconds();
         double lastDiffyAngleChanged = runtime.milliseconds();
