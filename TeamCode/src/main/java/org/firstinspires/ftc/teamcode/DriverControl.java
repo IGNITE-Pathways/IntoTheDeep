@@ -3,11 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.hardware.DigitalChannel;
-import com.qualcomm.robotcore.hardware.TouchSensor;
+
+import org.opencv.core.Mat;
 
 /*
  * This file contains an example of a Linear "OpMode".
@@ -116,17 +115,20 @@ public class DriverControl extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-//        initializeSystems();
+        initializeSystems();
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Extendo Position", extendoPosition);
-        telemetry.addData("Elbow position", elbowPosition);
         telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtakeDCLeft.getCurrentPosition(), outtakeDCRight.getCurrentPosition());
         telemetry.update();
 
         waitForStart();
         runtime.reset();
 
+        int diffyDegrees = 0;
+        int diffyVerticalAngle = 0; //zero angle means diffy poiinting downward
+
+        double lastDiffyDegreesChanged = runtime.milliseconds();
+        double lastDiffyAngleChanged = runtime.milliseconds();
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
             double max;
@@ -149,12 +151,12 @@ public class DriverControl extends LinearOpMode {
             max = Math.max(max, Math.abs(leftBackPower));
             max = Math.max(max, Math.abs(rightBackPower));
 
-//            if (max > 1.0) {
-//                leftFrontPower /= max;
-//                rightFrontPower /= max;
-//                leftBackPower /= max;
-//                rightBackPower /= max;
-//            }
+            if (max > 1.0) {
+                leftFrontPower /= max;
+                rightFrontPower /= max;
+                leftBackPower /= max;
+                rightBackPower /= max;
+            }
 
             // This is test code:
             //
@@ -171,12 +173,47 @@ public class DriverControl extends LinearOpMode {
 //            rightFrontPower = gamepad1.y ? 1.0 : 0.0;  // Y gamepad
 //            rightBackPower  = gamepad1.b ? 1.0 : 0.0;  // B gamepad
 
-
             // Send calculated power to wheels
-//            leftFrontDrive.setPower(leftFrontPower * robotSpeed);
-//            rightFrontDrive.setPower(rightFrontPower * robotSpeed);
-//            leftBackDrive.setPower(leftBackPower * robotSpeed);
-        //    rightBackDrive.setPower(rightBackPower * robotSpeed);
+            leftFrontDrive.setPower(leftFrontPower * robotSpeed);
+            rightFrontDrive.setPower(rightFrontPower * robotSpeed);
+            leftBackDrive.setPower(leftBackPower * robotSpeed);
+            rightBackDrive.setPower(rightBackPower * robotSpeed);
+
+            if (gamepad2.circle) { //PICK SAMPLE
+                //Extends horizontal slides and rotate claw to pickup
+                state = State.SAMPLE;
+            }
+            if (gamepad2.square) { //PICK SPECIMEN
+                //extend h-misumi out, move diffy down
+                state = State.SPECIMEN;
+            }
+
+            if (gamepad2.x) {
+                //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
+                //else any other sample -- move diffy up, bring h-misumi back
+            }
+
+            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500) ) {
+                int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
+                diffyDegrees += 45 * sign;
+                diffyDegrees = (sign == 1) ? Math.min(diffyDegrees, 180) : Math.max(diffyDegrees, 0);
+                lastDiffyDegreesChanged = runtime.milliseconds();
+            }
+
+            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200) ) {
+                int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
+                diffyVerticalAngle += 45 * sign;
+                diffyVerticalAngle = (sign == 1) ? Math.min(diffyVerticalAngle, 225) : Math.max(diffyVerticalAngle, 0);
+                lastDiffyAngleChanged = runtime.milliseconds();
+            }
+
+            //gamepad2.left_stick_y -- Verical slides
+            //left-stick-button -- Reset vertical encode
+
+            //d-pad up - high basket
+            //d-pad-down - drop obs zone
+            //L2 - Open intake claw
+            //R2 - Close intake claw
 
             // intaking sample
 //
@@ -280,17 +317,6 @@ public class DriverControl extends LinearOpMode {
 //                robotSpeed = 1.0;
 //            }
 
-            //Set the color based on state
-//            //SAMPLE = RED, SPECIMEN = GREEN
-//            switch (state) {
-//                case SAMPLE:
-//    //                greenLED.setState(false);
-//   //                 redLED.setState(true);
-//                    break;
-//                case SPECIMEN:
-//    //                greenLED.setState(true);
-//      //              redLED.setState(false);
-//            }
 ////
 //            // Telemetry
 //            telemetry.addData("GAME State", state);
@@ -307,10 +333,10 @@ public class DriverControl extends LinearOpMode {
 //            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
 //            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
 //            telemetry.update();
-//        }
-//    }
+        }
+    }
 
-//    private void initializeSystems() {
+    private void initializeSystems() {
 //    //    claw.setPosition(clawPosition);
 //      //  extendo.setPosition(extendoPosition);
 //        //elbow.setPosition(elbowPosition);
@@ -319,16 +345,7 @@ public class DriverControl extends LinearOpMode {
 //        runtime.reset();
 //  //      viper.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        // viper.setPower(-XBot.VIPER_DRIVE_SPEED); //-ve speed to move viper slide down
-//
-//        // keep looping while we are still active, and there is time left, and viper motor is running.
-//        // Note: We use (isBusy()) in the loop test, which means that when viper motor hits
-//        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-//        // always end the motion as soon as possible.
-// //       while (!viperReset.isPressed()) {
-//            // Display it for the driver.
-//            telemetry.addData("Resetting Viper Running: ",  runtime.seconds());
-//            telemetry.update();
-//        }
+
 
         // Stop all motion;
 //        viper.setPower(0);
@@ -337,10 +354,10 @@ public class DriverControl extends LinearOpMode {
  //       viper.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
    //     viper.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
- //       telemetry.addData("Viper Reset", "Done");
-   //     telemetry.update();
-//    }
-//
+        telemetry.addData("Initialized", "Done");
+        telemetry.update();
+    }
+
 //    private void moveForward(double speed, int milliSeconds) {
 // //       leftFrontDrive.setPower(speed);
 //   //     rightFrontDrive.setPower(speed);
@@ -455,7 +472,5 @@ public class DriverControl extends LinearOpMode {
 //
 //            // Stop all motion;
 //            viper.setPower(0.015);
-//        }
-//    }
-//}
-//
+
+}

@@ -1,13 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
-
-import android.annotation.SuppressLint;
-import android.service.credentials.Action;
-
-import androidx.annotation.NonNull;
-
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -25,35 +17,17 @@ public class DifferentialGearBox {
         diffyRight.setPosition(XBot.CLAW_CLOSE);
     }
 
-    public enum DIRECTION {
+    public enum Direction {
         CLOCKWISE,
         ANTICLOCKWISE
     }
 
-    public enum DEGREES {
-        DEGREES_45(45),
-        DEGREES_90(90),
-        DEGREES_135(135),
-        DEGREES_180(180),
-        DEGREES_225(225),
-        DEGREES_270(270),
-        DEGREES_315(315);
 
-        private final int value;
-
-        DEGREES(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-    public void rotate(DIRECTION direction, DEGREES degrees) {
+    public void rotate(Direction direction, int degrees) {
         //
     }
 
-    public void rotateUp(DEGREES degrees) {
+    public void rotateUp(int degrees) {
 
     }
 
