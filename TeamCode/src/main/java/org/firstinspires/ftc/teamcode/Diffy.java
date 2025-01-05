@@ -1,12 +1,18 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
+
 public class Diffy {
     public Servo diffyLeft;
     public Servo diffyRight;
+    public Servo intakeClaw = null;
+    public ColorRangeSensor intakeSensor = null;
 
     // Current “rotation” angle of the claw about its axis (in degrees).
     // 0 = claw parallel to the robot, positive angles mean rotating in one direction, negative in the other.
@@ -33,19 +39,17 @@ public class Diffy {
         diffyLeft = hardwareMap.get(Servo.class, "diffyleft");
         diffyRight = hardwareMap.get(Servo.class, "diffyright");
         diffyLeft.setDirection(Servo.Direction.REVERSE);
+        intakeClaw = hardwareMap.get(Servo.class, "intakeclaw"); // ehub 4
+        intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakesensor"); // ehub I2C 0
+
         initialize();
     }
 
     private void initialize() {
 //        diffyVerticalAngle = 0; // claw pointing downward
 //        diffyDegrees = 0;       // no rotation
+        moveToPickPosition();
         updateServos();
-    }
-
-
-    public enum Direction {
-        CLOCKWISE,
-        ANTICLOCKWISE
     }
 
     /**
@@ -139,7 +143,50 @@ public class Diffy {
     }
 
     public void moveToTransferPosition() {
+        diffyDegrees = 90;
+        diffyVerticalAngle = 250;
+        updateServos();
+    }
 
+    public void moveToPickPosition() {
+        diffyDegrees = -14;
+        diffyVerticalAngle = 0;
+        updateServos();
+        //Open Claw
+        intakeClaw.setPosition(1);
+    }
+
+    public void pickSample() {
+        //moveToPickPosition();
+        //If Sample there, close claw
+       intakeClaw.setPosition(0.6);
+       moveToTransferPosition();
+    }
+
+    public SampleColor getSampleColor() {
+        if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {
+            // Cast, then enable or disable the LED
+            ((com.qualcomm.robotcore.hardware.SwitchableLight) intakeSensor).enableLight(true);  // turn on
+        }
+        // Read raw RGB values
+        int redValue   = intakeSensor.red();
+        int greenValue = intakeSensor.green();
+        int blueValue  = intakeSensor.blue();
+
+        SampleColor detectedColor = SampleColor.UNKNOWN;
+        if (redValue > 100 && greenValue > 100 && blueValue < 100) {
+            detectedColor = SampleColor.YELLOW;
+        } else if (blueValue > redValue && blueValue > greenValue) {
+            detectedColor = SampleColor.BLUE;
+        } else if (redValue > blueValue && redValue > greenValue) {
+            detectedColor = SampleColor.RED;
+        }
+
+        if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {
+            // Cast, then enable or disable the LED
+            ((com.qualcomm.robotcore.hardware.SwitchableLight) intakeSensor).enableLight(false);  // turn on
+        }
+        return detectedColor;
     }
 
 }

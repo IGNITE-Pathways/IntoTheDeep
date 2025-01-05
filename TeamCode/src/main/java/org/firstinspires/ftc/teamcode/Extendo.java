@@ -1,104 +1,57 @@
 package org.firstinspires.ftc.teamcode;
 
-import androidx.annotation.NonNull;
-
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
-import com.acmerobotics.roadrunner.Action;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Extendo {
-    private Servo extendo = null;
-    private Servo elbow = null;
-    private Servo roller = null;
+    //Horizontal Misumis / INTAKE
+    public DcMotor intakeDC = null;;
+    private ElapsedTime runtime = new ElapsedTime();
 
     public Extendo(HardwareMap hardwareMap) {
-        extendo = hardwareMap.get(Servo.class, "extendo"); // chub 0
-        roller = hardwareMap.get(Servo.class, "roller"); // chub 1
-        elbow = hardwareMap.get(Servo.class, "elbow"); // chub 5
+        intakeDC = hardwareMap.get(DcMotor.class, "intakedc"); //chub 0
+        intakeDC.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeDC.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeDC.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeDC.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
     }
 
     public void initialize() {
-        extendo.setPosition(XBot.EXTENDO_MIN);
-        elbow.setPosition(XBot.ELBOW_VERTICAL + 0.045);
+        intakeDC.setTargetPosition(0);
+        intakeDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intakeDC.setPower(1);
     }
 
-    public Action extend() {
-        return new Action () {
-            private boolean initialized = false;
+    private void driveToPosition(double maxSpeed, double inches, double timeoutS) {
+        // Ensure that the OpMode is still active
+        int newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
+        intakeDC.setTargetPosition(newTarget);
 
-            //Run called repeatedly unless return false
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-                    roller.setPosition(XBot.ROLLER_GRAB_SAMPLE);
-                    elbow.setPosition(XBot.ELBOW_MAX);
-                    extendo.setPosition(XBot.EXTENDO_MAX);
-                    initialized = true;
-                }
-                double pos = extendo.getPosition();
-                packet.put("extendo position", pos);
-                return Math.abs(pos - XBot.EXTENDO_MAX) > 0.1;
-            }
-        };
+        // Turn On RUN_TO_POSITION
+        intakeDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        intakeDC.setPower(Math.abs(maxSpeed));
+
+        // keep looping while we are still active, and there is time left, and intakeDC motor is running.
+        // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
+        // its target position, the motion will stop.  This is "safer" in the event that the robot will
+        // always end the motion as soon as possible.
+        while ((runtime.seconds() < timeoutS) && (intakeDC.isBusy())) {
+            // Set motor power
+            intakeDC.setPower(maxSpeed);
+        }
+        // Stop all motion;
+        intakeDC.setPower(0);
     }
 
-    //Only dropping elbow, not extending extendo
-    public Action elbowDown() {
-        return new Action () {
-            private boolean initialized = false;
-
-            //Run called repeatedly unless return false
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-//                    roller.setPosition(XBot.ROLLER_GRAB_SAMPLE);
-                    elbow.setPosition(XBot.ELBOW_MAX);
-                    extendo.setPosition(XBot.EXTENDO_MIN);
-                    initialized = true;
-                }
-                double pos = extendo.getPosition();
-                packet.put("elbow position", pos);
-                return Math.abs(pos - XBot.ELBOW_VERTICAL) > 0.05;
-            }
-        };
+    public int getPosition() {
+        return intakeDC.getCurrentPosition();
     }
 
-    public Action elbowVertical() {
-        return new Action () {
-            private boolean initialized = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-                    roller.setPosition(XBot.ROLLER_STOP);
-                    elbow.setPosition(XBot.ELBOW_VERTICAL);
-                    extendo.setPosition(XBot.EXTENDO_MIN);
-                    initialized = true;
-                }
-                double pos = elbow.getPosition();
-                packet.put("elbow position", pos);
-                return Math.abs(pos - XBot.ELBOW_VERTICAL) > 0.05;
-            }
-        };
-    }
-
-    public Action elbowMin() {
-        return new Action () {
-            private boolean initialized = false;
-
-            @Override
-            public boolean run(@NonNull TelemetryPacket packet) {
-                if (!initialized) {
-                    roller.setPosition(XBot.ROLLER_STOP);
-                    elbow.setPosition(XBot.ELBOW_MIN);
-                    extendo.setPosition(XBot.EXTENDO_MIN);
-                    initialized = true;
-                }
-                double pos = elbow.getPosition();
-                packet.put("Elbow position", pos);
-                return Math.abs(pos - XBot.ELBOW_MIN) > 0.02;
-            }
-        };
+    public void extendFully() {
+        driveToPosition(1,5, 5);
     }
 }
