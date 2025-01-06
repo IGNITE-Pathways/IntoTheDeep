@@ -5,12 +5,12 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-public class Extendo {
+public class Intake {
     //Horizontal Misumis / INTAKE
     public DcMotor intakeDC = null;;
     private ElapsedTime runtime = new ElapsedTime();
 
-    public Extendo(HardwareMap hardwareMap) {
+    public Intake(HardwareMap hardwareMap) {
         intakeDC = hardwareMap.get(DcMotor.class, "intakedc"); //chub 0
         intakeDC.setDirection(DcMotorSimple.Direction.REVERSE);
         intakeDC.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -19,12 +19,10 @@ public class Extendo {
     }
 
     public void initialize() {
-        intakeDC.setTargetPosition(0);
-        intakeDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        intakeDC.setPower(1);
+        driveToPosition(1, 0, 5);
     }
 
-    private void driveToPosition(double maxSpeed, double inches, double timeoutS) {
+    private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
         // Ensure that the OpMode is still active
         int newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
         intakeDC.setTargetPosition(newTarget);
@@ -38,7 +36,7 @@ public class Extendo {
         // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
         // its target position, the motion will stop.  This is "safer" in the event that the robot will
         // always end the motion as soon as possible.
-        while ((runtime.seconds() < timeoutS) && (intakeDC.isBusy())) {
+        while ((runtime.milliseconds() < timeoutMilliSeconds) && (intakeDC.isBusy())) {
             // Set motor power
             intakeDC.setPower(maxSpeed);
         }
@@ -51,14 +49,14 @@ public class Extendo {
     }
 
     public void extendFully() {
-        driveToPosition(1,9, 5);
+        driveToPosition(0.5,6, 5000);
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(1,2, 5);
+        driveToPosition(0.5,2, 5000);
     }
 
     public void collapse() {
-        driveToPosition(1,0, 5);
+        driveToPosition(0.5,0, 5000);
     }
 }

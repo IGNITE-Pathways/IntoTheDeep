@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
@@ -18,17 +16,12 @@ public class DriverControl extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-    //Vertical Misumis / OUTTAKE
-    private DcMotor outtakeDCRight = null;
-    private DcMotor outtakeDCLeft = null;
-    private Servo outtakeServoRight = null;
-    private Servo outtakeServoLeft = null;
-    private Servo outtakeClaw = null;
 
     private double robotSpeed = 1.0;
 
     Diffy diffy = null;
-    Extendo extendo = null;
+    Intake intake = null;
+    Outtake outtake = null;
 
     private enum State {
         SAMPLE,
@@ -39,7 +32,8 @@ public class DriverControl extends LinearOpMode {
     @Override
     public void runOpMode() {
         diffy = new Diffy(hardwareMap);
-        extendo = new Extendo(hardwareMap);
+        intake = new Intake(hardwareMap);
+        outtake = new Outtake(hardwareMap);
 
         // Initialize the hardware variables. Note that the strings used here must correspond
         // to the names assigned during the robot configuration step on the DS or RC devices.
@@ -47,20 +41,6 @@ public class DriverControl extends LinearOpMode {
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftback"); //ehub 1
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightfront"); //chub 2
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightback"); //chub 3 //Encoder used for ODO Y
-
-        outtakeDCRight = hardwareMap.get(DcMotor.class, "outtakedcright"); //chub 1
-        outtakeDCLeft = hardwareMap.get(DcMotor.class, "outtakedcleft"); //ehub 2
-
-        //Initialize the Servo variables
-        outtakeServoRight = hardwareMap.get(Servo.class, "outtakeservoright"); // chub 5
-        outtakeServoLeft = hardwareMap.get(Servo.class, "outtakeservoleft"); // ehub 0
-        outtakeClaw = hardwareMap.get(Servo.class, "outtakeclaw"); // ehub 1
-
-        outtakeDCRight.setDirection(DcMotor.Direction.REVERSE);
-        outtakeDCLeft.setDirection(DcMotor.Direction.FORWARD);
-
-        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -70,7 +50,7 @@ public class DriverControl extends LinearOpMode {
         initializeSystems();
 
         telemetry.addData("Status", "Initialized");
-        telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtakeDCLeft.getCurrentPosition(), outtakeDCRight.getCurrentPosition());
+        telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
         telemetry.update();
 
         waitForStart();
@@ -131,13 +111,13 @@ public class DriverControl extends LinearOpMode {
             if (gamepad2.circle) { //PICK SAMPLE //B
                 //Extends horizontal slides and rotate claw to pickup
                 state = State.SAMPLE;
-                extendo.extendFully();
+                intake.extendFully();
                 diffy.moveToPickPosition();
             }
             if (gamepad2.square) { //PICK SPECIMEN //X
                 //extend h-misumi out, move diffy down
                 state = State.SPECIMEN;
-                extendo.extendFully();
+                intake.extendFully();
                 diffy.moveToPickPosition();
             }
 
@@ -145,12 +125,12 @@ public class DriverControl extends LinearOpMode {
                 //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
                 //else any other sample -- move diffy up, bring h-misumi back
                 diffy.intakeClaw.setPosition(0.5);
-                extendo.moveToTransferPosition();
+                intake.moveToTransferPosition();
                 diffy.moveToTransferPosition();
             }
 
             if (gamepad2.triangle) { //Y
-
+                outtake.moveToSpecimenDropPosition();
             }
 
             if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500) ) {
@@ -170,7 +150,8 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 
             //OUTTAKE
-            telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtakeDCLeft.getCurrentPosition(), outtakeDCRight.getCurrentPosition());
+            telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+            telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
 
             //INTAKE
             telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", diffy.diffyLeft.getPosition(), diffy.diffyRight.getPosition());
@@ -178,7 +159,7 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("diffyVerticalAngle", "%7d", diffy.diffyVerticalAngle);
             telemetry.addData("intake Claw Position", "%4.2f", diffy.intakeClaw.getPosition());
             telemetry.addData("intake Sensor, Color: " + diffy.getSampleColor(), "Distance: %4.2f", diffy.intakeSensor.getDistance(DistanceUnit.MM));
-            telemetry.addData("intake Motor: ", "%7d", extendo.getPosition());
+            telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
 
             //MOTORS
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);

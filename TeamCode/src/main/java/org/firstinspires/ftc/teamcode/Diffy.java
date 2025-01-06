@@ -23,7 +23,7 @@ public class Diffy {
     public int diffyVerticalAngle = 0;
 
     // Tune these maximum angles based on your mechanical limits:
-    private static final int MAX_ROTATION_DEGREES = 90;   // e.g. +/− 90 each way, or something else
+    private static final int MAX_ROTATION_DEGREES = 90;
     private static final int MAX_VERTICAL_DEGREES  = 255;  // e.g. can tilt from 0° up to 180°
 
     // Used to map degrees to servo range [0.0 ... 1.0].
