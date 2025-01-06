@@ -12,10 +12,12 @@ public class XBot {
     static final double     SERVO_INCREMENT = 0.03; // Increment size for position changes
 
     // eg: Motor Encoder 117 = 384.5, 223 = 751.8, 312 = 537.7, 435 = 1425.1
-    static final double     COUNTS_PER_MOTOR_REV    = 537.7;// 384.5; // 1425.1;
+    static final double     COUNTS_PER_MOTOR_REV    = 447.5;// 384.5; // 1425.1;
     static final double     PULLEY_DIAMETER_INCHES   = 1.5 ;     // For figuring circumference
-    static final double     COUNTS_PER_INCH  = (COUNTS_PER_MOTOR_REV) / (PULLEY_DIAMETER_INCHES * Math.PI); //81.6 ticks per inch
+    static final double     COUNTS_PER_INCH  = 81.6;//(COUNTS_PER_MOTOR_REV) / (PULLEY_DIAMETER_INCHES * Math.PI); //81.6 ticks per inch
     static final double     VIPER_DRIVE_SPEED = 1.0;
+
+    //948 -- 12 inch
 
     //All values in Inches
     static final double     VIPER_DROP_SPECIMEN = 18.5; // Viper zero position 2064

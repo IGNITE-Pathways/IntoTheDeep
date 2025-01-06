@@ -16,9 +16,9 @@ public class Outtake {
     private Servo outtakeServoLeft = null;
     private Servo outtakeClaw = null;
 
-    public int outtakeAngle = 0;
+    public double outtakeAngle = 0;
 
-    private static final int MAX_ROTATION_DEGREES = 90;
+    private static final int MAX_ROTATION_DEGREES = 255;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
 
     public Outtake(HardwareMap hardwareMap) {
@@ -48,6 +48,7 @@ public class Outtake {
 
     public void initialize() {
         driveToPosition(1, 0, 5);
+        rotateArmDown();
     }
 
     private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
@@ -74,13 +75,13 @@ public class Outtake {
             outtakeDCRight.setPower(maxSpeed);
         }
         // Stop all motion;
-        outtakeDCLeft.setPower(0.015);
-        outtakeDCRight.setPower(0.015);
+        outtakeDCLeft.setPower(0.025);
+        outtakeDCRight.setPower(0.025);
     }
 
 
     public void moveToSampleDropPosition() {
-        driveToPosition(0.5, 10, 2000);
+        driveToPosition(0.5, 25, 2000);
     }
 
     public void moveToSpecimenDropPosition() {
@@ -88,7 +89,7 @@ public class Outtake {
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(0.5, 1.4, 2000);
+        driveToPosition(0.5, 2.4, 2000);
     }
 
     public void collapse() {
@@ -104,19 +105,20 @@ public class Outtake {
     }
 
     public void rotateArmToTransferPosition() {
-        rotate(6);
+        rotate(0);
+    }
+
+    public void rotateArmDown() {
+        rotate(70);
     }
 
     public void rotateArmToSampleDropPosition() {
-        rotate(-45);
+        rotate(SERVO_RANGE_DEGREES); //Max rotate
     }
 
     public void rotate(double degrees) {
-        outtakeAngle += degrees;
-
-        // Clamp if desired
+        outtakeAngle = degrees;
         outtakeAngle = Range.clip(outtakeAngle, 0, MAX_ROTATION_DEGREES);
-
         // Update the servos based on new angles
         updateServos();
     }
@@ -130,6 +132,11 @@ public class Outtake {
         pos  = Range.clip(pos,  0.0, 1.0);
 
         // Finally set the servo positions
+        outtakeServoLeft.setPosition(pos);
+        outtakeServoRight.setPosition(pos);
+    }
+
+    public void rotateServosDirectly(double pos) {
         outtakeServoLeft.setPosition(pos);
         outtakeServoRight.setPosition(pos);
     }

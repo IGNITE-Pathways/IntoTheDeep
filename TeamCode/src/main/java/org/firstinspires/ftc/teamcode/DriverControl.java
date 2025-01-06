@@ -156,8 +156,8 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 
             //OUTTAKE
-            telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-            telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+            telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+            telemetry.addData("Outtake Servo Pos", "%4.2f, %4.2f", outtake.getOuttakeLeftServoPosition(), outtake.getOuttakeRightServoPosition());
 
             //INTAKE
             telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
@@ -175,6 +175,8 @@ public class DriverControl extends LinearOpMode {
     }
 
     private void initializeSystems() {
+        intake.initialize();
+        outtake.initialize();
         telemetry.addData("Initialized", "Done");
         telemetry.update();
     }

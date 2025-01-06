@@ -22,6 +22,7 @@ public class Intake {
 
     public void initialize() {
         driveToPosition(1, 0, 5);
+        openClaw();
     }
 
     private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
