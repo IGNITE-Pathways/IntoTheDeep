@@ -80,7 +80,7 @@ public class Outtake {
 
 
     public void moveToSampleDropPosition() {
-        driveToPosition(0.5, 7, 2000);
+        driveToPosition(0.5, 10, 2000);
     }
 
     public void moveToSpecimenDropPosition() {
@@ -88,7 +88,7 @@ public class Outtake {
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(0.5, 2, 2000);
+        driveToPosition(0.5, 1.4, 2000);
     }
 
     public void collapse() {
@@ -103,6 +103,13 @@ public class Outtake {
         return outtakeDCRight.getCurrentPosition();
     }
 
+    public void rotateArmToTransferPosition() {
+        rotate(6);
+    }
+
+    public void rotateArmToSampleDropPosition() {
+        rotate(-45);
+    }
 
     public void rotate(double degrees) {
         outtakeAngle += degrees;

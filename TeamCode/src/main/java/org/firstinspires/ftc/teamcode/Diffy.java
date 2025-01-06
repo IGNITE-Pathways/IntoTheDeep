@@ -5,8 +5,6 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 
 public class Diffy {
     public Servo diffyLeft;
@@ -16,7 +14,7 @@ public class Diffy {
 
     // Current “rotation” angle of the claw about its axis (in degrees).
     // 0 = claw parallel to the robot, positive angles mean rotating in one direction, negative in the other.
-    public int diffyDegrees = 0;
+    public int diffyRotationDegrees = 0;
 
     // Current “vertical” angle of the claw (in degrees).
     // 0 = claw pointing downward, positive angles mean lifting upward.
@@ -59,13 +57,13 @@ public class Diffy {
     public void rotate(Direction direction, int degrees) {
         // Update diffyDegrees by +/- degrees
         if (direction == Direction.CLOCKWISE) {
-            diffyDegrees += degrees;
+            diffyRotationDegrees += degrees;
         } else {
-            diffyDegrees -= degrees;
+            diffyRotationDegrees -= degrees;
         }
 
         // Clamp if desired (just to prevent going beyond mechanical limits):
-        diffyDegrees = Range.clip(diffyDegrees, -MAX_ROTATION_DEGREES, MAX_ROTATION_DEGREES);
+        diffyRotationDegrees = Range.clip(diffyRotationDegrees, -MAX_ROTATION_DEGREES, MAX_ROTATION_DEGREES);
 
         // Update the servos based on new angles
         updateServos();
@@ -76,10 +74,10 @@ public class Diffy {
      * If we want to move counterclockwise, we can pass negative degrees
      */
     public void rotate(double degrees) {
-        diffyDegrees += degrees;
+        diffyRotationDegrees += degrees;
 
         // Clamp if desired
-        diffyDegrees = Range.clip(diffyDegrees, -MAX_ROTATION_DEGREES, MAX_ROTATION_DEGREES);
+        diffyRotationDegrees = Range.clip(diffyRotationDegrees, -MAX_ROTATION_DEGREES, MAX_ROTATION_DEGREES);
 
         // Update the servos based on new angles
         updateServos();
@@ -107,7 +105,7 @@ public class Diffy {
     private void updateServos() {
         // Convert angles (in degrees) to a fractional offset [–1 ... +1]
         // relative to some reference. For example:
-        double rotationFraction = (diffyDegrees) / SERVO_RANGE_DEGREES;         // –1 to +1 range if ±180
+        double rotationFraction = (diffyRotationDegrees) / SERVO_RANGE_DEGREES;         // –1 to +1 range if ±180
         double verticalFraction = diffyVerticalAngle / SERVO_RANGE_DEGREES;   // 0 to ~1 if 0–180
 
         /*
@@ -143,14 +141,22 @@ public class Diffy {
     }
 
     public void moveToTransferPosition() {
-        diffyDegrees = 90;
-        diffyVerticalAngle = 250;
+        diffyRotationDegrees = 90;
+        diffyVerticalAngle = 245;
         updateServos();
     }
 
     public void moveToPickPosition() {
-        diffyDegrees = -14;
+        diffyRotationDegrees = -14;
         diffyVerticalAngle = 0;
+        updateServos();
+        //Open Claw
+        intakeClaw.setPosition(1);
+    }
+
+    public void moveToNormalPosition() {
+        diffyRotationDegrees = 0;
+        diffyVerticalAngle = 90;
         updateServos();
         //Open Claw
         intakeClaw.setPosition(1);

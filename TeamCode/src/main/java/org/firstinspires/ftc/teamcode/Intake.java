@@ -9,6 +9,7 @@ public class Intake {
     //Horizontal Misumis / INTAKE
     public DcMotor intakeDC = null;;
     private ElapsedTime runtime = new ElapsedTime();
+    public Diffy diffy = null;
 
     public Intake(HardwareMap hardwareMap) {
         intakeDC = hardwareMap.get(DcMotor.class, "intakedc"); //chub 0
@@ -16,6 +17,7 @@ public class Intake {
         intakeDC.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeDC.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeDC.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        diffy = new Diffy(hardwareMap);
     }
 
     public void initialize() {
@@ -53,10 +55,35 @@ public class Intake {
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(0.5,2, 5000);
+        driveToPosition(0.5,1.5, 5000);
+        diffy.moveToTransferPosition();
     }
 
     public void collapse() {
         driveToPosition(0.5,0, 5000);
+    }
+
+    public void closeClaw() {
+        diffy.intakeClaw.setPosition(0.5);
+    }
+
+    public void openClaw() {
+        diffy.intakeClaw.setPosition(1);
+    }
+
+    public void moveDiffyToPickPosition() {
+        diffy.moveToPickPosition();
+    }
+
+    public void rotateDiffy(double degrees) {
+        diffy.rotate(degrees);
+    }
+
+    public void rotateDiffyUp(double degrees) {
+        diffy.rotateUp(degrees);
+    }
+
+    public void moveDiffyToNormalPosition() {
+        diffy.moveToNormalPosition();
     }
 }
