@@ -49,17 +49,29 @@ public class Intake {
     public int getPosition() {
         return intakeDC.getCurrentPosition();
     }
-
+    public void extendLittleBit() {
+        intakeDC.setPower(0.5);
+        driveToPosition(0.5,0.5, 5000);
+    }
     public void extendFully() {
-        driveToPosition(0.5,6, 5000);
+        intakeDC.setPower(1);
+        driveToPosition(1,8.5, 5000);
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(0.5,1.5, 5000);
+        driveToPosition(1,1.5, 5000);
         diffy.moveToTransferPosition();
     }
 
-    public void collapse() {
+    public void InitializePositionOfDiffy() {
+        diffy.moveToInitializePosition();
+    }
+
+    public void InitializePositionOfDiffyAfterSample() {
+        diffy.moveToInitializePositionButAfterIntakingSample();
+    }
+    public void retractFully() {
+        intakeDC.setPower(1);
         driveToPosition(0.5,0, 5000);
     }
 
@@ -73,6 +85,10 @@ public class Intake {
 
     public void moveDiffyToPickPosition() {
         diffy.moveToPickPosition();
+    }
+
+    public void moveDiffyToPREPICKPosition() {
+        diffy.movetoPREPICKPosition();
     }
 
     public void rotateDiffy(double degrees) {

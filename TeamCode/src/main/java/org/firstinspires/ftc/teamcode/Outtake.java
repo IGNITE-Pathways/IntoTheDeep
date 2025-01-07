@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
+import com.arcrobotics.ftclib.controller.PIDFController;
 
 public class Outtake {
     private final ElapsedTime runtime = new ElapsedTime();
@@ -20,6 +22,8 @@ public class Outtake {
 
     private static final int MAX_ROTATION_DEGREES = 90;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
+    private PIDFController controller;
+    public static double p, i, d, f = 0;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotor.class, "outtakedcright"); //chub 1
@@ -44,55 +48,34 @@ public class Outtake {
 
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
+
+        controller = new PIDFController(p, i, d, f);
     }
 
     public void initialize() {
-        driveToPosition(1, 0, 5);
+        driveToPosition(0);
     }
 
-    private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
-        // Ensure that the OpMode is still active
-        int newTarget = (int) (inches * XBot.COUNTS_PER_INCH);
-        outtakeDCLeft.setTargetPosition(newTarget);
-        outtakeDCRight.setTargetPosition(newTarget);
-
-        // Turn On RUN_TO_POSITION
-        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        outtakeDCRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        runtime.reset();
-        outtakeDCLeft.setPower(Math.abs(maxSpeed));
-        outtakeDCRight.setPower(Math.abs(maxSpeed));
-
-        // keep looping while we are still active, and there is time left, and intakeDC motor is running.
-        // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
-        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-        // always end the motion as soon as possible.
-        while ((runtime.milliseconds() < timeoutMilliSeconds) && (outtakeDCLeft.isBusy())) {
-            // Set motor power
-            outtakeDCLeft.setPower(maxSpeed);
-            outtakeDCRight.setPower(maxSpeed);
-        }
-        // Stop all motion;
-        outtakeDCLeft.setPower(0.015);
-        outtakeDCRight.setPower(0.015);
+    private void driveToPosition(double inches) {
+       double currentPosition = outtakeDCLeft.getCurrentPosition();
+       controller.setPIDF(p, i, d, f);
+       outtakeDCLeft.setPower(controller.calculate(inches));
+       outtakeDCRight.setPower(controller.calculate(inches));
     }
 
 
-    public void moveToSampleDropPosition() {
-        driveToPosition(0.5, 10, 2000);
-    }
+    public void moveToSampleDropPosition() { driveToPosition(10); }
 
     public void moveToSpecimenDropPosition() {
-        driveToPosition(0.5, 5, 2000);
+        driveToPosition(5);
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(0.5, 1.4, 2000);
+        driveToPosition(1.4);
     }
 
     public void collapse() {
-        driveToPosition(0.5, 0, 2000);
+        driveToPosition(0);
     }
 
     public int getLeftPosition() {

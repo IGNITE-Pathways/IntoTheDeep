@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -107,11 +108,11 @@ public class DriverControl extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * robotSpeed);
             rightBackDrive.setPower(rightBackPower * robotSpeed);
 
-            if (gamepad2.circle) { //PICK SAMPLE //B
+            if (gamepad2.circle) { //PICK SAMPLE //B on logitech
                 //Extends horizontal slides and rotate claw to pickup
                 state = State.SAMPLE;
                 intake.extendFully();
-                intake.moveDiffyToPickPosition();
+                intake.moveDiffyToPREPICKPosition();
             }
             if (gamepad2.square) { //PICK SPECIMEN //X
                 //extend h-misumi out, move diffy down
@@ -120,17 +121,18 @@ public class DriverControl extends LinearOpMode {
                 intake.moveDiffyToPickPosition();
             }
 
-            if (gamepad2.cross) { //A
+            if (gamepad2.cross) { //A on logitech
                 //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
                 //else any other sample -- move diffy up, bring h-misumi back
                 intake.closeClaw();
                 intake.moveToTransferPosition();
+                new SleepAction(200);
                 outtake.openClaw();
                 outtake.moveToTransferPosition();
                 outtake.rotateArmToTransferPosition();
             }
 
-            if (gamepad2.triangle) { //Y
+            if (gamepad2.triangle) { //Y on logitech
                 outtake.closeClaw();
                 intake.openClaw();
                 sleep(200);
@@ -149,6 +151,30 @@ public class DriverControl extends LinearOpMode {
                 int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
                 intake.rotateDiffyUp(45 * sign);
                 lastDiffyAngleChanged = runtime.milliseconds();
+            }
+
+            if (gamepad2.left_trigger > 0.5) {
+                intake.extendLittleBit();
+                if ((intake.intakeDC.getCurrentPosition()) == 8.5) {
+                    intake.moveDiffyToPickPosition();}
+//                    else if ((intake.diffy.diffyRotationDegrees()) == -7) && ((intake.diffy.diffyVerticalAngle()) == 0) {
+//                        intake.moveDiffyToPREPICKPosition();
+//                    }
+//                    else if ((intake.intakeDC.getCurrentPosition()) == 10) {
+//                        intake.moveDiffyToNormalPosition();
+//                    }
+
+                intake.closeClaw();
+                intake.InitializePositionOfDiffyAfterSample();
+
+            }
+
+            if (gamepad2.right_trigger > 0.5) {
+                intake.openClaw();
+            }
+
+            if (gamepad2.left_bumper){
+                intake.retractFully();
             }
 
             // Telemetry

@@ -46,8 +46,9 @@ public class Diffy {
     private void initialize() {
 //        diffyVerticalAngle = 0; // claw pointing downward
 //        diffyDegrees = 0;       // no rotation
-        moveToPickPosition();
-        updateServos();
+        moveToInitializePosition();
+
+
     }
 
     /**
@@ -141,17 +142,37 @@ public class Diffy {
     }
 
     public void moveToTransferPosition() {
-        diffyRotationDegrees = 90;
+        diffyRotationDegrees = 92;
         diffyVerticalAngle = 245;
         updateServos();
     }
 
+    public void movetoPREPICKPosition() {
+        diffyRotationDegrees = -7 ;
+        diffyVerticalAngle = 45;
+        updateServos();
+    }
+
     public void moveToPickPosition() {
-        diffyRotationDegrees = -14;
+        diffyRotationDegrees = -7;
         diffyVerticalAngle = 0;
         updateServos();
         //Open Claw
         intakeClaw.setPosition(1);
+    }
+
+    public void moveToInitializePosition() {
+        diffyRotationDegrees = -7;
+        diffyVerticalAngle = 215;
+        updateServos();
+        //Open Claw
+        intakeClaw.setPosition(1);
+    }
+
+    public void moveToInitializePositionButAfterIntakingSample() {
+        diffyRotationDegrees = -7;
+        diffyVerticalAngle = 215;
+        updateServos();
     }
 
     public void moveToNormalPosition() {
