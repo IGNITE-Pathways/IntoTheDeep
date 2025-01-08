@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import com.acmerobotics.roadrunner.SleepAction;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -22,6 +24,11 @@ public class DriverControl extends LinearOpMode {
 
     Intake intake = null;
     Outtake outtake = null;
+
+    private void initializeSystems() {
+        telemetry.addData("Initialized", "Done");
+        telemetry.update();
+    }
 
     private enum State {
         SAMPLE,
@@ -50,7 +57,7 @@ public class DriverControl extends LinearOpMode {
 
         telemetry.addData("Status", "Initialized");
         telemetry.addData("COUNTS_PER_INCH", XBot.COUNTS_PER_INCH);
-        telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+        telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
         telemetry.update();
 
         waitForStart();
@@ -59,6 +66,10 @@ public class DriverControl extends LinearOpMode {
         double lastDiffyDegreesChanged = runtime.milliseconds();
         double lastDiffyAngleChanged = runtime.milliseconds();
         // run until the end of the match (driver presses STOP)
+        double leftFrontPower = 0;
+        double leftBackPower = 0;
+        double rightFrontPower = 0;
+        double rightBackPower = 0;
         while (opModeIsActive()) {
             double max;
 
@@ -69,10 +80,10 @@ public class DriverControl extends LinearOpMode {
 
             // Combine the joystick requests for each axis-motion to determine each wheel's power.
             // Set up a variable for each drive wheel to save the power level for telemetry.
-            double leftFrontPower = axial + lateral + yaw;
-            double rightFrontPower = axial - lateral - yaw;
-            double leftBackPower = axial - lateral + yaw;
-            double rightBackPower = axial + lateral - yaw;
+            leftFrontPower = axial + lateral + yaw;
+            rightFrontPower = axial - lateral - yaw;
+            leftBackPower = axial - lateral + yaw;
+            rightBackPower = axial + lateral - yaw;
 
             // Normalize the values so no wheel power exceeds 100%
             // This ensures that the robot maintains the desired motion.
@@ -141,13 +152,13 @@ public class DriverControl extends LinearOpMode {
                 outtake.rotateArmToSampleDropPosition();
             }
 
-            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500) ) {
+            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500)) {
                 int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
                 intake.rotateDiffy(24.5 * sign);
                 lastDiffyDegreesChanged = runtime.milliseconds();
             }
 
-            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200) ) {
+            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200)) {
                 int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
                 intake.rotateDiffyUp(45 * sign);
                 lastDiffyAngleChanged = runtime.milliseconds();
@@ -155,54 +166,50 @@ public class DriverControl extends LinearOpMode {
 
             if (gamepad2.left_trigger > 0.5) {
                 intake.extendLittleBit();
-                if ((intake.intakeDC.getCurrentPosition()) == 8.5) {
-                    intake.moveDiffyToPickPosition();}
-//                    else if ((intake.diffy.diffyRotationDegrees()) == -7) && ((intake.diffy.diffyVerticalAngle()) == 0) {
-//                        intake.moveDiffyToPREPICKPosition();
-//                    }
-//                    else if ((intake.intakeDC.getCurrentPosition()) == 10) {
-//                        intake.moveDiffyToNormalPosition();
-//                    }
+                new SleepAction(1000);
+//                if (intake.getPosition() == 9) {
+//                    telemetry.addData("test", intake.getPosition());
+                intake.moveDiffyToPickPosition();
+                new SleepAction(1000);
 
+//                else if ((intake.diffy.diffyRotationDegrees == -7) && (intake.diffy.diffyVerticalAngle == 0)) {
                 intake.closeClaw();
+                new SleepAction(1000);
+
                 intake.InitializePositionOfDiffyAfterSample();
-
+                new SleepAction(1000);
             }
 
-            if (gamepad2.right_trigger > 0.5) {
-                intake.openClaw();
-            }
-
-            if (gamepad2.left_bumper){
-                intake.retractFully();
-            }
-
-            // Telemetry
-            telemetry.addData("GAME State", state);
-            telemetry.addData("Status", "Run Time: " + runtime.toString());
-
-            //OUTTAKE
-            telemetry.addData("Outtake Motor Pos",  "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-            telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-
-            //INTAKE
-            telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
-            telemetry.addData("diffyDegrees", "%7d", intake.diffy.diffyRotationDegrees);
-            telemetry.addData("diffyVerticalAngle", "%7d", intake.diffy.diffyVerticalAngle);
-            telemetry.addData("intake Claw Position", "%4.2f", intake.diffy.intakeClaw.getPosition());
-            telemetry.addData("intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
-            telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
-
-            //MOTORS
-            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-            telemetry.update();
         }
-    }
 
-    private void initializeSystems() {
-        telemetry.addData("Initialized", "Done");
+        if (gamepad2.right_trigger > 0.5) {
+            intake.openClaw();
+        }
+//
+        if (gamepad2.left_bumper){
+            telemetry.addData("test", intake.getPosition());
+            intake.retractFully();
+        }
+
+        // Telemetry
+        telemetry.addData("GAME State", state);
+        telemetry.addData("Status", "Run Time: " + runtime.toString());
+
+        //OUTTAKE
+        telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+        telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+
+        //INTAKE
+        telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
+        telemetry.addData("diffyDegrees", "%7d", intake.diffy.diffyRotationDegrees);
+        telemetry.addData("diffyVerticalAngle", "%7d", intake.diffy.diffyVerticalAngle);
+        telemetry.addData("intake Claw Position", "%4.2f", intake.diffy.intakeClaw.getPosition());
+        telemetry.addData("intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
+        telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
+
+        //MOTORS
+        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.update();
     }
-
-}
+    }

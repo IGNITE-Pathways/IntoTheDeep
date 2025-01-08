@@ -50,8 +50,7 @@ public class Intake {
         return intakeDC.getCurrentPosition();
     }
     public void extendLittleBit() {
-        intakeDC.setPower(0.5);
-        driveToPosition(0.5,0.5, 5000);
+        driveToPosition(1,9, 5000);
     }
     public void extendFully() {
         intakeDC.setPower(1);
@@ -72,7 +71,7 @@ public class Intake {
     }
     public void retractFully() {
         intakeDC.setPower(1);
-        driveToPosition(0.5,0, 5000);
+        driveToPosition(1,0, 5000);
     }
 
     public void closeClaw() {

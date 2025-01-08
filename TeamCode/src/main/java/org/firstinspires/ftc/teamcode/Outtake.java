@@ -1,7 +1,14 @@
 package org.firstinspires.ftc.teamcode;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -9,6 +16,26 @@ import com.qualcomm.robotcore.util.Range;
 import com.arcrobotics.ftclib.controller.PIDFController;
 
 public class Outtake {
+
+    private PIDFController controller;
+    public static double p = 0.03, i = 0, d = 0.0001;
+    public static double f = 0.00004;
+
+    public static double targetPosition = 0;
+    private DcMotorEx left;
+    private DcMotorEx right;
+
+    public void init() {
+        controller = new PIDFController(p, i, d, f);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
+        left = hardwareMap.get(DcMotorEx.class, "outtakedcleft");
+        right = hardwareMap.get(DcMotorEx.class, "outtakedcright");
+
+        left.setDirection(DcMotorSimple.Direction.REVERSE);
+        right.setDirection(DcMotorSimple.Direction.FORWARD);
+    }
+
     private final ElapsedTime runtime = new ElapsedTime();
 
     //Vertical Misumis / OUTTAKE
@@ -22,8 +49,6 @@ public class Outtake {
 
     private static final int MAX_ROTATION_DEGREES = 90;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
-    private PIDFController controller;
-    public static double p, i, d, f = 0;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotor.class, "outtakedcright"); //chub 1
@@ -63,6 +88,21 @@ public class Outtake {
        outtakeDCRight.setPower(controller.calculate(inches));
     }
 
+    public void loop() {
+        controller.setPIDF(p, i, d, f);
+        double slidePos = left.getCurrentPosition();
+
+        double pid = controller.calculate(slidePos, targetPosition);
+
+        double power = pid + f;
+
+        left.setPower(power);
+        right.setPower(power);
+
+        telemetry.addData("targetPos", targetPosition);
+        telemetry.addData("currentPos", slidePos);
+        telemetry.update();
+    }
 
     public void moveToSampleDropPosition() { driveToPosition(10); }
 
