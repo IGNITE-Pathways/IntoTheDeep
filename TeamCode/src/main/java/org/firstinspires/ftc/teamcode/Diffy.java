@@ -142,7 +142,7 @@ public class Diffy {
     }
 
     public void moveToTransferPosition() {
-        diffyRotationDegrees = 92;
+        diffyRotationDegrees = -7;
         diffyVerticalAngle = 245;
         updateServos();
     }

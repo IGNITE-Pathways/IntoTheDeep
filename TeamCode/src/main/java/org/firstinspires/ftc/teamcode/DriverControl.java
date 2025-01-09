@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Tele Op", group = "Linear OpMode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Tele Op", group="Linear OpMode")
 public class DriverControl extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -126,6 +126,7 @@ public class DriverControl extends LinearOpMode {
                 //Extends horizontal slides and rotate claw to pickup
                 state = State.SAMPLE;
                 intake.extendFully();
+                intake.openClaw();
                 intake.moveDiffyToPREPICKPosition();
             }
             if (gamepad2.square) { //PICK SPECIMEN //X
@@ -140,6 +141,7 @@ public class DriverControl extends LinearOpMode {
                 //else any other sample -- move diffy up, bring h-misumi back
                 intake.closeClaw();
                 intake.moveToTransferPosition();
+                sleep(200);
                 outtake.openClaw();
                 outtake.moveToTransferPosition();
                 outtake.rotateArmToTransferPosition();
@@ -168,30 +170,24 @@ public class DriverControl extends LinearOpMode {
 
             if (gamepad2.left_trigger > 0.5) {
                 intake.extendLittleBit();
-                new SleepAction(1000);
-//                if (intake.getPosition() == 9) {
-//                    telemetry.addData("test", intake.getPosition());
+                sleep(250);
                 intake.moveDiffyToPickPosition();
-                new SleepAction(1000);
-
-//                else if ((intake.diffy.diffyRotationDegrees == -7) && (intake.diffy.diffyVerticalAngle == 0)) {
+                sleep(250);
                 intake.closeClaw();
-                new SleepAction(1000);
-
+                sleep(250);
                 intake.InitializePositionOfDiffyAfterSample();
-                new SleepAction(1000);
+                sleep(250);
+            }
+            if (gamepad2.right_trigger > 0.5) {
+                intake.openClaw();
+            }
+            if (gamepad2.left_bumper){
+                intake.closeClaw();
             }
 
+
         }
 
-        if (gamepad2.right_trigger > 0.5) {
-            intake.openClaw();
-        }
-//
-        if (gamepad2.left_bumper) {
-            telemetry.addData("test", intake.getPosition());
-            intake.retractFully();
-        }
 
         // Telemetry
         telemetry.addData("GAME State", state);
@@ -199,7 +195,7 @@ public class DriverControl extends LinearOpMode {
 
         //OUTTAKE
         telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-        telemetry.addData("Outtake Servo Pos", "%4.2f, %4.2f", outtake.getOuttakeLeftServoPosition(), outtake.getOuttakeRightServoPosition());
+        telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
 
         //INTAKE
         telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
