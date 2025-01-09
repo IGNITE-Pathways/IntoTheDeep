@@ -45,9 +45,9 @@ public class Outtake {
     private Servo outtakeServoLeft = null;
     private Servo outtakeClaw = null;
 
-    public int outtakeAngle = 0;
+    public double outtakeAngle = 0;
 
-    private static final int MAX_ROTATION_DEGREES = 90;
+    private static final int MAX_ROTATION_DEGREES = 255;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
 
     public Outtake(HardwareMap hardwareMap) {
@@ -78,22 +78,37 @@ public class Outtake {
     }
 
     public void initialize() {
+//        driveToPosition(1, 0, 5);
+        rotateArmDown();
         driveToPosition(0);
     }
 
     private void driveToPosition(double inches) {
-       double currentPosition = outtakeDCLeft.getCurrentPosition();
-       controller.setPIDF(p, i, d, f);
-       outtakeDCLeft.setPower(controller.calculate(inches));
-       outtakeDCRight.setPower(controller.calculate(inches));
+        double currentPosition = outtakeDCLeft.getCurrentPosition();
+        controller.setPIDF(p, i, d, f);
+        outtakeDCLeft.setPower(controller.calculate(inches));
+        outtakeDCRight.setPower(controller.calculate(inches));
     }
 
     public void loop() {
         controller.setPIDF(p, i, d, f);
         double slidePos = left.getCurrentPosition();
-
+//
         double pid = controller.calculate(slidePos, targetPosition);
-
+//
+//        // keep looping while we are still active, and there is time left, and intakeDC motor is running.
+//        // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
+//        // its target position, the motion will stop.  This is "safer" in the event that the robot will
+//        // always end the motion as soon as possible.
+//        while ((runtime.milliseconds() < timeoutMilliSeconds) && (outtakeDCLeft.isBusy())) {
+//            // Set motor power
+//            outtakeDCLeft.setPower(maxSpeed);
+//            outtakeDCRight.setPower(maxSpeed);
+//        }
+//        // Stop all motion;
+//        outtakeDCLeft.setPower(0.025);
+//        outtakeDCRight.setPower(0.025);
+//    }
         double power = pid + f;
 
         left.setPower(power);
@@ -104,13 +119,16 @@ public class Outtake {
         telemetry.update();
     }
 
-    public void moveToSampleDropPosition() { driveToPosition(10); }
+    public void moveToSampleDropPosition() {
+        driveToPosition(10);
+    }
 
     public void moveToSpecimenDropPosition() {
         driveToPosition(5);
     }
 
     public void moveToTransferPosition() {
+//        driveToPosition(0.5, 2.4, 2000);
         driveToPosition(1.4);
     }
 
@@ -127,19 +145,20 @@ public class Outtake {
     }
 
     public void rotateArmToTransferPosition() {
-        rotate(6);
+        rotate(0);
+    }
+
+    public void rotateArmDown() {
+        rotate(70);
     }
 
     public void rotateArmToSampleDropPosition() {
-        rotate(-45);
+        rotate(SERVO_RANGE_DEGREES); //Max rotate
     }
 
     public void rotate(double degrees) {
-        outtakeAngle += degrees;
-
-        // Clamp if desired
+        outtakeAngle = degrees;
         outtakeAngle = Range.clip(outtakeAngle, 0, MAX_ROTATION_DEGREES);
-
         // Update the servos based on new angles
         updateServos();
     }
@@ -150,9 +169,14 @@ public class Outtake {
         double pos = outtakeAngle / SERVO_RANGE_DEGREES;   // 0 to ~1 if 0–180
 
         // Make sure we don’t go beyond servo limits
-        pos  = Range.clip(pos,  0.0, 1.0);
+        pos = Range.clip(pos, 0.0, 1.0);
 
         // Finally set the servo positions
+        outtakeServoLeft.setPosition(pos);
+        outtakeServoRight.setPosition(pos);
+    }
+
+    public void rotateServosDirectly(double pos) {
         outtakeServoLeft.setPosition(pos);
         outtakeServoRight.setPosition(pos);
     }

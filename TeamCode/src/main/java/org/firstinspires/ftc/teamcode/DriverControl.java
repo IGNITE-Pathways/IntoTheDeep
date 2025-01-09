@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Tele Op", group="Linear OpMode")
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Tele Op", group = "Linear OpMode")
 public class DriverControl extends LinearOpMode {
 
     // Declare OpMode members for each of the 4 motors.
@@ -26,6 +26,8 @@ public class DriverControl extends LinearOpMode {
     Outtake outtake = null;
 
     private void initializeSystems() {
+        intake.initialize();
+        outtake.initialize();
         telemetry.addData("Initialized", "Done");
         telemetry.update();
     }
@@ -34,6 +36,7 @@ public class DriverControl extends LinearOpMode {
         SAMPLE,
         SPECIMEN
     }
+
     private DriverControl.State state = State.SAMPLE; // Default no state
 
     @Override
@@ -137,7 +140,6 @@ public class DriverControl extends LinearOpMode {
                 //else any other sample -- move diffy up, bring h-misumi back
                 intake.closeClaw();
                 intake.moveToTransferPosition();
-                new SleepAction(200);
                 outtake.openClaw();
                 outtake.moveToTransferPosition();
                 outtake.rotateArmToTransferPosition();
@@ -186,7 +188,7 @@ public class DriverControl extends LinearOpMode {
             intake.openClaw();
         }
 //
-        if (gamepad2.left_bumper){
+        if (gamepad2.left_bumper) {
             telemetry.addData("test", intake.getPosition());
             intake.retractFully();
         }
@@ -197,7 +199,7 @@ public class DriverControl extends LinearOpMode {
 
         //OUTTAKE
         telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-        telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+        telemetry.addData("Outtake Servo Pos", "%4.2f, %4.2f", outtake.getOuttakeLeftServoPosition(), outtake.getOuttakeRightServoPosition());
 
         //INTAKE
         telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
@@ -212,4 +214,4 @@ public class DriverControl extends LinearOpMode {
         telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
         telemetry.update();
     }
-    }
+}
