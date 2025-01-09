@@ -1,14 +1,9 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.hardwareMap;
 import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.pedropathing.util.CustomPIDFCoefficients;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,25 +17,14 @@ public class Outtake {
     public static double f = 0.00004;
 
     public static double targetPosition = 0;
-    private DcMotorEx left;
-    private DcMotorEx right;
-
-    public void init() {
-        controller = new PIDFController(p, i, d, f);
-        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-
-        left = hardwareMap.get(DcMotorEx.class, "outtakedcleft");
-        right = hardwareMap.get(DcMotorEx.class, "outtakedcright");
-
-        left.setDirection(DcMotorSimple.Direction.REVERSE);
-        right.setDirection(DcMotorSimple.Direction.FORWARD);
-    }
+//    private DcMotorEx left;
+//    private DcMotorEx right;
 
     private final ElapsedTime runtime = new ElapsedTime();
 
     //Vertical Misumis / OUTTAKE
-    private DcMotor outtakeDCRight = null;
-    private DcMotor outtakeDCLeft = null;
+    private DcMotorEx outtakeDCRight = null;
+    private DcMotorEx outtakeDCLeft = null;
     private Servo outtakeServoRight = null;
     private Servo outtakeServoLeft = null;
     private Servo outtakeClaw = null;
@@ -50,9 +34,20 @@ public class Outtake {
     private static final int MAX_ROTATION_DEGREES = 255;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
 
+    // Example: 537.7 ticks/rev, a wheel/spool diameter = 1.377" => circumference ~4.33"
+    // double TICKS_PER_REV = 537.7; // Example
+    // double WHEEL_CIRCUMFERENCE = Math.PI * 1.377;  // example spool diameter
+    // double TICKS_PER_INCH = TICKS_PER_REV / WHEEL_CIRCUMFERENCE;
+
+    // For demonstration, define something:
+    public static final double TICKS_PER_INCH = 123.45; // <== Replace with your real value!
+
+    // Store the target in a class-level variable
+    public double targetTicks = 0.0;
+
     public Outtake(HardwareMap hardwareMap) {
-        outtakeDCRight = hardwareMap.get(DcMotor.class, "outtakedcright"); //chub 1
-        outtakeDCLeft = hardwareMap.get(DcMotor.class, "outtakedcleft"); //ehub 2
+        outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1
+        outtakeDCLeft = hardwareMap.get(DcMotorEx.class, "outtakedcleft"); //ehub 2
 
         //Initialize the Servo variables
         outtakeServoRight = hardwareMap.get(Servo.class, "outtakeservoright"); // chub 5
@@ -75,65 +70,45 @@ public class Outtake {
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
 
         controller = new PIDFController(p, i, d, f);
+        controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
+
     }
 
     public void initialize() {
-//        driveToPosition(1, 0, 5);
         rotateArmDown();
-        driveToPosition(0);
+        setPositionInInches(0);
     }
 
-    private void driveToPosition(double inches) {
-        double currentPosition = outtakeDCLeft.getCurrentPosition();
-        controller.setPIDF(p, i, d, f);
-        outtakeDCLeft.setPower(controller.calculate(inches));
-        outtakeDCRight.setPower(controller.calculate(inches));
+    // 1) Method to set the PID controller’s setpoint
+    public void setPositionInInches(double inches) {
+        targetTicks = inches * TICKS_PER_INCH;
     }
 
-    public void loop() {
-        controller.setPIDF(p, i, d, f);
-        double slidePos = left.getCurrentPosition();
-//
-        double pid = controller.calculate(slidePos, targetPosition);
-//
-//        // keep looping while we are still active, and there is time left, and intakeDC motor is running.
-//        // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
-//        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-//        // always end the motion as soon as possible.
-//        while ((runtime.milliseconds() < timeoutMilliSeconds) && (outtakeDCLeft.isBusy())) {
-//            // Set motor power
-//            outtakeDCLeft.setPower(maxSpeed);
-//            outtakeDCRight.setPower(maxSpeed);
-//        }
-//        // Stop all motion;
-//        outtakeDCLeft.setPower(0.025);
-//        outtakeDCRight.setPower(0.025);
-//    }
-        double power = pid + f;
-
-        left.setPower(power);
-        right.setPower(power);
-
-        telemetry.addData("targetPos", targetPosition);
-        telemetry.addData("currentPos", slidePos);
-        telemetry.update();
+    // 2) Method to call each time in from while loop in DriverControl.runOpMode()
+    public void updateOuttakePID() {
+        // Read the current position from the motor encoder
+        double currentTicks = outtakeDCRight.getCurrentPosition();
+        // FTCLib: pass both measurement and the setpoint
+        double output = controller.calculate(currentTicks, targetTicks);
+        // Set the motors to the calculated power
+        outtakeDCRight.setPower(output);
+        outtakeDCLeft.setPower(output);
     }
 
     public void moveToSampleDropPosition() {
-        driveToPosition(10);
+        setPositionInInches(10);
     }
 
     public void moveToSpecimenDropPosition() {
-        driveToPosition(5);
+        setPositionInInches(5);
     }
 
     public void moveToTransferPosition() {
-//        driveToPosition(0.5, 2.4, 2000);
-        driveToPosition(1.4);
+        setPositionInInches(1.4);
     }
 
     public void collapse() {
-        driveToPosition(0);
+        setPositionInInches(0);
     }
 
     public int getLeftPosition() {

@@ -19,7 +19,6 @@ public class DriverControl extends LinearOpMode {
     private DcMotor rightFrontDrive = null;
     private DcMotor rightBackDrive = null;
 
-
     private double robotSpeed = 1.0;
 
     Intake intake = null;
@@ -185,9 +184,9 @@ public class DriverControl extends LinearOpMode {
                 intake.closeClaw();
             }
 
-
+            // Always update the PID each loop
+            outtake.updateOuttakePID();
         }
-
 
         // Telemetry
         telemetry.addData("GAME State", state);
@@ -195,6 +194,8 @@ public class DriverControl extends LinearOpMode {
 
         //OUTTAKE
         telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+        telemetry.addData("Outtake targetPos", outtake.targetPosition);
+
         telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
 
         //INTAKE
