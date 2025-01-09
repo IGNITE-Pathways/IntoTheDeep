@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.testing;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -11,7 +13,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 @Config
 public class HorizontalTest extends OpMode {
     private PIDFController controller;
-    public static double p = 0.03, i = 0, d = 0.0001;
+    public static double p = 0.05, i = 0, d = 0.0005;
     public static double f = 0.00004;
 
 //    public static double targetPosition = 0;
@@ -24,6 +26,8 @@ public class HorizontalTest extends OpMode {
     @Override
     public void init() {
         controller = new PIDFController(p, i, d, f);
+        telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
+
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc");
         intakeDCMotor.setDirection(DcMotor.Direction.REVERSE);
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
@@ -31,12 +35,12 @@ public class HorizontalTest extends OpMode {
 
     @Override
     public void loop() {
-//        controller.setPIDF(p, i, d, f);
+        controller.setPIDF(p, i, d, f);
         double slidePos = intakeDCMotor.getCurrentPosition();
 
         double pid = controller.calculate(slidePos, targetPositionInInches * TICKS_PER_INCH);
 
-        double power = pid + f;
+        double power = pid;
 
         intakeDCMotor.setPower(power);
 

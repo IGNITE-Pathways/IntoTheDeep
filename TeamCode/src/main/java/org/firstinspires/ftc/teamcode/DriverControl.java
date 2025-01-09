@@ -182,30 +182,30 @@ public class DriverControl extends LinearOpMode {
             }
 
             // Always update the PID each loop
-            outtake.updateOuttakePID();
+//            outtake.updateOuttakePID();
+
+            // Telemetry
+            telemetry.addData("GAME State", state);
+            telemetry.addData("Status", "Run Time: " + runtime.toString());
+
+            //OUTTAKE
+            telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+            telemetry.addData("Outtake targetPos", outtake.targetPosition);
+
+            telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+
+            //INTAKE
+            telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
+            telemetry.addData("diffyDegrees", "%7d", intake.diffy.diffyRotationDegrees);
+            telemetry.addData("diffyVerticalAngle", "%7d", intake.diffy.diffyVerticalAngle);
+            telemetry.addData("intake Claw Position", "%4.2f", intake.diffy.intakeClaw.getPosition());
+            telemetry.addData("intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
+            telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
+
+            //MOTORS
+            telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
+            telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
+            telemetry.update();
         }
-
-        // Telemetry
-        telemetry.addData("GAME State", state);
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
-
-        //OUTTAKE
-        telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-        telemetry.addData("Outtake targetPos", outtake.targetPosition);
-
-        telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-
-        //INTAKE
-        telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
-        telemetry.addData("diffyDegrees", "%7d", intake.diffy.diffyRotationDegrees);
-        telemetry.addData("diffyVerticalAngle", "%7d", intake.diffy.diffyVerticalAngle);
-        telemetry.addData("intake Claw Position", "%4.2f", intake.diffy.intakeClaw.getPosition());
-        telemetry.addData("intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
-        telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
-
-        //MOTORS
-        telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
-        telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
-        telemetry.update();
     }
 }

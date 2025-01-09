@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Thread.sleep;
+
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -34,6 +36,9 @@ public class Outtake {
     // double TICKS_PER_INCH = TICKS_PER_REV / WHEEL_CIRCUMFERENCE;
     public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
+    // The tolerance we allow for the final position
+    private static final double POSITION_TOLERANCE = 10; // example: 10 ticks
+
     // Store the target in a class-level variable
     public double targetPosition = 0.0;
 
@@ -64,6 +69,24 @@ public class Outtake {
     // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
         targetPosition = inches * TICKS_PER_INCH;
+
+        // Run until at setpoint or forced out of loop
+        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
+            double current = outtakeDCLeft.getCurrentPosition();
+            double output = controller.calculate(current, targetPosition);
+            outtakeDCLeft.setPower(output);
+            outtakeDCRight.setPower(output);
+
+            // Let the system keep breathing
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // Stop
+        outtakeDCLeft.setPower(0);
+        outtakeDCRight.setPower(0);
     }
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
@@ -75,6 +98,10 @@ public class Outtake {
         // Set the motors to the calculated power
         outtakeDCRight.setPower(output);
         outtakeDCLeft.setPower(output);
+    }
+
+    private boolean isAtSetpoint(double currentTicks, double targetTicks) {
+        return Math.abs(currentTicks - targetTicks) < POSITION_TOLERANCE;
     }
 
     public void moveToSampleDropPosition() {

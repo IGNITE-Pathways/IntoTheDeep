@@ -13,11 +13,9 @@ public class Diffy {
     public ColorRangeSensor intakeSensor = null;
 
     // Current “rotation” angle of the claw about its axis (in degrees).
-    // 0 = claw parallel to the robot, positive angles mean rotating in one direction, negative in the other.
     public int diffyRotationDegrees = 0;
 
     // Current “vertical” angle of the claw (in degrees).
-    // 0 = claw pointing downward, positive angles mean lifting upward.
     public int diffyVerticalAngle = 0;
 
     // Tune these maximum angles based on your mechanical limits:

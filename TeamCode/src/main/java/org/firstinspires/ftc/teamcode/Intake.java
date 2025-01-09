@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import static java.lang.Thread.sleep;
+
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -14,9 +16,11 @@ public class Intake {
 
     public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
+    // The tolerance we allow for the final position
+    private static final double POSITION_TOLERANCE = 10; // example: 10 ticks
+
     //Horizontal Misumis / INTAKE
     public DcMotorEx intakeDCMotor = null;;
-    private ElapsedTime runtime = new ElapsedTime();
     public Diffy diffy = null;
 
     // Store the target in a class-level variable
@@ -38,10 +42,30 @@ public class Intake {
     // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
         targetPosition = inches * TICKS_PER_INCH;
+        // Run until at setpoint or forced out of loop
+        while (!isAtSetpoint(intakeDCMotor.getCurrentPosition(), targetPosition)) {
+            double current = intakeDCMotor.getCurrentPosition();
+            double output = controller.calculate(current, targetPosition);
+            intakeDCMotor.setPower(output);
+
+            // Let the system keep breathing
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        // Stop
+        intakeDCMotor.setPower(0);
+    }
+
+    private boolean isAtSetpoint(double currentTicks, double targetTicks) {
+        return Math.abs(currentTicks - targetTicks) < POSITION_TOLERANCE;
     }
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
-    public void updateOuttakePID() {
+    public void updateIntakePID() {
         // Read the current position from the motor encoder
         double currentTicks = intakeDCMotor.getCurrentPosition();
         // FTCLib: pass both measurement and the setpoint
@@ -53,6 +77,7 @@ public class Intake {
     public int getPosition() {
         return intakeDCMotor.getCurrentPosition();
     }
+
     public void extendLittleBit() {
         setPositionInInches(9);
     }
@@ -73,6 +98,7 @@ public class Intake {
     public void InitializePositionOfDiffyAfterSample() {
         diffy.moveToInitializePositionButAfterIntakingSample();
     }
+
     public void retractFully() {
         setPositionInInches(0);
     }
