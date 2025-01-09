@@ -1,65 +1,68 @@
 package org.firstinspires.ftc.teamcode;
 
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 public class Intake {
+
+    private PIDFController controller;
+    public static double p = 0.03, i = 0, d = 0.0001;
+    public static double f = 0.00004;
+
+    public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
+
     //Horizontal Misumis / INTAKE
-    public DcMotor intakeDC = null;;
+    public DcMotorEx intakeDCMotor = null;;
     private ElapsedTime runtime = new ElapsedTime();
     public Diffy diffy = null;
 
+    // Store the target in a class-level variable
+    public double targetPosition = 0.0;
+
     public Intake(HardwareMap hardwareMap) {
-        intakeDC = hardwareMap.get(DcMotor.class, "intakedc"); //chub 0
-        intakeDC.setDirection(DcMotorSimple.Direction.REVERSE);
-        intakeDC.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeDC.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeDC.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
+        intakeDCMotor.setDirection(DcMotorSimple.Direction.REVERSE);
         diffy = new Diffy(hardwareMap);
+        controller = new PIDFController(p, i, d, f);
+        controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
     }
 
     public void initialize() {
-        driveToPosition(1, 0, 5);
+        setPositionInInches(0);
         openClaw();
     }
 
-    private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
-        // Ensure that the OpMode is still active
-        int newTarget = (int)(inches * XBot.COUNTS_PER_INCH);
-        intakeDC.setTargetPosition(newTarget);
+    // 1) Method to set the PID controller’s setpoint
+    public void setPositionInInches(double inches) {
+        targetPosition = inches * TICKS_PER_INCH;
+    }
 
-        // Turn On RUN_TO_POSITION
-        intakeDC.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        runtime.reset();
-        intakeDC.setPower(Math.abs(maxSpeed));
-
-        // keep looping while we are still active, and there is time left, and intakeDC motor is running.
-        // Note: We use (isBusy()) in the loop test, which means that when intakeDC motor hits
-        // its target position, the motion will stop.  This is "safer" in the event that the robot will
-        // always end the motion as soon as possible.
-        while ((runtime.milliseconds() < timeoutMilliSeconds) && (intakeDC.isBusy())) {
-            // Set motor power
-            intakeDC.setPower(maxSpeed);
-        }
-        // Stop all motion;
-        intakeDC.setPower(0);
+    // 2) Method to call each time in from while loop in DriverControl.runOpMode()
+    public void updateOuttakePID() {
+        // Read the current position from the motor encoder
+        double currentTicks = intakeDCMotor.getCurrentPosition();
+        // FTCLib: pass both measurement and the setpoint
+        double output = controller.calculate(currentTicks, targetPosition);
+        // Set the motors to the calculated power
+        intakeDCMotor.setPower(output);
     }
 
     public int getPosition() {
-        return intakeDC.getCurrentPosition();
+        return intakeDCMotor.getCurrentPosition();
     }
     public void extendLittleBit() {
-        driveToPosition(1,9, 5000);
+        setPositionInInches(9);
     }
+
     public void extendFully() {
-        intakeDC.setPower(1);
-        driveToPosition(1,8.5, 5000);
+        setPositionInInches(8.5);
     }
 
     public void moveToTransferPosition() {
-        driveToPosition(1,1.5, 5000);
+        setPositionInInches(2);
         diffy.moveToTransferPosition();
     }
 
@@ -71,8 +74,7 @@ public class Intake {
         diffy.moveToInitializePositionButAfterIntakingSample();
     }
     public void retractFully() {
-        intakeDC.setPower(1);
-        driveToPosition(1,0, 5000);
+        setPositionInInches(0);
     }
 
     public void closeClaw() {

@@ -32,8 +32,6 @@ public class Outtake {
     // double TICKS_PER_REV = 537.7; // Example
     // double WHEEL_CIRCUMFERENCE = Math.PI * 1.377;  // example spool diameter
     // double TICKS_PER_INCH = TICKS_PER_REV / WHEEL_CIRCUMFERENCE;
-
-    // For demonstration, define something:
     public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
     // Store the target in a class-level variable
@@ -51,21 +49,11 @@ public class Outtake {
         outtakeDCRight.setDirection(DcMotor.Direction.FORWARD);
         outtakeDCLeft.setDirection(DcMotor.Direction.REVERSE);
 
-//        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-//        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-//        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
 
         controller = new PIDFController(p, i, d, f);
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
-
     }
 
     public void initialize() {
@@ -98,7 +86,7 @@ public class Outtake {
     }
 
     public void moveToTransferPosition() {
-        setPositionInInches(1.4);
+        setPositionInInches(2.4);
     }
 
     public void collapse() {
