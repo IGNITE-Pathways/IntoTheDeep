@@ -51,14 +51,14 @@ public class Outtake {
         outtakeDCRight.setDirection(DcMotor.Direction.FORWARD);
         outtakeDCLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
