@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
-
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,10 +13,6 @@ public class Outtake {
     private PIDFController controller;
     public static double p = 0.03, i = 0, d = 0.0001;
     public static double f = 0.00004;
-
-    public static double targetPosition = 0;
-//    private DcMotorEx left;
-//    private DcMotorEx right;
 
     private final ElapsedTime runtime = new ElapsedTime();
 
@@ -43,7 +37,7 @@ public class Outtake {
     public static final double TICKS_PER_INCH = 123.45; // <== Replace with your real value!
 
     // Store the target in a class-level variable
-    public double targetTicks = 0.0;
+    public double targetPosition = 0.0;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1
@@ -81,7 +75,7 @@ public class Outtake {
 
     // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
-        targetTicks = inches * TICKS_PER_INCH;
+        targetPosition = inches * TICKS_PER_INCH;
     }
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
@@ -89,7 +83,7 @@ public class Outtake {
         // Read the current position from the motor encoder
         double currentTicks = outtakeDCRight.getCurrentPosition();
         // FTCLib: pass both measurement and the setpoint
-        double output = controller.calculate(currentTicks, targetTicks);
+        double output = controller.calculate(currentTicks, targetPosition);
         // Set the motors to the calculated power
         outtakeDCRight.setPower(output);
         outtakeDCLeft.setPower(output);
