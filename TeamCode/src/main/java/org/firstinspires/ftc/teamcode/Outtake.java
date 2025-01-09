@@ -34,7 +34,7 @@ public class Outtake {
     // double TICKS_PER_INCH = TICKS_PER_REV / WHEEL_CIRCUMFERENCE;
 
     // For demonstration, define something:
-    public static final double TICKS_PER_INCH = 123.45; // <== Replace with your real value!
+    public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
     // Store the target in a class-level variable
     public double targetPosition = 0.0;
