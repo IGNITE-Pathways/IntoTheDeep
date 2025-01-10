@@ -69,7 +69,7 @@ public class Outtake {
     }
 
     public void initialize() {
-        rotateArmDown();
+        setOuttakeServoAngle(70);
         setPositionInInches(0);
     }
 
@@ -115,21 +115,21 @@ public class Outtake {
         return Math.abs(currentTicks - targetTicks) < POSITION_TOLERANCE;
     }
 
-    public void moveToSampleDropPosition() {
-        setPositionInInches(10);
-    }
+//    public void moveToSampleDropPosition() {
+//        setPositionInInches(10);
+//    }
+//
+//    public void moveToSpecimenDropPosition() {
+//        setPositionInInches(5);
+//    }
 
-    public void moveToSpecimenDropPosition() {
-        setPositionInInches(5);
-    }
+//    public void moveToTransferPosition() {
+//        setPositionInInches(2.4);
+//    }
 
-    public void moveToTransferPosition() {
-        setPositionInInches(2.4);
-    }
-
-    public void collapse() {
-        setPositionInInches(0);
-    }
+//    public void collapse() {
+//        setPositionInInches(0);
+//    }
 
     public int getLeftPosition() {
         return outtakeDCLeft.getCurrentPosition();
@@ -139,19 +139,19 @@ public class Outtake {
         return outtakeDCRight.getCurrentPosition();
     }
 
-    public void rotateArmToTransferPosition() {
-        rotate(0);
-    }
+//    public void rotateArmToTransferPosition() {
+//        setOuttakeServoAngle(0);
+//    }
 
-    public void rotateArmDown() {
-        rotate(70);
-    }
+//    public void rotateArmDown() {
+//        setOuttakeServoAngle(70);
+//    }
 
     public void rotateArmToSampleDropPosition() {
-        rotate(SERVO_RANGE_DEGREES); //Max rotate
+        setOuttakeServoAngle(SERVO_RANGE_DEGREES); //Max rotate
     }
 
-    public void rotate(double degrees) {
+    public void setOuttakeServoAngle(double degrees) {
         outtakeAngle = degrees;
         outtakeAngle = Range.clip(outtakeAngle, 0, MAX_ROTATION_DEGREES);
         // Update the servos based on new angles
@@ -201,9 +201,45 @@ public class Outtake {
 
     //Called from, DriverControl:runOpMode
     public void loop() {
+        switch (outtakeSlidesPosition) {
+            case DROP_SAMPLE:
+                setPositionInInches(28);
+                break;
+            case HOOK_SPECIMEN_TOP_RUNG:
+                setPositionInInches(10); //@ToDo:
+                break;
+            case CLOSE:
+                setPositionInInches(0);
+                break;
+            case TRANSFER:
+                setPositionInInches(2.4);
+                break;
+        }
         updateOuttakePID();
-        //outtakeSlidesPosition
-        //outtakeArmPosition
-        //outtakeClawPosition
+
+        switch (outtakeArmPosition) {
+            case TRANSFER:
+                setOuttakeServoAngle(0);
+                break;
+            case FACING_DOWN:
+                setOuttakeServoAngle(70);
+                break;
+            case SAMPLE_DROP:
+                setOuttakeServoAngle(MAX_ROTATION_DEGREES);
+                break;
+            case SPECIMEN_DROP:
+                setOuttakeServoAngle(160);
+                break;
+        }
+
+        switch (outtakeClawPosition) {
+            case CLOSE:
+                if (!isClawClosed()) closeClaw();
+                break;
+            case OPEN:
+                if (!isClawOpen()) openClaw();
+                break;
+        }
+
     }
 }

@@ -148,8 +148,45 @@ public class Intake {
                 break;
         }
         updateIntakePID();
-        //diffy.intakeClawPosition
-        //diffy.diffyVerticalPosition
-        //diffy.diffyHorizontalPosition
+
+        switch (diffy.intakeClawPosition) {
+            case CLOSE:
+                if (!isClawClosed()) closeClaw();
+                break;
+            case OPEN:
+                if (!isClawOpen()) openClaw();
+                break;
+        }
+
+        switch (diffy.diffyVerticalPosition) {
+            case DOWN:
+                diffy.setDiffyVerticalAngle(0);
+                break;
+            case FLAT:
+                diffy.setDiffyVerticalAngle(90);
+                break;
+            case UP:
+                diffy.setDiffyVerticalAngle(180);
+                break;
+            case TRANSFER:
+                diffy.setDiffyVerticalAngle(245);
+                break;
+        }
+
+        switch (diffy.diffyHorizontalPosition) {
+            case ANGLE_0:
+                diffy.setDiffyRotationDegrees(0);
+                break;
+            case ANGLE_45:
+                diffy.setDiffyRotationDegrees(22.5);
+                break;
+            case ANGLE_90:
+                diffy.setDiffyRotationDegrees(45);
+                break;
+            case ANGLE_135:
+                diffy.setDiffyRotationDegrees(67.5);
+                break;
+        }
+
     }
 }

@@ -13,10 +13,10 @@ public class Diffy {
     public ColorRangeSensor intakeSensor = null;
 
     // Current “rotation” angle of the claw about its axis (in degrees).
-    public int diffyRotationDegrees = 0;
+    public double diffyRotationDegrees = 0;
 
     // Current “vertical” angle of the claw (in degrees).
-    public int diffyVerticalAngle = 0;
+    public double diffyVerticalAngle = 0;
 
     // Tune these maximum angles based on your mechanical limits:
     private static final int MAX_ROTATION_DEGREES = 90;
@@ -71,6 +71,17 @@ public class Diffy {
         updateServos();
     }
 
+
+    public void setDiffyRotationDegrees(double degrees) {
+        // Update diffyDegrees by +/- degrees
+        diffyRotationDegrees = degrees;
+
+        // Clamp if desired (just to prevent going beyond mechanical limits):
+        diffyRotationDegrees = Range.clip(diffyRotationDegrees, -MAX_ROTATION_DEGREES, MAX_ROTATION_DEGREES);
+
+        // Update the servos based on new angles
+        updateServos();
+    }
     /**
      * Rotate the claw mechanism by `degrees`.
      * If we want to move counterclockwise, we can pass negative degrees
@@ -91,6 +102,16 @@ public class Diffy {
      */
     public void rotateUp(double degrees) {
         diffyVerticalAngle += degrees;
+
+        // Clamp if desired
+        diffyVerticalAngle = Range.clip(diffyVerticalAngle, 0, MAX_VERTICAL_DEGREES);
+
+        // Update the servos based on new angles
+        updateServos();
+    }
+
+    public void setDiffyVerticalAngle(double degrees) {
+        diffyVerticalAngle = degrees;
 
         // Clamp if desired
         diffyVerticalAngle = Range.clip(diffyVerticalAngle, 0, MAX_VERTICAL_DEGREES);
