@@ -26,10 +26,10 @@ public class Intake {
     // Store the target in a class-level variable
     public double targetPosition = 0.0;
 
-    //XX1 toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
+    //Circle on Sony (or B on Logitech) toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
     public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
 
-    //XX2 toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
+    //Cross on Sony (or A on Logitech)  toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
     public DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
 
     //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
@@ -141,5 +141,13 @@ public class Intake {
 
     public void moveDiffyToNormalPosition() {
         diffy.moveToNormalPosition();
+    }
+
+    public boolean isClawClosed() {
+        return diffy.intakeClaw.getPosition() < 0.4;
+    }
+
+    public boolean isClawOpen() {
+        return diffy.intakeClaw.getPosition() > 0.9;
     }
 }

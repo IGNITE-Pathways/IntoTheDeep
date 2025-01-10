@@ -191,4 +191,11 @@ public class Outtake {
     public double getOuttakeRightServoPosition() {
         return outtakeServoRight.getPosition();
     }
+
+    public boolean isClawClosed() {
+        return outtakeClaw.getPosition() < 0.4;
+    }
+    public boolean isClawOpen() {
+        return outtakeClaw.getPosition() > 0.9;
+    }
 }

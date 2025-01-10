@@ -30,7 +30,8 @@ public class DriverControl extends LinearOpMode {
 
     private enum GameElement {
         SAMPLE,
-        SPECIMEN
+        SPECIMEN,
+        SPECIMEN_TO_BE
     }
     private GameElement gameElement = GameElement.SAMPLE; // Default no state
 
@@ -176,22 +177,44 @@ public class DriverControl extends LinearOpMode {
                     initializeSystems();
                     break;
                 case PICKING_GAME_ELEMENT:
-                    intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT; //or DOWN
-                    intake.intakeSlidesPosition = IntakeSlidesPosition.FULL; //or SHORT
                     intake.intakeClawPosition = ClawPosition.OPEN;
+                    if (gamepad2.cross) {
+                        //FLIP
+                        intake.diffyVerticalPosition = (intake.diffyVerticalPosition == DiffyVerticalPosition.FLAT) ? DiffyVerticalPosition.DOWN : DiffyVerticalPosition.FLAT;
+                    }
+                    if (gamepad2.circle) {
+                        //FLIP
+                        intake.intakeSlidesPosition = (intake.intakeSlidesPosition == IntakeSlidesPosition.FULL) ? IntakeSlidesPosition.SHORT : IntakeSlidesPosition.FULL;
+                    }
                     outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
                     outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
                     outtake.outtakeClawPosition = ClawPosition.OPEN;
-                    if (gamepad2.circle) {
+                    if (gamepad2.triangle) {
                         //Action to PICK SAMPLE
                         gameElement = GameElement.SAMPLE;
                         intake.intakeClawPosition = ClawPosition.CLOSE;
                         gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                     } else if (gamepad2.square) {
                         //Action to PICK SPECIMEN
-                        gameElement = GameElement.SPECIMEN;
-                        intake.intakeClawPosition = ClawPosition.CLOSE;
-                        gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                        if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
+                            gameElement = GameElement.SAMPLE;
+                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                        } else {
+                            gameElement = GameElement.SPECIMEN;
+                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                        }
+                    } else if (gamepad2.dpad_down) {
+                        if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
+                            gameElement = GameElement.SAMPLE;
+                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                        } else {
+                            gameElement = GameElement.SPECIMEN_TO_BE;
+                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            gameState = GameState.GOING_TO_DROP_GAME_ELEMENT; //Directly jump to DROP Game Element
+                        }
                     }
                     //Implement gamepad2.right_stick_x to rotate diffy
                     if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 200)) {
@@ -218,25 +241,71 @@ public class DriverControl extends LinearOpMode {
                     }
                     break;
                 case GAME_ELEMENT_IN_INTAKE_CLAW:
-                    //if intakeClawPosition is actually closed
-                    //intake and outtake moves to transfer position
-                    intake.intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
-                    intake.diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
-                    intake.intakeClawPosition = ClawPosition.CLOSE;
-                    outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
-                    outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
-                    outtake.outtakeClawPosition = ClawPosition.OPEN;
+                    if (intake.isClawClosed()) {
+                        //intake and outtake moves to transfer position
+                        intake.intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
+                        intake.diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
+                        intake.intakeClawPosition = ClawPosition.CLOSE;
+                        outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+                        outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
+                        outtake.outtakeClawPosition = ClawPosition.OPEN;
+                    }
                     break;
                 case TRANSFERRING_GAME_ELEMENT:
-
+                    //if intake and outtake are aligned
+                    //transfer happens, outtake claw closes, intake claw opens
+                    outtake.outtakeClawPosition = ClawPosition.CLOSE;
+                    gameState = GameState.GAME_ELEMENT_IN_OUTTAKE_CLAW;
                     break;
                 case GAME_ELEMENT_IN_OUTTAKE_CLAW:
+                    if (outtake.isClawClosed()) {
+                        //the intake claw opens, diffy goes flat
+                        intake.intakeClawPosition = ClawPosition.OPEN;
+                        intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                        gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
+                    }
                     break;
                 case GOING_TO_DROP_GAME_ELEMENT:
+                    //If GameElement is Sample, OuttakeSlidesPosition move to DROP_SAMPLE, OuttakeArmPosition change to SAMPLE_DROP
+                    //If GameElement is Specimen, OuttakeSlidesPosition move to HOOK_SPECIMEN_TOP_RUNG, OuttakeArmPosition change to SPECIMEN_DROP
+                    switch (gameElement) {
+                        case SAMPLE:
+                            outtake.outtakeSlidesPosition = OuttakeSlidesPosition.DROP_SAMPLE;
+                            outtake.outtakeArmPosition = OuttakeArmPosition.SAMPLE_DROP;
+                            break;
+                        case SPECIMEN:
+                            outtake.outtakeSlidesPosition = OuttakeSlidesPosition.HOOK_SPECIMEN_TOP_RUNG;
+                            outtake.outtakeArmPosition = OuttakeArmPosition.SPECIMEN_DROP;
+                            break;
+                        case SPECIMEN_TO_BE:
+                            intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                            intake.intakeSlidesPosition = IntakeSlidesPosition.SHORT; //@ToDo: Do we need this
+                            break;
+                    }
                     break;
                 case READY_TO_DROP_GAME_ELEMENT:
+                    // Allows Driver to move, align robot and get ready to drop GameElement
+                    if (gamepad2.dpad_up) {
+                        switch (gameElement) {
+                            case SAMPLE:
+                                outtake.outtakeClawPosition = ClawPosition.OPEN;
+                                break;
+                            case SPECIMEN:
+                                outtake.outtakeClawPosition = ClawPosition.OPEN;
+                                break;
+                            case SPECIMEN_TO_BE:
+                                intake.intakeClawPosition = ClawPosition.OPEN;
+                                outtake.outtakeClawPosition = ClawPosition.OPEN;
+                                break;
+                        }
+                        gameState = GameState.DROPPED_GAME_ELEMENT;
+                    }
                     break;
                 case DROPPED_GAME_ELEMENT:
+                    if (outtake.isClawOpen() && intake.isClawOpen()) {
+                        intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                        gameState = GameState.PICKING_GAME_ELEMENT;
+                    }
                     break;
             }
 
