@@ -30,6 +30,13 @@ public class Diffy {
     // For example, 0.5 is center position on a typical servo.
 //    private static final double SERVO_CENTER = 0;
 
+    //Cross on Sony (or A on Logitech)  toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
+    public DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+
+    //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
+    public DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
+
+    public ClawPosition intakeClawPosition = ClawPosition.OPEN;
 
     public Diffy(HardwareMap hardwareMap) {
         diffyLeft = hardwareMap.get(Servo.class, "diffyleft");

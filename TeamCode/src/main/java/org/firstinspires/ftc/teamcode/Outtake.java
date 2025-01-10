@@ -198,4 +198,12 @@ public class Outtake {
     public boolean isClawOpen() {
         return outtakeClaw.getPosition() > 0.9;
     }
+
+    //Called from, DriverControl:runOpMode
+    public void loop() {
+        updateOuttakePID();
+        //outtakeSlidesPosition
+        //outtakeArmPosition
+        //outtakeClawPosition
+    }
 }

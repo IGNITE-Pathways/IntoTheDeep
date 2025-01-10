@@ -24,6 +24,7 @@ public class DriverControl extends LinearOpMode {
     private void initializeSystems() {
         intake.initialize();
         outtake.initialize();
+        gameState = GameState.INIT;
         telemetry.addData("Initialized", "Done");
         telemetry.update();
     }
@@ -177,10 +178,10 @@ public class DriverControl extends LinearOpMode {
                     initializeSystems();
                     break;
                 case PICKING_GAME_ELEMENT:
-                    intake.intakeClawPosition = ClawPosition.OPEN;
+                    intake.diffy.intakeClawPosition = ClawPosition.OPEN;
                     if (gamepad2.cross) {
                         //FLIP
-                        intake.diffyVerticalPosition = (intake.diffyVerticalPosition == DiffyVerticalPosition.FLAT) ? DiffyVerticalPosition.DOWN : DiffyVerticalPosition.FLAT;
+                        intake.diffy.diffyVerticalPosition = (intake.diffy.diffyVerticalPosition == DiffyVerticalPosition.FLAT) ? DiffyVerticalPosition.DOWN : DiffyVerticalPosition.FLAT;
                     }
                     if (gamepad2.circle) {
                         //FLIP
@@ -192,48 +193,48 @@ public class DriverControl extends LinearOpMode {
                     if (gamepad2.triangle) {
                         //Action to PICK SAMPLE
                         gameElement = GameElement.SAMPLE;
-                        intake.intakeClawPosition = ClawPosition.CLOSE;
+                        intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                         gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                     } else if (gamepad2.square) {
                         //Action to PICK SPECIMEN
                         if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
                             gameElement = GameElement.SAMPLE;
-                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                             gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                         } else {
                             gameElement = GameElement.SPECIMEN;
-                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                             gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                         }
                     } else if (gamepad2.dpad_down) {
                         if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
                             gameElement = GameElement.SAMPLE;
-                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                             gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                         } else {
                             gameElement = GameElement.SPECIMEN_TO_BE;
-                            intake.intakeClawPosition = ClawPosition.CLOSE;
+                            intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                             gameState = GameState.GOING_TO_DROP_GAME_ELEMENT; //Directly jump to DROP Game Element
                         }
                     }
                     //Implement gamepad2.right_stick_x to rotate diffy
                     if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 200)) {
                         int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-                        switch (intake.diffyHorizontalPosition) {
+                        switch (intake.diffy.diffyHorizontalPosition) {
                             case ANGLE_0:
                                 if (sign == 1) {
-                                    intake.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_45;
+                                    intake.diffy.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_45;
                                 }
                                 break;
                             case ANGLE_45:
-                                intake.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_90: DiffyHorizontalPosition.ANGLE_0;
+                                intake.diffy.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_90: DiffyHorizontalPosition.ANGLE_0;
                                 break;
                             case ANGLE_90:
-                                intake.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_135: DiffyHorizontalPosition.ANGLE_45;
+                                intake.diffy.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_135: DiffyHorizontalPosition.ANGLE_45;
                                 break;
                             case ANGLE_135:
                                 if (sign == -1) {
-                                    intake.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_90;
+                                    intake.diffy.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_90;
                                 }
                                 break;
                         }
@@ -244,8 +245,8 @@ public class DriverControl extends LinearOpMode {
                     if (intake.isClawClosed()) {
                         //intake and outtake moves to transfer position
                         intake.intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
-                        intake.diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
-                        intake.intakeClawPosition = ClawPosition.CLOSE;
+                        intake.diffy.diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
+                        intake.diffy.intakeClawPosition = ClawPosition.CLOSE;
                         outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
                         outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
                         outtake.outtakeClawPosition = ClawPosition.OPEN;
@@ -260,8 +261,8 @@ public class DriverControl extends LinearOpMode {
                 case GAME_ELEMENT_IN_OUTTAKE_CLAW:
                     if (outtake.isClawClosed()) {
                         //the intake claw opens, diffy goes flat
-                        intake.intakeClawPosition = ClawPosition.OPEN;
-                        intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                        intake.diffy.intakeClawPosition = ClawPosition.OPEN;
+                        intake.diffy.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
                         gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
                     }
                     break;
@@ -278,7 +279,7 @@ public class DriverControl extends LinearOpMode {
                             outtake.outtakeArmPosition = OuttakeArmPosition.SPECIMEN_DROP;
                             break;
                         case SPECIMEN_TO_BE:
-                            intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                            intake.diffy.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
                             intake.intakeSlidesPosition = IntakeSlidesPosition.SHORT; //@ToDo: Do we need this
                             break;
                     }
@@ -294,7 +295,7 @@ public class DriverControl extends LinearOpMode {
                                 outtake.outtakeClawPosition = ClawPosition.OPEN;
                                 break;
                             case SPECIMEN_TO_BE:
-                                intake.intakeClawPosition = ClawPosition.OPEN;
+                                intake.diffy.intakeClawPosition = ClawPosition.OPEN;
                                 outtake.outtakeClawPosition = ClawPosition.OPEN;
                                 break;
                         }
@@ -303,7 +304,7 @@ public class DriverControl extends LinearOpMode {
                     break;
                 case DROPPED_GAME_ELEMENT:
                     if (outtake.isClawOpen() && intake.isClawOpen()) {
-                        intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+                        intake.diffy.diffyVerticalPosition = DiffyVerticalPosition.FLAT;
                         gameState = GameState.PICKING_GAME_ELEMENT;
                     }
                     break;
@@ -322,63 +323,63 @@ public class DriverControl extends LinearOpMode {
 //                intake.openClaw();
 //                intake.moveDiffyToPickPosition();
 //            } else
-                if (gamepad2.cross) { //A on logitech
-                //Pick Sample or Specimen
-                intake.closeClaw();
-                if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
-                    gameElement = GameElement.SAMPLE;
-                    //move diffy up, return h-misumi, xfer, raise v-misumi
-                    intake.moveToTransferPosition();
-                } else {
-                    //else any other sample -- move diffy up, bring h-misumi back
-                    intake.moveToTransferPosition();
-                    sleep(200);
-                    outtake.openClaw();
-                    outtake.moveToTransferPosition();
-                    outtake.rotateArmToTransferPosition();
-                }
-            } else if (gamepad2.triangle) { //Y on logitech
-                outtake.closeClaw();
-                intake.openClaw();
-                sleep(200);
-                intake.moveDiffyToNormalPosition();
-                outtake.moveToSampleDropPosition();
-                outtake.rotateArmToSampleDropPosition();
-            }
-
-            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500)) {
-                int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-                intake.rotateDiffy(24.5 * sign);
-                lastDiffyDegreesChanged = runtime.milliseconds();
-            }
-
-            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200)) {
-                int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
-                intake.rotateDiffyUp(45 * sign);
-                lastDiffyAngleChanged = runtime.milliseconds();
-            }
-
-            if (gamepad2.left_trigger > 0.5) {
-                intake.extendLittleBit();
-                sleep(250);
-                intake.moveDiffyToPickPosition();
-                sleep(250);
-                intake.closeClaw();
-                sleep(250);
-                intake.InitializePositionOfDiffyAfterSample();
-                sleep(250);
-            }
-            if (gamepad2.right_trigger > 0.5) {
-                intake.openClaw();
-            }
-            if (gamepad2.left_bumper){
-                intake.closeClaw();
-            }
+//                if (gamepad2.cross) { //A on logitech
+//                //Pick Sample or Specimen
+//                intake.closeClaw();
+//                if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
+//                    gameElement = GameElement.SAMPLE;
+//                    //move diffy up, return h-misumi, xfer, raise v-misumi
+//                    intake.moveToTransferPosition();
+//                } else {
+//                    //else any other sample -- move diffy up, bring h-misumi back
+//                    intake.moveToTransferPosition();
+//                    sleep(200);
+//                    outtake.openClaw();
+//                    outtake.moveToTransferPosition();
+//                    outtake.rotateArmToTransferPosition();
+//                }
+//            } else if (gamepad2.triangle) { //Y on logitech
+//                outtake.closeClaw();
+//                intake.openClaw();
+//                sleep(200);
+//                intake.moveDiffyToNormalPosition();
+//                outtake.moveToSampleDropPosition();
+//                outtake.rotateArmToSampleDropPosition();
+//            }
+//
+//            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500)) {
+//                int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
+//                intake.rotateDiffy(24.5 * sign);
+//                lastDiffyDegreesChanged = runtime.milliseconds();
+//            }
+//
+//            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200)) {
+//                int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
+//                intake.rotateDiffyUp(45 * sign);
+//                lastDiffyAngleChanged = runtime.milliseconds();
+//            }
+//
+//            if (gamepad2.left_trigger > 0.5) {
+//                intake.extendLittleBit();
+//                sleep(250);
+//                intake.moveDiffyToPickPosition();
+//                sleep(250);
+//                intake.closeClaw();
+//                sleep(250);
+//                intake.InitializePositionOfDiffyAfterSample();
+//                sleep(250);
+//            }
+//            if (gamepad2.right_trigger > 0.5) {
+//                intake.openClaw();
+//            }
+//            if (gamepad2.left_bumper){
+//                intake.closeClaw();
+//            }
 
 
             // Always update the PID each loop
-            outtake.updateOuttakePID();
-            intake.updateIntakePID();
+            intake.loop();
+            outtake.loop();
 
             // Telemetry
             telemetry.addData("GAME State", gameElement);

@@ -29,14 +29,6 @@ public class Intake {
     //Circle on Sony (or B on Logitech) toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
     public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
 
-    //Cross on Sony (or A on Logitech)  toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
-    public DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
-
-    //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
-    public DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
-
-    public ClawPosition intakeClawPosition = ClawPosition.OPEN;
-
     public Intake(HardwareMap hardwareMap) {
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
         intakeDCMotor.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -94,12 +86,8 @@ public class Intake {
         setPositionInInches(9);
     }
 
-    public void extendFully() {
-        setPositionInInches(8.5);
-    }
-
     public void moveToTransferPosition() {
-        setPositionInInches(2);
+
         diffy.moveToTransferPosition();
     }
 
@@ -127,10 +115,6 @@ public class Intake {
         diffy.moveToPickPosition();
     }
 
-//    public void moveDiffyToPREPICKPosition() {
-//        diffy.movetoPREPICKPosition();
-//    }
-
     public void rotateDiffy(double degrees) {
         diffy.rotate(degrees);
     }
@@ -139,15 +123,33 @@ public class Intake {
         diffy.rotateUp(degrees);
     }
 
-    public void moveDiffyToNormalPosition() {
-        diffy.moveToNormalPosition();
-    }
-
     public boolean isClawClosed() {
         return diffy.intakeClaw.getPosition() < 0.4;
     }
 
     public boolean isClawOpen() {
         return diffy.intakeClaw.getPosition() > 0.9;
+    }
+
+    //Called from, DriverControl:runOpMode
+    public void loop() {
+        switch (intakeSlidesPosition) {
+            case FULL:
+                setPositionInInches(8.5);
+                break;
+            case SHORT:
+                setPositionInInches(3); //@TODO: Tune
+                break;
+            case CLOSE:
+                setPositionInInches(0);
+                break;
+            case TRANSFER:
+                setPositionInInches(2);
+                break;
+        }
+        updateIntakePID();
+        //diffy.intakeClawPosition
+        //diffy.diffyVerticalPosition
+        //diffy.diffyHorizontalPosition
     }
 }
