@@ -30,6 +30,10 @@ public class HorizontalTest extends OpMode {
 
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc");
         intakeDCMotor.setDirection(DcMotor.Direction.REVERSE);
+        intakeDCMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeDCMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeDCMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
     }
 

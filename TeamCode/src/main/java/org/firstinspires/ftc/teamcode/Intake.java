@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.controller.PIDFController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -25,11 +26,14 @@ public class Intake {
     public double targetPosition = 0.0;
 
     //Circle on Sony (or B on Logitech) toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
-    public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.CLOSE;
+    private IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.CLOSE;
 
     public Intake(HardwareMap hardwareMap) {
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
         intakeDCMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        intakeDCMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        intakeDCMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeDCMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         diffy = new Diffy(hardwareMap);
         controller = new PIDFController(p, i, d, f);
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
@@ -104,6 +108,26 @@ public class Intake {
 
     //Called from, DriverControl:runOpMode
     public void loop() {
+        updateIntakePID();
+    }
+
+    public void flipIntakeSlidesPosition() {
+        switch (intakeSlidesPosition) {
+            case FULL:
+                intakeSlidesPosition = IntakeSlidesPosition.SHORT;
+                break;
+            case SHORT:
+                intakeSlidesPosition = IntakeSlidesPosition.FULL;
+                break;
+        }
+    }
+
+    public IntakeSlidesPosition getIntakeSlidesPosition() {
+        return intakeSlidesPosition;
+    }
+
+    public void setIntakeSlidesPosition(IntakeSlidesPosition position) {
+        this.intakeSlidesPosition = position;
         switch (intakeSlidesPosition) {
             case FULL:
                 setPositionInInches(8.5);
@@ -118,46 +142,6 @@ public class Intake {
                 setPositionInInches(2);
                 break;
         }
-        updateIntakePID();
-
-        switch (diffy.intakeClawPosition) {
-            case CLOSE:
-                if (!isClawClosed()) closeClaw();
-                break;
-            case OPEN:
-                if (!isClawOpen()) openClaw();
-                break;
-        }
-
-        switch (diffy.diffyVerticalPosition) {
-            case DOWN:
-                diffy.setDiffyVerticalAngle(0);
-                break;
-            case FLAT:
-                diffy.setDiffyVerticalAngle(90);
-                break;
-            case UP:
-                diffy.setDiffyVerticalAngle(180);
-                break;
-            case TRANSFER:
-                diffy.setDiffyVerticalAngle(245);
-                break;
-        }
-
-        switch (diffy.diffyHorizontalPosition) {
-            case ANGLE_0:
-                diffy.setDiffyRotationDegrees(0);
-                break;
-            case ANGLE_45:
-                diffy.setDiffyRotationDegrees(22.5);
-                break;
-            case ANGLE_90:
-                diffy.setDiffyRotationDegrees(45);
-                break;
-            case ANGLE_135:
-                diffy.setDiffyRotationDegrees(67.5);
-                break;
-        }
-
     }
+
 }

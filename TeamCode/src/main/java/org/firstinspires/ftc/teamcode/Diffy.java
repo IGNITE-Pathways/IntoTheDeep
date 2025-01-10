@@ -13,10 +13,10 @@ public class Diffy {
     public ColorRangeSensor intakeSensor = null;
 
     // Current “rotation” angle of the claw about its axis (in degrees).
-    public double diffyRotationDegrees = 0;
+    private double diffyRotationDegrees = 0;
 
     // Current “vertical” angle of the claw (in degrees).
-    public double diffyVerticalAngle = 0;
+    private double diffyVerticalAngle = 0;
 
     // Tune these maximum angles based on your mechanical limits:
     private static final int MAX_ROTATION_DEGREES = 90;
@@ -31,12 +31,12 @@ public class Diffy {
 //    private static final double SERVO_CENTER = 0;
 
     //Cross on Sony (or A on Logitech)  toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
-    public DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+    private DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
 
     //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
-    public DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
+    private DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
 
-    public ClawPosition intakeClawPosition = ClawPosition.OPEN;
+    private ClawPosition intakeClawPosition = ClawPosition.OPEN;
 
     public Diffy(HardwareMap hardwareMap) {
         diffyLeft = hardwareMap.get(Servo.class, "diffyleft");
@@ -203,4 +203,114 @@ public class Diffy {
         return detectedColor;
     }
 
+    public void moveClockwise45() {
+        switch (diffyHorizontalPosition) {
+            case ANGLE_0:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_45);
+                break;
+            case ANGLE_45:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_90);
+                break;
+            case ANGLE_90:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_135);
+                break;
+        }
+    }
+
+    public void moveAntiClockwise45() {
+        switch (diffyHorizontalPosition) {
+            case ANGLE_45:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_0);
+                break;
+            case ANGLE_90:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_45);
+                break;
+            case ANGLE_135:
+                setDiffyHorizontalPosition(DiffyHorizontalPosition.ANGLE_90);
+                break;
+        }
+    }
+
+    public void setDiffyHorizontalPosition(DiffyHorizontalPosition position) {
+        diffyHorizontalPosition = position;
+        switch (diffyHorizontalPosition) {
+            case ANGLE_0:
+                setDiffyRotationDegrees(0);
+                break;
+            case ANGLE_45:
+                setDiffyRotationDegrees(22.5);
+                break;
+            case ANGLE_90:
+                setDiffyRotationDegrees(45);
+                break;
+            case ANGLE_135:
+                setDiffyRotationDegrees(67.5);
+                break;
+        }
+    }
+
+    public void flipDiffyVerticalPosition() {
+        switch (diffyVerticalPosition) {
+            case FLAT:
+                setDiffyVerticalPosition(DiffyVerticalPosition.DOWN);
+                break;
+            case DOWN:
+                setDiffyVerticalPosition(DiffyVerticalPosition.FLAT);
+                break;
+        }
+    }
+
+    public void setDiffyVerticalPosition(DiffyVerticalPosition position) {
+        this.diffyVerticalPosition = position;
+        switch (diffyVerticalPosition) {
+            case DOWN:
+                setDiffyVerticalAngle(0);
+                break;
+            case FLAT:
+                setDiffyVerticalAngle(90);
+                break;
+            case UP:
+                setDiffyVerticalAngle(180);
+                break;
+            case TRANSFER:
+                setDiffyVerticalAngle(245);
+                break;
+        }
+    }
+
+    public boolean isClawClosed() {
+        return intakeClaw.getPosition() < 0.4;
+    }
+
+    public boolean isClawOpen() {
+        return intakeClaw.getPosition() > 0.9;
+    }
+
+    public void closeClaw() {
+        intakeClaw.setPosition(0.5);
+    }
+
+    public void openClaw() {
+        intakeClaw.setPosition(1);
+    }
+
+    public void setIntakeClawPosition(ClawPosition position) {
+        this.intakeClawPosition = position;
+        switch (intakeClawPosition) {
+            case CLOSE:
+                if (!isClawClosed()) closeClaw();
+                break;
+            case OPEN:
+                if (!isClawOpen()) openClaw();
+                break;
+        }
+    }
+
+    public double getDiffyRotationDegrees() {
+        return diffyRotationDegrees;
+    }
+
+    public double getDiffyVerticalAngle() {
+        return diffyVerticalAngle;
+    }
 }

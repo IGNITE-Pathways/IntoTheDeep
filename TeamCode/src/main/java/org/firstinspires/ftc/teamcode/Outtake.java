@@ -32,22 +32,22 @@ public class Outtake {
     // double TICKS_PER_REV = 537.7; // Example
     // double WHEEL_CIRCUMFERENCE = Math.PI * 1.377;  // example spool diameter
     // double TICKS_PER_INCH = TICKS_PER_REV / WHEEL_CIRCUMFERENCE;
-    public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
+    private static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
     // The tolerance we allow for the final position
     private static final double POSITION_TOLERANCE = 10; // example: 10 ticks
 
     // Store the target in a class-level variable
-    public double targetPosition = 0.0;
+    public double targetSlidesPosition = 0.0;
 
-    public OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
+    private OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
 
     //OuttakeArmPosition changes automatically based on current game element and Game State
-    public OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
+    private OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
     public double outtakeArmAngle = 0;
     private static final double ARM_ANGLE_TOLERANCE = 1; // in degrees
 
-    public ClawPosition outtakeClawPosition = ClawPosition.OPEN;
+    private ClawPosition outtakeClawPosition = ClawPosition.OPEN;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1
@@ -60,6 +60,14 @@ public class Outtake {
 
         outtakeDCRight.setDirection(DcMotor.Direction.FORWARD);
         outtakeDCLeft.setDirection(DcMotor.Direction.REVERSE);
+
+        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
@@ -76,7 +84,7 @@ public class Outtake {
 
     // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
-        targetPosition = inches * TICKS_PER_INCH;
+        targetSlidesPosition = inches * TICKS_PER_INCH;
 //        // Run until at setpoint or forced out of loop
 //        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
 //            double current = outtakeDCLeft.getCurrentPosition();
@@ -98,11 +106,11 @@ public class Outtake {
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
     public void updateOuttakePID() {
-        if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
+        if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition)) {
             // Read the current position from the motor encoder
             double currentTicks = outtakeDCRight.getCurrentPosition();
             // FTCLib: pass both measurement and the setpoint
-            double output = controller.calculate(currentTicks, targetPosition);
+            double output = controller.calculate(currentTicks, targetSlidesPosition);
             // Set the motors to the calculated power
             outtakeDCRight.setPower(output);
             outtakeDCLeft.setPower(output);
@@ -198,6 +206,11 @@ public class Outtake {
 
     //Called from, DriverControl:runOpMode
     public void loop() {
+        updateOuttakePID();
+    }
+
+    public void setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
+        this.outtakeSlidesPosition = position;
         switch (outtakeSlidesPosition) {
             case DROP_SAMPLE:
                 setPositionInInches(28);
@@ -212,25 +225,10 @@ public class Outtake {
                 setPositionInInches(2.4);
                 break;
         }
-        updateOuttakePID();
+    }
 
-        if (!isArmAtTargetPosition()) {
-            switch (outtakeArmPosition) {
-                case TRANSFER:
-                    setOuttakeArmAngle(0);
-                    break;
-                case FACING_DOWN:
-                    setOuttakeArmAngle(70);
-                    break;
-                case SAMPLE_DROP:
-                    setOuttakeArmAngle(MAX_ROTATION_DEGREES);
-                    break;
-                case SPECIMEN_DROP:
-                    setOuttakeArmAngle(160);
-                    break;
-            }
-        }
-
+    public void setOuttakeClawPosition(ClawPosition position) {
+        this.outtakeClawPosition = position;
         switch (outtakeClawPosition) {
             case CLOSE:
                 if (!isClawClosed()) closeClaw();
@@ -239,6 +237,23 @@ public class Outtake {
                 if (!isClawOpen()) openClaw();
                 break;
         }
+    }
 
+    public void setOuttakeArmPosition(OuttakeArmPosition position) {
+        this.outtakeArmPosition = position;
+        switch (outtakeArmPosition) {
+            case TRANSFER:
+                setOuttakeArmAngle(0);
+                break;
+            case FACING_DOWN:
+                setOuttakeArmAngle(70);
+                break;
+            case SAMPLE_DROP:
+                setOuttakeArmAngle(MAX_ROTATION_DEGREES);
+                break;
+            case SPECIMEN_DROP:
+                setOuttakeArmAngle(160);
+                break;
+        }
     }
 }

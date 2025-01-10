@@ -34,6 +34,14 @@ public class VerticalTest extends OpMode {
         outtakeDCRight.setDirection(DcMotor.Direction.FORWARD);
         outtakeDCLeft.setDirection(DcMotor.Direction.REVERSE);
 
+        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
     }
 
