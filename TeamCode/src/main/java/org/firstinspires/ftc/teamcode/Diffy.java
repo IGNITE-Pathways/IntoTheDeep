@@ -42,11 +42,7 @@ public class Diffy {
     }
 
     private void initialize() {
-//        diffyVerticalAngle = 0; // claw pointing downward
-//        diffyDegrees = 0;       // no rotation
         moveToInitializePosition();
-
-
     }
 
     /**

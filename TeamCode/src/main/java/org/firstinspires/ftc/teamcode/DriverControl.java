@@ -28,12 +28,112 @@ public class DriverControl extends LinearOpMode {
         telemetry.update();
     }
 
-    private enum State {
+    private enum GameElement {
         SAMPLE,
         SPECIMEN
     }
 
-    private DriverControl.State state = State.SAMPLE; // Default no state
+    private GameElement gameElement = GameElement.SAMPLE; // Default no state
+
+    private enum IntakeSlidesPosition {
+        CLOSE,
+        SHORT,
+        TRANSFER,
+        FULL
+    }
+    //XX1 toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
+    private IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
+
+    private enum ClawPosition {
+        OPEN,
+        CLOSE
+    }
+    private ClawPosition intakeClawPosition = ClawPosition.OPEN;
+    private ClawPosition outtakeClawPosition = ClawPosition.OPEN;
+
+    private enum DiffyVerticalPosition {
+        UP,
+        FLAT,
+        DOWN,
+        TRANSFER
+    }
+    //XX2 toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
+    private DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+
+    private enum DiffyHorizontalPosition {
+        ANGLE_0,
+        ANGLE_45,
+        ANGLE_90,
+        ANGLE_135
+    }
+    //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
+    private DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
+
+    private enum OuttakeArmPosition {
+        TRANSFER, //0 Degrees
+        SAMPLE_DROP, //255 Degrees
+        SPECIMEN_DROP, //160 Degrees,
+        FACING_DOWN //70 Degrees
+    }
+    //OuttakeArmPosition changes automatically based on current game element and Game State
+    private OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
+
+    private enum OuttakeSlidesPosition {
+        CLOSE, //0 inches
+        TRANSFER, //2 inches
+        DROP_SAMPLE, //28 inches
+        HOOK_SPECIMEN_TOP_RUNG //14 inches
+    }
+    private OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
+
+    private enum GameState {
+        //Get into state: driver hits Init on Driver station, also default state after AUTO-OP
+        //What happens in state? Nothing. Robot should already have DiffyVerticalPosition is FLAT, claw open,
+        // h-slides at transfer position, v-slides at transfer position, OuttakeArmPosition at FACING_DOWN
+        //Get out of state: Driver hits Play button on Driver station, state changes to PICKING_GAME_ELEMENT
+        INIT,
+
+        //Get into state: driver hits play on Driver station,
+        //What happens in state? DiffyVerticalPosition is FLAT or DOWN, PickingPosition is FULL or SHORT, OuttakeArmPosition start moving to TRANSFER
+        // Driver can rotate claw (left / right bumpers), Limelight sensor can auto-rotate claw
+        //Get out of state: driver2 hits circle (or B) button when ready to pick game element,
+        // or square (or X) button when ready to pick Specimen, state changes to GAME_ELEMENT_IN_INTAKE_CLAW
+        PICKING_GAME_ELEMENT,
+
+        //Get into state: when in PICKING_GAME_ELEMENT mode, driver hits circle (Sony) or B (Logitech) button on GamePad 2 to pick game element
+        //What happens in state? Intake Claw closes to pick / hold the game element, intake and outtake moves to transfer position
+        //Get out of state: auto-change to TRANSFERRING_GAME_ELEMENT
+        GAME_ELEMENT_IN_INTAKE_CLAW,
+
+        //Get into state: auto-change from GAME_ELEMENT_IN_INTAKE_CLAW
+        //What happens in state? transfer happens, outtake claw closes, intake claw opens
+        //Get out of state: auto-change to GAME_ELEMENT_IN_OUTTAKE_CLAW after auto-transfer
+        TRANSFERRING_GAME_ELEMENT,
+
+        //Get into state: auto-change from TRANSFERRING_GAME_ELEMENT after auto-transfer
+        //What happens in state? GameElement transfers to outtake claw, the intake claw opens, diffy goes flat
+        //Get out of state: auto-change to GOING_TO_DROP_GAME_ELEMENT after moving intake back
+        GAME_ELEMENT_IN_OUTTAKE_CLAW,
+
+        //Get into state: auto-change from GAME_ELEMENT_IN_OUTTAKE_CLAW
+        //What happens in state? If GameElement is Sample, OuttakeSlidesPosition move to DROP_SAMPLE, OuttakeArmPosition change to SAMPLE_DROP
+        // If GameElement is Specimen, OuttakeSlidesPosition move to HOOK_SPECIMEN_TOP_RUNG, OuttakeArmPosition change to SPECIMEN_DROP
+        //Get out of state: auto-change to READY_TO_DROP_GAME_ELEMENT after v-slides and arm reached correct positions
+        GOING_TO_DROP_GAME_ELEMENT,
+
+        //Get into state: auto-change from GOING_TO_DROP_GAME_ELEMENT
+        //What happens in state? Allows Driver to move, align robot and get ready to drop GameElement
+        //Get out of this state: Drive and drop the GameElement, state change to DROPPED_GAME_ELEMENT after user-action
+        READY_TO_DROP_GAME_ELEMENT,
+
+        //Get into state: auto-change from READY_TO_DROP_GAME_ELEMENT when user takes drop action
+        //What happens in state? GameElement (Sample or Specimen) is already dropped, intake claw opens, DiffyVerticalPosition FLAT,
+        // OuttakeSlidesPosition move to TRANSFER, OuttakeArmPosition move to TRANSFER
+        //Get into state: auto-change to PICKING_GAME_ELEMENT
+        DROPPED_GAME_ELEMENT
+    }
+
+    private GameState gameState = GameState.INIT;
 
     @Override
     public void runOpMode() {
@@ -52,15 +152,18 @@ public class DriverControl extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
+        gameState = GameState.INIT;
         initializeSystems();
 
-        telemetry.addData("Status", "Initialized");
+        telemetry.addData("Status", gameState);
         telemetry.addData("COUNTS_PER_INCH", XBot.COUNTS_PER_INCH);
         telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
         telemetry.update();
 
         waitForStart();
         runtime.reset();
+        //Play Button Pressed
+        gameState = GameState.PICKING_GAME_ELEMENT;
 
         double lastDiffyDegreesChanged = runtime.milliseconds();
         double lastDiffyAngleChanged = runtime.milliseconds();
@@ -69,6 +172,7 @@ public class DriverControl extends LinearOpMode {
         double leftBackPower = 0;
         double rightFrontPower = 0;
         double rightBackPower = 0;
+
         while (opModeIsActive()) {
             double max;
 
@@ -118,32 +222,106 @@ public class DriverControl extends LinearOpMode {
             leftBackDrive.setPower(leftBackPower * robotSpeed);
             rightBackDrive.setPower(rightBackPower * robotSpeed);
 
-            if (gamepad2.circle) { //PICK SAMPLE //B on logitech
-                //Extends horizontal slides and rotate claw to pickup
-                state = State.SAMPLE;
-                intake.extendFully();
-                intake.openClaw();
-                intake.moveDiffyToPREPICKPosition();
-            }
-            if (gamepad2.square) { //PICK SPECIMEN //X
-                //extend h-misumi out, move diffy down
-                state = State.SPECIMEN;
-                intake.extendFully();
-                intake.moveDiffyToPickPosition();
+            // TELE-OP KEY-BINDS / ACTIONS
+
+            switch (gameState) {
+                case INIT:
+                    initializeSystems();
+                    break;
+                case PICKING_GAME_ELEMENT:
+                    diffyVerticalPosition = DiffyVerticalPosition.FLAT; //or DOWN
+                    intakeSlidesPosition = IntakeSlidesPosition.FULL; //or SHORT
+                    intakeClawPosition = ClawPosition.OPEN;
+                    outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+                    outtakeArmPosition = OuttakeArmPosition.TRANSFER;
+                    outtakeClawPosition = ClawPosition.OPEN;
+                    if (gamepad2.circle) {
+                        //Action to PICK SAMPLE
+                        gameElement = GameElement.SAMPLE;
+                        intakeClawPosition = ClawPosition.CLOSE;
+                        gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                    } else if (gamepad2.square) {
+                        //Action to PICK SPECIMEN
+                        gameElement = GameElement.SPECIMEN;
+                        intakeClawPosition = ClawPosition.CLOSE;
+                        gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                    }
+                    //Implement gamepad2.right_stick_x to rotate diffy
+                    if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 200)) {
+                        int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
+                        switch (diffyHorizontalPosition) {
+                            case ANGLE_0:
+                                if (sign == 1) {
+                                    diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_45;
+                                }
+                                break;
+                            case ANGLE_45:
+                                diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_90: DiffyHorizontalPosition.ANGLE_0;
+                                break;
+                            case ANGLE_90:
+                                diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_135: DiffyHorizontalPosition.ANGLE_45;
+                                break;
+                            case ANGLE_135:
+                                if (sign == -1) {
+                                    diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_90;
+                                }
+                                break;
+                        }
+                        lastDiffyDegreesChanged = runtime.milliseconds();
+                    }
+                    break;
+                case GAME_ELEMENT_IN_INTAKE_CLAW:
+                    //if intakeClawPosition is actually closed
+                    //intake and outtake moves to transfer position
+                    intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
+                    diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
+                    intakeClawPosition = ClawPosition.CLOSE;
+                    outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+                    outtakeArmPosition = OuttakeArmPosition.TRANSFER;
+                    outtakeClawPosition = ClawPosition.OPEN;
+                    break;
+                case TRANSFERRING_GAME_ELEMENT:
+
+                    break;
+                case GAME_ELEMENT_IN_OUTTAKE_CLAW:
+                    break;
+                case GOING_TO_DROP_GAME_ELEMENT:
+                    break;
+                case READY_TO_DROP_GAME_ELEMENT:
+                    break;
+                case DROPPED_GAME_ELEMENT:
+                    break;
             }
 
-            if (gamepad2.cross) { //A on logitech
-                //If intake sample is yellow -- move diffy up, return h-misumi, xfer, raise v-misumi
-                //else any other sample -- move diffy up, bring h-misumi back
+//            if (gamepad2.circle) { //B on logitech
+//                //PICK SAMPLE: Set state, extend h-slides, orient diffy, open claw
+//                gameElement = GameElement.SAMPLE;
+//                intake.extendFully();
+//                intake.openClaw();
+//                intake.moveDiffyToPickPosition();
+//            } else if (gamepad2.square) { //X
+//                //PICK SPECIMEN: Set state, extend h-slides, orient diffy, open claw
+//                gameElement = GameElement.SPECIMEN;
+//                intake.extendFully();
+//                intake.openClaw();
+//                intake.moveDiffyToPickPosition();
+//            } else
+                if (gamepad2.cross) { //A on logitech
+                //Pick Sample or Specimen
                 intake.closeClaw();
-                intake.moveToTransferPosition();
-                sleep(200);
-                outtake.openClaw();
-                outtake.moveToTransferPosition();
-                outtake.rotateArmToTransferPosition();
-            }
-
-            if (gamepad2.triangle) { //Y on logitech
+                if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
+                    gameElement = GameElement.SAMPLE;
+                    //move diffy up, return h-misumi, xfer, raise v-misumi
+                    intake.moveToTransferPosition();
+                } else {
+                    //else any other sample -- move diffy up, bring h-misumi back
+                    intake.moveToTransferPosition();
+                    sleep(200);
+                    outtake.openClaw();
+                    outtake.moveToTransferPosition();
+                    outtake.rotateArmToTransferPosition();
+                }
+            } else if (gamepad2.triangle) { //Y on logitech
                 outtake.closeClaw();
                 intake.openClaw();
                 sleep(200);
@@ -181,11 +359,13 @@ public class DriverControl extends LinearOpMode {
                 intake.closeClaw();
             }
 
+
             // Always update the PID each loop
-//            outtake.updateOuttakePID();
+            outtake.updateOuttakePID();
+            intake.updateIntakePID();
 
             // Telemetry
-            telemetry.addData("GAME State", state);
+            telemetry.addData("GAME State", gameElement);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 
             //OUTTAKE
@@ -206,6 +386,7 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);
             telemetry.addData("Back  left/Right", "%4.2f, %4.2f", leftBackPower, rightBackPower);
             telemetry.update();
+            sleep(1);
         }
     }
 }

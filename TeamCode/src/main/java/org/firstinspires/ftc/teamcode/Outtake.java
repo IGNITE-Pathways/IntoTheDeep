@@ -69,35 +69,39 @@ public class Outtake {
     // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
         targetPosition = inches * TICKS_PER_INCH;
-
-        // Run until at setpoint or forced out of loop
-        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
-            double current = outtakeDCLeft.getCurrentPosition();
-            double output = controller.calculate(current, targetPosition);
-            outtakeDCLeft.setPower(output);
-            outtakeDCRight.setPower(output);
-
-            // Let the system keep breathing
-            try {
-                sleep(10);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        // Stop
-        outtakeDCLeft.setPower(0);
-        outtakeDCRight.setPower(0);
+//        // Run until at setpoint or forced out of loop
+//        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
+//            double current = outtakeDCLeft.getCurrentPosition();
+//            double output = controller.calculate(current, targetPosition);
+//            outtakeDCLeft.setPower(output);
+//            outtakeDCRight.setPower(output);
+//
+//            // Let the system keep breathing
+//            try {
+//                sleep(10);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        // Stop
+//        outtakeDCLeft.setPower(0);
+//        outtakeDCRight.setPower(0);
     }
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
     public void updateOuttakePID() {
-        // Read the current position from the motor encoder
-        double currentTicks = outtakeDCRight.getCurrentPosition();
-        // FTCLib: pass both measurement and the setpoint
-        double output = controller.calculate(currentTicks, targetPosition);
-        // Set the motors to the calculated power
-        outtakeDCRight.setPower(output);
-        outtakeDCLeft.setPower(output);
+        if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
+            // Read the current position from the motor encoder
+            double currentTicks = outtakeDCRight.getCurrentPosition();
+            // FTCLib: pass both measurement and the setpoint
+            double output = controller.calculate(currentTicks, targetPosition);
+            // Set the motors to the calculated power
+            outtakeDCRight.setPower(output);
+            outtakeDCLeft.setPower(output);
+        } else {
+            outtakeDCLeft.setPower(0);
+            outtakeDCRight.setPower(0);
+        }
     }
 
     private boolean isAtSetpoint(double currentTicks, double targetTicks) {
