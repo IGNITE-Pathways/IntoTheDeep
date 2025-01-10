@@ -32,59 +32,7 @@ public class DriverControl extends LinearOpMode {
         SAMPLE,
         SPECIMEN
     }
-
     private GameElement gameElement = GameElement.SAMPLE; // Default no state
-
-    private enum IntakeSlidesPosition {
-        CLOSE,
-        SHORT,
-        TRANSFER,
-        FULL
-    }
-    //XX1 toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
-    private IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
-
-    private enum ClawPosition {
-        OPEN,
-        CLOSE
-    }
-    private ClawPosition intakeClawPosition = ClawPosition.OPEN;
-    private ClawPosition outtakeClawPosition = ClawPosition.OPEN;
-
-    private enum DiffyVerticalPosition {
-        UP,
-        FLAT,
-        DOWN,
-        TRANSFER
-    }
-    //XX2 toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
-    private DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
-
-    private enum DiffyHorizontalPosition {
-        ANGLE_0,
-        ANGLE_45,
-        ANGLE_90,
-        ANGLE_135
-    }
-    //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
-    private DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
-
-    private enum OuttakeArmPosition {
-        TRANSFER, //0 Degrees
-        SAMPLE_DROP, //255 Degrees
-        SPECIMEN_DROP, //160 Degrees,
-        FACING_DOWN //70 Degrees
-    }
-    //OuttakeArmPosition changes automatically based on current game element and Game State
-    private OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
-
-    private enum OuttakeSlidesPosition {
-        CLOSE, //0 inches
-        TRANSFER, //2 inches
-        DROP_SAMPLE, //28 inches
-        HOOK_SPECIMEN_TOP_RUNG //14 inches
-    }
-    private OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
 
     private enum GameState {
         //Get into state: driver hits Init on Driver station, also default state after AUTO-OP
@@ -223,47 +171,46 @@ public class DriverControl extends LinearOpMode {
             rightBackDrive.setPower(rightBackPower * robotSpeed);
 
             // TELE-OP KEY-BINDS / ACTIONS
-
             switch (gameState) {
                 case INIT:
                     initializeSystems();
                     break;
                 case PICKING_GAME_ELEMENT:
-                    diffyVerticalPosition = DiffyVerticalPosition.FLAT; //or DOWN
-                    intakeSlidesPosition = IntakeSlidesPosition.FULL; //or SHORT
-                    intakeClawPosition = ClawPosition.OPEN;
-                    outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
-                    outtakeArmPosition = OuttakeArmPosition.TRANSFER;
-                    outtakeClawPosition = ClawPosition.OPEN;
+                    intake.diffyVerticalPosition = DiffyVerticalPosition.FLAT; //or DOWN
+                    intake.intakeSlidesPosition = IntakeSlidesPosition.FULL; //or SHORT
+                    intake.intakeClawPosition = ClawPosition.OPEN;
+                    outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+                    outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
+                    outtake.outtakeClawPosition = ClawPosition.OPEN;
                     if (gamepad2.circle) {
                         //Action to PICK SAMPLE
                         gameElement = GameElement.SAMPLE;
-                        intakeClawPosition = ClawPosition.CLOSE;
+                        intake.intakeClawPosition = ClawPosition.CLOSE;
                         gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                     } else if (gamepad2.square) {
                         //Action to PICK SPECIMEN
                         gameElement = GameElement.SPECIMEN;
-                        intakeClawPosition = ClawPosition.CLOSE;
+                        intake.intakeClawPosition = ClawPosition.CLOSE;
                         gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                     }
                     //Implement gamepad2.right_stick_x to rotate diffy
                     if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 200)) {
                         int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-                        switch (diffyHorizontalPosition) {
+                        switch (intake.diffyHorizontalPosition) {
                             case ANGLE_0:
                                 if (sign == 1) {
-                                    diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_45;
+                                    intake.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_45;
                                 }
                                 break;
                             case ANGLE_45:
-                                diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_90: DiffyHorizontalPosition.ANGLE_0;
+                                intake.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_90: DiffyHorizontalPosition.ANGLE_0;
                                 break;
                             case ANGLE_90:
-                                diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_135: DiffyHorizontalPosition.ANGLE_45;
+                                intake.diffyHorizontalPosition = (sign == 1) ? DiffyHorizontalPosition.ANGLE_135: DiffyHorizontalPosition.ANGLE_45;
                                 break;
                             case ANGLE_135:
                                 if (sign == -1) {
-                                    diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_90;
+                                    intake.diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_90;
                                 }
                                 break;
                         }
@@ -273,12 +220,12 @@ public class DriverControl extends LinearOpMode {
                 case GAME_ELEMENT_IN_INTAKE_CLAW:
                     //if intakeClawPosition is actually closed
                     //intake and outtake moves to transfer position
-                    intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
-                    diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
-                    intakeClawPosition = ClawPosition.CLOSE;
-                    outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
-                    outtakeArmPosition = OuttakeArmPosition.TRANSFER;
-                    outtakeClawPosition = ClawPosition.OPEN;
+                    intake.intakeSlidesPosition = IntakeSlidesPosition.TRANSFER;
+                    intake.diffyVerticalPosition = DiffyVerticalPosition.TRANSFER;
+                    intake.intakeClawPosition = ClawPosition.CLOSE;
+                    outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+                    outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
+                    outtake.outtakeClawPosition = ClawPosition.OPEN;
                     break;
                 case TRANSFERRING_GAME_ELEMENT:
 

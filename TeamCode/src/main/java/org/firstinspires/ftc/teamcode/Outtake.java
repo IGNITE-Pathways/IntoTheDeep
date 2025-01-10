@@ -42,6 +42,13 @@ public class Outtake {
     // Store the target in a class-level variable
     public double targetPosition = 0.0;
 
+    public OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
+
+    //OuttakeArmPosition changes automatically based on current game element and Game State
+    public OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
+
+    public ClawPosition outtakeClawPosition = ClawPosition.OPEN;
+
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1
         outtakeDCLeft = hardwareMap.get(DcMotorEx.class, "outtakedcleft"); //ehub 2

@@ -26,6 +26,17 @@ public class Intake {
     // Store the target in a class-level variable
     public double targetPosition = 0.0;
 
+    //XX1 toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
+    public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
+
+    //XX2 toggles between DiffyVerticalPosition.FLAT and DiffyVerticalPosition.DOWN only while in PICKING_GAME_ELEMENT
+    public DiffyVerticalPosition diffyVerticalPosition = DiffyVerticalPosition.FLAT;
+
+    //driver-controlled (Left bumper increments angle by 45° counterclockwise, Right bumper increments angle by 45° clockwise)
+    public DiffyHorizontalPosition diffyHorizontalPosition = DiffyHorizontalPosition.ANGLE_0;
+
+    public ClawPosition intakeClawPosition = ClawPosition.OPEN;
+
     public Intake(HardwareMap hardwareMap) {
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
         intakeDCMotor.setDirection(DcMotorSimple.Direction.REVERSE);
