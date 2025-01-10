@@ -44,12 +44,10 @@ public class Diffy {
         diffyLeft.setDirection(Servo.Direction.REVERSE);
         intakeClaw = hardwareMap.get(Servo.class, "intakeclaw"); // ehub 4
         intakeSensor = hardwareMap.get(ColorRangeSensor.class, "intakesensor"); // ehub I2C 0
-
-        initialize();
     }
 
-    private void initialize() {
-        moveToInitializePosition();
+    public void initialize() {
+
     }
 
     /**
@@ -158,59 +156,26 @@ public class Diffy {
         diffyRight.setPosition(rightPos);
     }
 
-    public void setDiffyPositions(double leftPos, double rightPos) {
-        diffyLeft.setPosition(leftPos);
-        diffyRight.setPosition(rightPos);
-    }
+//    public void setDiffyPositions(double leftPos, double rightPos) {
+//        diffyLeft.setPosition(leftPos);
+//        diffyRight.setPosition(rightPos);
+//    }
 
-    public void moveToTransferPosition() {
-        diffyRotationDegrees = -7;
-        diffyVerticalAngle = 245;
-        updateServos();
-    }
+//    public void moveToPickPosition() {
+//        diffyRotationDegrees = 0;
+//        diffyVerticalAngle = 0;
+//        updateServos();
+//        //Open Claw
+//        intakeClaw.setPosition(1);
+//    }
 
-    public void movetoPREPICKPosition() {
-        diffyRotationDegrees = -7 ;
-        diffyVerticalAngle = 45;
-        updateServos();
-    }
-
-    public void moveToPickPosition() {
-        diffyRotationDegrees = -7;
-        diffyVerticalAngle = 0;
-        updateServos();
-        //Open Claw
-        intakeClaw.setPosition(1);
-    }
-
-    public void moveToInitializePosition() {
-        diffyRotationDegrees = -7;
-        diffyVerticalAngle = 215;
-        updateServos();
-        //Open Claw
-        intakeClaw.setPosition(1);
-    }
-
-    public void moveToInitializePositionButAfterIntakingSample() {
-        diffyRotationDegrees = -7;
-        diffyVerticalAngle = 215;
-        updateServos();
-    }
-
-    public void moveToNormalPosition() {
-        diffyRotationDegrees = 0;
-        diffyVerticalAngle = 90;
-        updateServos();
-        //Open Claw
-        intakeClaw.setPosition(1);
-    }
-
-    public void pickSample() {
-        //moveToPickPosition();
-        //If Sample there, close claw
-       intakeClaw.setPosition(0.6);
-       moveToTransferPosition();
-    }
+//    public void moveToInitializePosition() {
+//        diffyRotationDegrees = 0;
+//        diffyVerticalAngle = 215;
+//        updateServos();
+//        //Open Claw
+//        intakeClaw.setPosition(1);
+//    }
 
     public SampleColor getSampleColor() {
         if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {

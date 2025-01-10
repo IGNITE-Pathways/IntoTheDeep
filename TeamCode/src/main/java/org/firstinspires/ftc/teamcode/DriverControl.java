@@ -187,7 +187,7 @@ public class DriverControl extends LinearOpMode {
                         //FLIP
                         intake.intakeSlidesPosition = (intake.intakeSlidesPosition == IntakeSlidesPosition.FULL) ? IntakeSlidesPosition.SHORT : IntakeSlidesPosition.FULL;
                     }
-                    outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
+//                    outtake.outtakeSlidesPosition = OuttakeSlidesPosition.TRANSFER;
                     outtake.outtakeArmPosition = OuttakeArmPosition.TRANSFER;
                     outtake.outtakeClawPosition = ClawPosition.OPEN;
                     if (gamepad2.triangle) {
@@ -310,94 +310,27 @@ public class DriverControl extends LinearOpMode {
                     break;
             }
 
-//            if (gamepad2.circle) { //B on logitech
-//                //PICK SAMPLE: Set state, extend h-slides, orient diffy, open claw
-//                gameElement = GameElement.SAMPLE;
-//                intake.extendFully();
-//                intake.openClaw();
-//                intake.moveDiffyToPickPosition();
-//            } else if (gamepad2.square) { //X
-//                //PICK SPECIMEN: Set state, extend h-slides, orient diffy, open claw
-//                gameElement = GameElement.SPECIMEN;
-//                intake.extendFully();
-//                intake.openClaw();
-//                intake.moveDiffyToPickPosition();
-//            } else
-//                if (gamepad2.cross) { //A on logitech
-//                //Pick Sample or Specimen
-//                intake.closeClaw();
-//                if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
-//                    gameElement = GameElement.SAMPLE;
-//                    //move diffy up, return h-misumi, xfer, raise v-misumi
-//                    intake.moveToTransferPosition();
-//                } else {
-//                    //else any other sample -- move diffy up, bring h-misumi back
-//                    intake.moveToTransferPosition();
-//                    sleep(200);
-//                    outtake.openClaw();
-//                    outtake.moveToTransferPosition();
-//                    outtake.rotateArmToTransferPosition();
-//                }
-//            } else if (gamepad2.triangle) { //Y on logitech
-//                outtake.closeClaw();
-//                intake.openClaw();
-//                sleep(200);
-//                intake.moveDiffyToNormalPosition();
-//                outtake.moveToSampleDropPosition();
-//                outtake.rotateArmToSampleDropPosition();
-//            }
-//
-//            if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 500)) {
-//                int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-//                intake.rotateDiffy(24.5 * sign);
-//                lastDiffyDegreesChanged = runtime.milliseconds();
-//            }
-//
-//            if ((Math.abs(gamepad2.right_stick_y) >= 0.5) && ((runtime.milliseconds() - lastDiffyAngleChanged) > 200)) {
-//                int sign = (gamepad2.right_stick_y == 0) ? 0 : (gamepad2.right_stick_y > 0) ? 1 : -1;
-//                intake.rotateDiffyUp(45 * sign);
-//                lastDiffyAngleChanged = runtime.milliseconds();
-//            }
-//
-//            if (gamepad2.left_trigger > 0.5) {
-//                intake.extendLittleBit();
-//                sleep(250);
-//                intake.moveDiffyToPickPosition();
-//                sleep(250);
-//                intake.closeClaw();
-//                sleep(250);
-//                intake.InitializePositionOfDiffyAfterSample();
-//                sleep(250);
-//            }
-//            if (gamepad2.right_trigger > 0.5) {
-//                intake.openClaw();
-//            }
-//            if (gamepad2.left_bumper){
-//                intake.closeClaw();
-//            }
-
-
             // Always update the PID each loop
             intake.loop();
             outtake.loop();
 
             // Telemetry
-            telemetry.addData("GAME State", gameElement);
+            telemetry.addData("GAME Element", gameElement);
+            telemetry.addData("GAME State", gameState);
             telemetry.addData("Status", "Run Time: " + runtime.toString());
 
             //OUTTAKE
             telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
             telemetry.addData("Outtake targetPos", outtake.targetPosition);
 
-            telemetry.addData("Outtake Position, Left:", "%7d, Right: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
-
             //INTAKE
             telemetry.addData("diffy Position, Left:", "%4.2f, Right: %4.2f", intake.diffy.diffyLeft.getPosition(), intake.diffy.diffyRight.getPosition());
-            telemetry.addData("diffyDegrees", "%7d", intake.diffy.diffyRotationDegrees);
-            telemetry.addData("diffyVerticalAngle", "%7d", intake.diffy.diffyVerticalAngle);
+            telemetry.addData("diffy Rotation Degrees", "%4.2f", intake.diffy.diffyRotationDegrees);
+            telemetry.addData("diffy Vertical Angle", "%4.2f", intake.diffy.diffyVerticalAngle);
             telemetry.addData("intake Claw Position", "%4.2f", intake.diffy.intakeClaw.getPosition());
             telemetry.addData("intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
             telemetry.addData("intake Motor: ", "%7d", intake.getPosition());
+            telemetry.addData("intake slides position: ", intake.intakeSlidesPosition);
 
             //MOTORS
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);

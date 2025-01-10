@@ -70,6 +70,7 @@ public class Outtake {
 
     public void initialize() {
         setOuttakeArmAngle(70);
+        openClaw();
         setPositionInInches(0);
     }
 

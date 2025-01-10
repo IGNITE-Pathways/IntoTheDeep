@@ -1,7 +1,5 @@
 package org.firstinspires.ftc.teamcode;
 
-import static java.lang.Thread.sleep;
-
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -27,7 +25,7 @@ public class Intake {
     public double targetPosition = 0.0;
 
     //Circle on Sony (or B on Logitech) toggles between IntakeSlidesPosition.SHORT and IntakeSlidesPosition.FULL
-    public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.FULL;
+    public IntakeSlidesPosition intakeSlidesPosition = IntakeSlidesPosition.CLOSE;
 
     public Intake(HardwareMap hardwareMap) {
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
@@ -39,7 +37,9 @@ public class Intake {
 
     public void initialize() {
         setPositionInInches(0);
+        diffy.initialize();
         openClaw();
+        loop();
     }
 
     // 1) Method to set the PID controller’s setpoint
@@ -82,27 +82,6 @@ public class Intake {
         return intakeDCMotor.getCurrentPosition();
     }
 
-    public void extendLittleBit() {
-        setPositionInInches(9);
-    }
-
-    public void moveToTransferPosition() {
-
-        diffy.moveToTransferPosition();
-    }
-
-    public void InitializePositionOfDiffy() {
-        diffy.moveToInitializePosition();
-    }
-
-    public void InitializePositionOfDiffyAfterSample() {
-        diffy.moveToInitializePositionButAfterIntakingSample();
-    }
-
-    public void retractFully() {
-        setPositionInInches(0);
-    }
-
     public void closeClaw() {
         diffy.intakeClaw.setPosition(0.5);
     }
@@ -111,17 +90,9 @@ public class Intake {
         diffy.intakeClaw.setPosition(1);
     }
 
-    public void moveDiffyToPickPosition() {
-        diffy.moveToPickPosition();
-    }
-
-    public void rotateDiffy(double degrees) {
-        diffy.rotate(degrees);
-    }
-
-    public void rotateDiffyUp(double degrees) {
-        diffy.rotateUp(degrees);
-    }
+//    public void rotateDiffy(double degrees) {
+//        diffy.rotate(degrees);
+//    }
 
     public boolean isClawClosed() {
         return diffy.intakeClaw.getPosition() < 0.4;
