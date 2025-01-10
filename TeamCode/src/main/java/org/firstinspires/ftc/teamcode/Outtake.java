@@ -25,8 +25,6 @@ public class Outtake {
     private Servo outtakeServoLeft = null;
     private Servo outtakeClaw = null;
 
-    public double outtakeAngle = 0;
-
     private static final int MAX_ROTATION_DEGREES = 255;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
 
@@ -46,6 +44,8 @@ public class Outtake {
 
     //OuttakeArmPosition changes automatically based on current game element and Game State
     public OuttakeArmPosition outtakeArmPosition = OuttakeArmPosition.FACING_DOWN;
+    public double outtakeArmAngle = 0;
+    private static final double ARM_ANGLE_TOLERANCE = 1; // in degrees
 
     public ClawPosition outtakeClawPosition = ClawPosition.OPEN;
 
@@ -69,7 +69,7 @@ public class Outtake {
     }
 
     public void initialize() {
-        setOuttakeServoAngle(70);
+        setOuttakeArmAngle(70);
         setPositionInInches(0);
     }
 
@@ -115,22 +115,6 @@ public class Outtake {
         return Math.abs(currentTicks - targetTicks) < POSITION_TOLERANCE;
     }
 
-//    public void moveToSampleDropPosition() {
-//        setPositionInInches(10);
-//    }
-//
-//    public void moveToSpecimenDropPosition() {
-//        setPositionInInches(5);
-//    }
-
-//    public void moveToTransferPosition() {
-//        setPositionInInches(2.4);
-//    }
-
-//    public void collapse() {
-//        setPositionInInches(0);
-//    }
-
     public int getLeftPosition() {
         return outtakeDCLeft.getCurrentPosition();
     }
@@ -139,21 +123,9 @@ public class Outtake {
         return outtakeDCRight.getCurrentPosition();
     }
 
-//    public void rotateArmToTransferPosition() {
-//        setOuttakeServoAngle(0);
-//    }
-
-//    public void rotateArmDown() {
-//        setOuttakeServoAngle(70);
-//    }
-
-    public void rotateArmToSampleDropPosition() {
-        setOuttakeServoAngle(SERVO_RANGE_DEGREES); //Max rotate
-    }
-
-    public void setOuttakeServoAngle(double degrees) {
-        outtakeAngle = degrees;
-        outtakeAngle = Range.clip(outtakeAngle, 0, MAX_ROTATION_DEGREES);
+    public void setOuttakeArmAngle(double degrees) {
+        outtakeArmAngle = degrees;
+        outtakeArmAngle = Range.clip(outtakeArmAngle, 0, MAX_ROTATION_DEGREES);
         // Update the servos based on new angles
         updateServos();
     }
@@ -161,7 +133,7 @@ public class Outtake {
     private void updateServos() {
         // Convert angles (in degrees) to a fractional offset [–1 ... +1]
         // relative to some reference. For example:
-        double pos = outtakeAngle / SERVO_RANGE_DEGREES;   // 0 to ~1 if 0–180
+        double pos = outtakeArmAngle / SERVO_RANGE_DEGREES;   // 0 to ~1 if 0–180
 
         // Make sure we don’t go beyond servo limits
         pos = Range.clip(pos, 0.0, 1.0);
@@ -169,6 +141,30 @@ public class Outtake {
         // Finally set the servo positions
         outtakeServoLeft.setPosition(pos);
         outtakeServoRight.setPosition(pos);
+    }
+
+    //Actual Position in degrees
+    private double getOuttakeArmPosition() {
+        return  outtakeServoLeft.getPosition() * SERVO_RANGE_DEGREES;
+    }
+
+    //Desired position in degrees
+    private double getOuttakeArmTargetAngle() {
+        switch (outtakeArmPosition) {
+            case SPECIMEN_DROP:
+                return 160;
+            case SAMPLE_DROP:
+                return MAX_ROTATION_DEGREES;
+            case FACING_DOWN:
+                return 70;
+            case TRANSFER:
+                return 0;
+        }
+        return 0;
+    }
+
+    private boolean isArmAtTargetPosition() {
+        return Math.abs(getOuttakeArmTargetAngle() - getOuttakeArmPosition()) < ARM_ANGLE_TOLERANCE;
     }
 
     public void rotateServosDirectly(double pos) {
@@ -217,19 +213,21 @@ public class Outtake {
         }
         updateOuttakePID();
 
-        switch (outtakeArmPosition) {
-            case TRANSFER:
-                setOuttakeServoAngle(0);
-                break;
-            case FACING_DOWN:
-                setOuttakeServoAngle(70);
-                break;
-            case SAMPLE_DROP:
-                setOuttakeServoAngle(MAX_ROTATION_DEGREES);
-                break;
-            case SPECIMEN_DROP:
-                setOuttakeServoAngle(160);
-                break;
+        if (!isArmAtTargetPosition()) {
+            switch (outtakeArmPosition) {
+                case TRANSFER:
+                    setOuttakeArmAngle(0);
+                    break;
+                case FACING_DOWN:
+                    setOuttakeArmAngle(70);
+                    break;
+                case SAMPLE_DROP:
+                    setOuttakeArmAngle(MAX_ROTATION_DEGREES);
+                    break;
+                case SPECIMEN_DROP:
+                    setOuttakeArmAngle(160);
+                    break;
+            }
         }
 
         switch (outtakeClawPosition) {
