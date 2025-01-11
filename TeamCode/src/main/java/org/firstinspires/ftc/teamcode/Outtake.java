@@ -48,7 +48,7 @@ public class Outtake {
     private static final double ARM_ANGLE_TOLERANCE = 1; // in degrees
 
     private ClawPosition outtakeClawPosition = ClawPosition.OPEN;
-    boolean usePID = true;
+    boolean usePID = false;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1

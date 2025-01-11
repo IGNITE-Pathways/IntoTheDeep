@@ -108,6 +108,7 @@ public class DriverControl extends LinearOpMode {
         telemetry.addData("Status", gameState);
         telemetry.addData("COUNTS_PER_INCH", XBot.COUNTS_PER_INCH);
         telemetry.addData("Outtake Motor Pos", "%7d: %7d", outtake.getLeftPosition(), outtake.getRightPosition());
+        telemetry.addData("Diffy Claw Pos: ", "%4.2f", intake.diffy.getClawPosition());
         telemetry.update();
 
         waitForStart();
@@ -192,7 +193,7 @@ public class DriverControl extends LinearOpMode {
                         intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.SHORT);
                     }
 
-                    outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER);
+                    outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Could be coming down after DROP
                     outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                     outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                     if (gamepad2.triangle) {
@@ -316,6 +317,7 @@ public class DriverControl extends LinearOpMode {
             telemetry.addData("Intake Sensor, Color: " + intake.diffy.getSampleColor(), "Distance: %4.2f", intake.diffy.intakeSensor.getDistance(DistanceUnit.MM));
             telemetry.addData("Intake Motor Pos: ", "%7d", intake.getPosition());
             telemetry.addData("Intake Slides position: ", intake.getIntakeSlidesPosition());
+            telemetry.addData("Diffy Claw Pos: ", "%4.2f", intake.diffy.getClawPosition());
 
             //MOTORS
             telemetry.addData("Front left/Right", "%4.2f, %4.2f", leftFrontPower, rightFrontPower);

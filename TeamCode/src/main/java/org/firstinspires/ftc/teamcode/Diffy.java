@@ -38,20 +38,6 @@ public class Diffy {
         diffyRight.setPosition(rightPos);
     }
 
-//    public void flipDiffyVerticalPosition() {
-//        switch (savedPosition) {
-//            case FLAT:
-//                setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
-//                break;
-//            case DOWN_PARALLEL:
-//                setDiffyPosition(DiffyPosition.FLAT);
-//                break;
-//            default:
-//                setDiffyPosition(DiffyPosition.FLAT);
-//                break;
-//        }
-//    }
-
     public SampleColor getSampleColor() {
         if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {
             // Cast, then enable or disable the LED
@@ -78,20 +64,20 @@ public class Diffy {
         return detectedColor;
     }
 
-    public boolean isClawClosed() {
-        return intakeClaw.getPosition() < 0.4;
+    public boolean isClawOpen() {
+        return intakeClaw.getPosition() < 0.25;
     }
 
-    public boolean isClawOpen() {
-        return intakeClaw.getPosition() > 0.9;
+    public boolean isClawClosed() {
+        return intakeClaw.getPosition() > 0.95;
     }
 
     public void closeClaw() {
-        intakeClaw.setPosition(0.5);
+        intakeClaw.setPosition(ClawPosition.CLOSE.getClawPos());
     }
 
     public void openClaw() {
-        intakeClaw.setPosition(1);
+        intakeClaw.setPosition(ClawPosition.OPEN.getClawPos());
     }
 
     public void setIntakeClawPosition(ClawPosition position) {
@@ -104,6 +90,10 @@ public class Diffy {
                 if (!isClawOpen()) openClaw();
                 break;
         }
+    }
+
+    public double getClawPosition() {
+        return intakeClaw.getPosition();
     }
 
     public void cycleDownPosition(int sign) {
@@ -122,5 +112,10 @@ public class Diffy {
                 setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
                 break;
         }
+    }
+
+    public void setClawPosition(double diffyPosition) {
+        double dPos = Range.clip(diffyPosition, 0, 1);
+        intakeClaw.setPosition(dPos);
     }
 }
