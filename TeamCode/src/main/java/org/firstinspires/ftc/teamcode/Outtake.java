@@ -141,6 +141,15 @@ public class Outtake {
         return outtakeDCRight.getCurrentPosition();
     }
 
+    public double getLeftArmPosition() {
+        return outtakeServoLeft.getPosition();
+    }
+
+    public double getRightArmPosition() {
+        return outtakeServoRight.getPosition();
+    }
+
+
     public void setOuttakeArmAngle(double degrees) {
         outtakeArmAngle = degrees;
         outtakeArmAngle = Range.clip(outtakeArmAngle, 0, MAX_ROTATION_DEGREES);

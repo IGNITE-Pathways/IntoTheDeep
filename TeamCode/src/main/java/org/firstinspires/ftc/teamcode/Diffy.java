@@ -26,7 +26,7 @@ public class Diffy {
     }
 
     public void initialize() {
-        setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE);
+        setDiffyPosition(DiffyPosition.TRANSFER);
         setIntakeClawPosition(ClawPosition.OPEN);
         openClaw();
     }

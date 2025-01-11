@@ -4,8 +4,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name="Tele Op", group="Linear OpMode")
 public class DriverControl extends LinearOpMode {
 
@@ -249,11 +247,7 @@ public class DriverControl extends LinearOpMode {
                     if (intake.diffy.isClawClosed()) {
                         //intake and outtake moves to transfer position
                         intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE); //Already happened
-                        if (gameElement == GameElement.SAMPLE) {
-                            intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE); //@ToDo:
-                        } else {
-                            intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SPECIMEN); //@ToDo:
-                        }
+                        intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER); //@ToDo:
                         sleep(100);
                         if (intake.diffy.isDiffyInPosition()) {
                             intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.TRANSFER);
@@ -327,16 +321,29 @@ public class DriverControl extends LinearOpMode {
                         switch (gameElement) {
                             case SAMPLE:
                                 outtake.setOuttakeClawPosition(ClawPosition.OPEN);
+                                if (outtake.isClawOpen()) {
+                                    gameState = GameState.DROPPED_GAME_ELEMENT;
+                                }
                                 break;
                             case SPECIMEN:
+                                //move outtake arm
                                 outtake.setOuttakeClawPosition(ClawPosition.OPEN);
+                                //Move Slides to Drop
+                                outtake.setOuttakeArmPosition(OuttakeArmPosition.POST_SPECIMEN_DROP);
+                                //If arm in position
+                                outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.POST_HOOK);
+                                if (outtake.areSlidesAtPosition()) {
+                                    gameState = GameState.DROPPED_GAME_ELEMENT;
+                                }
                                 break;
                             case SPECIMEN_TO_BE:
                                 intake.diffy.setIntakeClawPosition(ClawPosition.OPEN);
                                 outtake.setOuttakeClawPosition(ClawPosition.OPEN);
+                                if (outtake.isClawOpen() && intake.diffy.isClawOpen()) {
+                                    gameState = GameState.DROPPED_GAME_ELEMENT;
+                                }
                                 break;
                         }
-                        gameState = GameState.DROPPED_GAME_ELEMENT;
                     }
                     break;
                 case DROPPED_GAME_ELEMENT:

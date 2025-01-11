@@ -3,11 +3,8 @@ package org.firstinspires.ftc.teamcode.testing;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.Diffy;
@@ -40,11 +37,7 @@ public class DiffyTest extends OpMode {
         }
 
         if (gamepad2.square) {
-            diffy.setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE);
-        }
-
-        if (gamepad2.cross) {
-            diffy.setDiffyPosition(DiffyPosition.TRANSFER_SPECIMEN);
+            diffy.setDiffyPosition(DiffyPosition.TRANSFER);
         }
 
         if (gamepad2.left_bumper) {
