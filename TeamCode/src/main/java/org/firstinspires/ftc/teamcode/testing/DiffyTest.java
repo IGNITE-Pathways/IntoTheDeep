@@ -24,12 +24,11 @@ public class DiffyTest extends OpMode {
         diffy = new Diffy(hardwareMap);
     }
 
-//    double leftPos = 0.3;
-//    double rightPos = 0.3;
+    double leftPos = DiffyPosition.FLAT.getLeftPos();
+    double rightPos = DiffyPosition.FLAT.getRightPos();
 
     @Override
     public void loop() {
-
 
         if (gamepad2.circle) {
             //Make both 1
@@ -48,25 +47,21 @@ public class DiffyTest extends OpMode {
             diffy.setDiffyPosition(DiffyPosition.TRANSFER_SPECIMEN);
         }
 
-//        if (gamepad2.dpad_down) {
-//            diffy.flipDiffyVerticalPosition();
-//        }
-
         if (gamepad2.left_bumper) {
             diffy.setDiffyPosition(DiffyPosition.DOWN_ANTI_CLOCKWISE);
         } else if (gamepad2.right_bumper) {
             diffy.setDiffyPosition(DiffyPosition.DOWN_CLOCKWISE);
         }
 
-//        leftPos += gamepad2.left_stick_y / 100;
-//        rightPos += gamepad2.right_stick_y / 100;
-//
-//        leftPos = Range.clip(leftPos, 0, 1);
-//        rightPos = Range.clip(rightPos, 0, 1);
-//
-//        diffy.setDiffyPositions(leftPos, rightPos);
+        leftPos += gamepad2.left_stick_y / 100;
+        rightPos += gamepad2.right_stick_y / 100;
 
-//        telemetry.addData("leftPos:", "%4.2f, rightPos: %4.2f", leftPos, rightPos);
+        leftPos = Range.clip(leftPos, 0, 1);
+        rightPos = Range.clip(rightPos, 0, 1);
+
+        diffy.setDiffyPositions(leftPos, rightPos);
+
+        telemetry.addData("leftPos:", "%4.2f, rightPos: %4.2f", leftPos, rightPos);
         telemetry.addData("Diffy Position, Left:", "%4.2f, Right: %4.2f", diffy.diffyLeft.getPosition(), diffy.diffyRight.getPosition());
         telemetry.update();
     }

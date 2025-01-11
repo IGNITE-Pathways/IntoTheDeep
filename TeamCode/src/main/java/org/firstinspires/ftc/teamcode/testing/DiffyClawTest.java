@@ -42,6 +42,10 @@ public class DiffyClawTest extends OpMode {
 
         telemetry.addData("ClawPos", diffy.getClawPosition());
         telemetry.addData("Color Detected",  diffy.getSampleColor());
+        telemetry.addData("Color Red",  diffy.intakeSensor.red());
+        telemetry.addData("Color Green",  diffy.intakeSensor.green());
+        telemetry.addData("Color Blue",  diffy.intakeSensor.blue());
+        telemetry.addData("Distance",  diffy.getDistance());
         telemetry.update();
     }
 }

@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 
 public class Diffy {
     public Servo diffyLeft;
@@ -26,6 +28,7 @@ public class Diffy {
     public void initialize() {
         setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE);
         setIntakeClawPosition(ClawPosition.OPEN);
+        openClaw();
     }
 
     public void setDiffyPosition(DiffyPosition position) {
@@ -47,14 +50,18 @@ public class Diffy {
         int redValue   = intakeSensor.red();
         int greenValue = intakeSensor.green();
         int blueValue  = intakeSensor.blue();
+        double distanceInMM = getDistance();
+        if (distanceInMM > 100) return SampleColor.UNKNOWN;
 
         SampleColor detectedColor = SampleColor.UNKNOWN;
         if (redValue > 100 && greenValue > 100 && blueValue < 100) {
             detectedColor = SampleColor.YELLOW;
-        } else if (blueValue > redValue && blueValue > greenValue) {
+        } else if (blueValue > redValue && blueValue > greenValue && greenValue > redValue) {
             detectedColor = SampleColor.BLUE;
-        } else if (redValue > blueValue && redValue > greenValue) {
+        } else if (redValue > blueValue && redValue > greenValue && blueValue > greenValue) {
             detectedColor = SampleColor.RED;
+        } else if (redValue > greenValue && greenValue > blueValue){
+            detectedColor = SampleColor.YELLOW;
         }
 
         if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {
@@ -123,5 +130,9 @@ public class Diffy {
         //compare savedPosition to diffyLeft and diffyRight
         return (Math.abs(savedPosition.getLeftPos() - diffyLeft.getPosition()) < 0.05) &&
                 (Math.abs(savedPosition.getRightPos() - diffyRight.getPosition()) < 0.05);
+    }
+
+    public double getDistance() {
+        return intakeSensor.getDistance(DistanceUnit.MM);
     }
 }

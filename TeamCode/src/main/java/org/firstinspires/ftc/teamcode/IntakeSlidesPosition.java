@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 public enum IntakeSlidesPosition {
     CLOSE ("CLOSE", 0),
     SHORT ("SHORT", 3),
-    TRANSFER ("TRANSFER", 1.6),
+    TRANSFER ("TRANSFER", 1.52),
     FULL ("FULL", 8.5);
 
     private String name;

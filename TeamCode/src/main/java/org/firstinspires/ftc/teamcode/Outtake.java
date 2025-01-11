@@ -79,7 +79,7 @@ public class Outtake {
     }
 
     public void initialize() {
-        setOuttakeArmAngle(70);
+        setOuttakeArmPosition(OuttakeArmPosition.FACING_DOWN);
         openClaw();
         setPositionInInchesSync(0);
     }
