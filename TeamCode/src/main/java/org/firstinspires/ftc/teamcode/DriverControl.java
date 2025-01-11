@@ -239,20 +239,25 @@ public class DriverControl extends LinearOpMode {
                         outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Short distance, go sync
                         outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                         outtake.setOuttakeClawPosition(ClawPosition.OPEN);
+                        gameState = GameState.TRANSFERRING_GAME_ELEMENT;
+                        sleep(200);
                     }
                     break;
                 case TRANSFERRING_GAME_ELEMENT:
                     //if intake and outtake are aligned
                     //transfer happens, outtake claw closes, intake claw opens
-                    outtake.setOuttakeClawPosition(ClawPosition.CLOSE);
-                    gameState = GameState.GAME_ELEMENT_IN_OUTTAKE_CLAW;
+                    if (intake.diffy.isDiffyInPosition()) {
+                        sleep(500);
+                        outtake.setOuttakeClawPosition(ClawPosition.CLOSE);
+//                        gameState = GameState.GAME_ELEMENT_IN_OUTTAKE_CLAW;
+                    }
                     break;
                 case GAME_ELEMENT_IN_OUTTAKE_CLAW:
                     if (outtake.isClawClosed()) {
                         //the intake claw opens, diffy goes flat
                         intake.diffy.setIntakeClawPosition(ClawPosition.OPEN);
                         intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
-                        gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
+//                        gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
                     }
                     break;
                 case GOING_TO_DROP_GAME_ELEMENT:

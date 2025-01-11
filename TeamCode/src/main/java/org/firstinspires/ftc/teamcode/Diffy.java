@@ -118,4 +118,10 @@ public class Diffy {
         double dPos = Range.clip(diffyPosition, 0, 1);
         intakeClaw.setPosition(dPos);
     }
+
+    public boolean isDiffyInPosition() {
+        //compare savedPosition to diffyLeft and diffyRight
+        return (Math.abs(savedPosition.getLeftPos() - diffyLeft.getPosition()) < 0.05) &&
+                (Math.abs(savedPosition.getRightPos() - diffyRight.getPosition()) < 0.05);
+    }
 }

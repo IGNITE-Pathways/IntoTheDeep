@@ -25,8 +25,8 @@ public class Outtake {
     private Servo outtakeServoLeft = null;
     private Servo outtakeClaw = null;
 
-    private static final int MAX_ROTATION_DEGREES = 255;
     private static final double SERVO_RANGE_DEGREES = 255;  // 180 for typical 0–180 servo
+    public static final int MAX_ROTATION_DEGREES = 255;
 
     // Example: 537.7 ticks/rev, a wheel/spool diameter = 1.377" => circumference ~4.33"
     // double TICKS_PER_REV = 537.7; // Example
@@ -164,17 +164,7 @@ public class Outtake {
 
     //Desired position in degrees
     private double getOuttakeArmTargetAngle() {
-        switch (outtakeArmPosition) {
-            case SPECIMEN_DROP:
-                return 160;
-            case SAMPLE_DROP:
-                return MAX_ROTATION_DEGREES;
-            case FACING_DOWN:
-                return 70;
-            case TRANSFER:
-                return 0;
-        }
-        return 0;
+        return outtakeArmPosition.getDegrees();
     }
 
     private boolean isArmAtTargetPosition() {
@@ -216,37 +206,21 @@ public class Outtake {
         }
     }
 
-    public double setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
+    public void setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
         this.outtakeSlidesPosition = position;
-        double inches = 0.0;
-        switch (outtakeSlidesPosition) {
-            case DROP_SAMPLE:
-                inches = 28;
-                break;
-            case HOOK_SPECIMEN_TOP_RUNG:
-                inches = 10;
-                break;
-            case CLOSE:
-                inches = 0;
-                break;
-            case TRANSFER:
-                inches = 2.4;
-                break;
-        }
-        setPositionInInches(inches);
+        setPositionInInches(position.getPosition());
         if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition) && !usePID) {
-            driveToPosition(1, inches, 10000);
+            driveToPosition(1, position.getPosition(), 10000);
         }
-        return inches;
     }
 
     public void setOuttakeSlidesPositionSync(OuttakeSlidesPosition outtakeSlidesPosition) {
-        double inches = setOuttakeSlidesPosition(outtakeSlidesPosition);
+        setOuttakeSlidesPosition(outtakeSlidesPosition);
         if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition)) {
             if (usePID) {
-                setPositionInInchesSync(inches);
+                setPositionInInchesSync(outtakeSlidesPosition.getPosition());
             } else {
-                driveToPosition(1, inches, 10000); //@ToDo
+                driveToPosition(1, outtakeSlidesPosition.getPosition(), 10000); //@ToDo
             }
         }
     }
@@ -265,20 +239,7 @@ public class Outtake {
 
     public void setOuttakeArmPosition(OuttakeArmPosition position) {
         this.outtakeArmPosition = position;
-        switch (outtakeArmPosition) {
-            case TRANSFER:
-                setOuttakeArmAngle(0);
-                break;
-            case FACING_DOWN:
-                setOuttakeArmAngle(70);
-                break;
-            case SAMPLE_DROP:
-                setOuttakeArmAngle(MAX_ROTATION_DEGREES);
-                break;
-            case SPECIMEN_DROP:
-                setOuttakeArmAngle(160);
-                break;
-        }
+        setOuttakeArmAngle(this.outtakeArmPosition.getDegrees());
     }
 
     //If not using PID

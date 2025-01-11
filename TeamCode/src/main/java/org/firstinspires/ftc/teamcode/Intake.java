@@ -112,34 +112,18 @@ public class Intake {
         return intakeSlidesPosition;
     }
 
-    public double setIntakeSlidesPosition(IntakeSlidesPosition position) {
+    public void setIntakeSlidesPosition(IntakeSlidesPosition position) {
         this.intakeSlidesPosition = position;
-        double inches = 0;
-        switch (intakeSlidesPosition) {
-            case FULL:
-                inches = 8.5;
-                break;
-            case SHORT:
-                inches = 3; //@ToDO
-                break;
-            case CLOSE:
-                inches = 0;
-                break;
-            case TRANSFER:
-                inches = 2;
-                break;
-        }
-        setPositionInInches(inches);
-        return inches;
+        setPositionInInches(position.getPosition());
     }
 
     public void setIntakeSlidesPositionSync(IntakeSlidesPosition position) {
-        double inches = setIntakeSlidesPosition(position);
+        setIntakeSlidesPosition(position);
         if (!isAtSetpoint(intakeDCMotor.getCurrentPosition(), targetPosition)) {
             if (usePID) {
-                setPositionInInchesSync(inches);
+                setPositionInInchesSync(position.getPosition());
             } else {
-                driveToPosition(1, inches, 10000); //@ToDo
+                driveToPosition(1, position.getPosition(), 10000); //@ToDo
             }
         }
     }
