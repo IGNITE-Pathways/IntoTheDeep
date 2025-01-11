@@ -31,7 +31,9 @@ public class PedroPathingAutonomousObsZone {
     private PathChain grabPickup1, grabPickup2, grabPickup3, scorePickup1, scorePickup2, scorePickup3;
     private Follower follower;
 
-    private Timer pathTimer, actionTimer, opmodeTimer;x
+    private Timer pathTimer, actionTimer, opmodeTimer;
+    int pathState;
+
 
     public void buildPaths() {
         // Path for scoring preload
@@ -139,7 +141,7 @@ public class PedroPathingAutonomousObsZone {
     }
 
     public void setPathState(int pState) {
-        pathState = pState;
+      //  pathState = pState;
         pathTimer.resetTimer();
     }
 }
