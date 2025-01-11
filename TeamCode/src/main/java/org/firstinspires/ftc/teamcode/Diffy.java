@@ -38,19 +38,19 @@ public class Diffy {
         diffyRight.setPosition(rightPos);
     }
 
-    public void flipDiffyVerticalPosition() {
-        switch (savedPosition) {
-            case FLAT:
-                setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
-                break;
-            case DOWN_PARALLEL:
-                setDiffyPosition(DiffyPosition.FLAT);
-                break;
-            default:
-                setDiffyPosition(DiffyPosition.FLAT);
-                break;
-        }
-    }
+//    public void flipDiffyVerticalPosition() {
+//        switch (savedPosition) {
+//            case FLAT:
+//                setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
+//                break;
+//            case DOWN_PARALLEL:
+//                setDiffyPosition(DiffyPosition.FLAT);
+//                break;
+//            default:
+//                setDiffyPosition(DiffyPosition.FLAT);
+//                break;
+//        }
+//    }
 
     public SampleColor getSampleColor() {
         if (intakeSensor instanceof com.qualcomm.robotcore.hardware.SwitchableLight) {
@@ -106,4 +106,21 @@ public class Diffy {
         }
     }
 
+    public void cycleDownPosition(int sign) {
+        switch (savedPosition) {
+            case DOWN_ANTI_CLOCKWISE:
+                setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
+                break;
+            case DOWN_PARALLEL:
+                if (sign == 1) {
+                    setDiffyPosition(DiffyPosition.DOWN_CLOCKWISE);
+                } else {
+                    setDiffyPosition(DiffyPosition.DOWN_ANTI_CLOCKWISE);
+                }
+                break;
+            case DOWN_CLOCKWISE:
+                setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
+                break;
+        }
+    }
 }

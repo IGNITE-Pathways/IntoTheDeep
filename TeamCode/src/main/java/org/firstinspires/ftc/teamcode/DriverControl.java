@@ -179,15 +179,20 @@ public class DriverControl extends LinearOpMode {
                     break;
                 case PICKING_GAME_ELEMENT:
                     intake.diffy.setIntakeClawPosition(ClawPosition.OPEN);
-                    if (gamepad2.cross) {
+                    if (gamepad2.dpad_down) {
                         //FLIP
-                        intake.diffy.flipDiffyVerticalPosition();
+                        intake.diffy.setDiffyPosition(DiffyPosition.DOWN_PARALLEL);
+                    } else if (gamepad2.dpad_up) {
+                        intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
                     }
-                    if (gamepad2.circle) {
-                        //FLIP - FULL <> SHORT
-                        intake.flipIntakeSlidesPosition();
+
+                    if (gamepad2.dpad_right) {
+                        intake.setIntakeSlidesPosition(IntakeSlidesPosition.FULL);
+                    } else if (gamepad2.dpad_left) {
+                        intake.setIntakeSlidesPosition(IntakeSlidesPosition.SHORT);
                     }
-//                    outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.TRANSFER);
+
+                    outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.TRANSFER);
                     outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                     outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                     if (gamepad2.triangle) {
@@ -206,7 +211,7 @@ public class DriverControl extends LinearOpMode {
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                             gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
                         }
-                    } else if (gamepad2.dpad_down) {
+                    } else if (gamepad2.cross) {
                         if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
                             gameElement = GameElement.SAMPLE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
@@ -220,11 +225,7 @@ public class DriverControl extends LinearOpMode {
                     //Implement gamepad2.right_stick_x to rotate diffy
                     if ((Math.abs(gamepad2.right_stick_x) >= 0.5) && ((runtime.milliseconds() - lastDiffyDegreesChanged) > 200)) {
                         int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
-                        if (sign == 1) {
-                            intake.diffy.setDiffyPosition(DiffyPosition.DOWN_CLOCKWISE);
-                        } else {
-                            intake.diffy.setDiffyPosition(DiffyPosition.DOWN_ANTI_CLOCKWISE);
-                        }
+                        intake.diffy.cycleDownPosition(sign);
                         lastDiffyDegreesChanged = runtime.milliseconds();
                     }
                     break;

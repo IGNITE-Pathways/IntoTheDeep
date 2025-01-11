@@ -111,16 +111,16 @@ public class Intake {
         updateIntakePID();
     }
 
-    public void flipIntakeSlidesPosition() {
-        switch (intakeSlidesPosition) {
-            case FULL:
-                intakeSlidesPosition = IntakeSlidesPosition.SHORT;
-                break;
-            case SHORT:
-                intakeSlidesPosition = IntakeSlidesPosition.FULL;
-                break;
-        }
-    }
+//    public void flipIntakeSlidesPosition() {
+//        switch (intakeSlidesPosition) {
+//            case FULL:
+//                intakeSlidesPosition = IntakeSlidesPosition.SHORT;
+//                break;
+//            case SHORT:
+//                intakeSlidesPosition = IntakeSlidesPosition.FULL;
+//                break;
+//        }
+//    }
 
     public IntakeSlidesPosition getIntakeSlidesPosition() {
         return intakeSlidesPosition;

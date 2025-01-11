@@ -48,6 +48,10 @@ public class DiffyTest extends OpMode {
             diffy.setDiffyPosition(DiffyPosition.TRANSFER_SPECIMEN);
         }
 
+//        if (gamepad2.dpad_down) {
+//            diffy.flipDiffyVerticalPosition();
+//        }
+
         if (gamepad2.left_bumper) {
             diffy.setDiffyPosition(DiffyPosition.DOWN_ANTI_CLOCKWISE);
         } else if (gamepad2.right_bumper) {
