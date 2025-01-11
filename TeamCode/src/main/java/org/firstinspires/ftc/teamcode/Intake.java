@@ -117,6 +117,10 @@ public class Intake {
         setPositionInInches(position.getPosition());
     }
 
+    public boolean areSlidesAtPosition() {
+        return isAtSetpoint(intakeDCMotor.getCurrentPosition(), targetPosition);
+    }
+
     public void setIntakeSlidesPositionSync(IntakeSlidesPosition position) {
         setIntakeSlidesPosition(position);
         if (!isAtSetpoint(intakeDCMotor.getCurrentPosition(), targetPosition)) {

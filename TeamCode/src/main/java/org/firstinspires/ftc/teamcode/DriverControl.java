@@ -193,7 +193,7 @@ public class DriverControl extends LinearOpMode {
                         intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.SHORT);
                     }
 
-                    outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Could be coming down after DROP
+                    outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.PRE_TRANSFER); //Could be coming down after DROP
                     outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                     outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                     if (gamepad2.triangle) {
@@ -209,25 +209,33 @@ public class DriverControl extends LinearOpMode {
                         if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
                             gameElement = GameElement.SAMPLE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
-                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
-                            sleep(200);
+                            if (intake.diffy.isClawClosed()) {
+                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                sleep(200);
+                            }
                         } else {
                             gameElement = GameElement.SPECIMEN;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
-                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
-                            sleep(200);
+                            if (intake.diffy.isClawClosed()) {
+                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                sleep(200);
+                            }
                         }
                     } else if (gamepad2.cross) {
                         if (intake.diffy.getSampleColor() == SampleColor.YELLOW) {
                             gameElement = GameElement.SAMPLE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
-                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
-                            sleep(200);
+                            if (intake.diffy.isClawClosed()) {
+                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                sleep(200);
+                            }
                         } else {
                             gameElement = GameElement.SPECIMEN_TO_BE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
-                            gameState = GameState.GOING_TO_DROP_GAME_ELEMENT; //Directly jump to DROP Game Element
-                            sleep(200);
+                            if (intake.diffy.isClawClosed()) {
+                                gameState = GameState.GOING_TO_DROP_GAME_ELEMENT; //Directly jump to DROP Game Element
+                                sleep(200);
+                            }
                         }
                     }
                     //Implement gamepad2.right_stick_x to rotate diffy
@@ -241,14 +249,22 @@ public class DriverControl extends LinearOpMode {
                     if (intake.diffy.isClawClosed()) {
                         //intake and outtake moves to transfer position
                         intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE); //Already happened
-                        intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.TRANSFER);
-
-                        intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE); //@ToDo:
-                        outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Short distance, go sync
-                        outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
-                        outtake.setOuttakeClawPosition(ClawPosition.OPEN);
-                        gameState = GameState.TRANSFERRING_GAME_ELEMENT;
-                        sleep(200);
+                        if (gameElement == GameElement.SAMPLE) {
+                            intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE); //@ToDo:
+                        } else {
+                            intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SPECIMEN); //@ToDo:
+                        }
+                        sleep(100);
+                        if (intake.diffy.isDiffyInPosition()) {
+                            intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.TRANSFER);
+                            outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Short distance, go sync
+                            if (outtake.areSlidesAtPosition() && intake.areSlidesAtPosition()) {
+                                outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
+                                outtake.setOuttakeClawPosition(ClawPosition.OPEN);
+                                gameState = GameState.TRANSFERRING_GAME_ELEMENT;
+                                sleep(200);
+                            }
+                        }
                     }
                     break;
                 case TRANSFERRING_GAME_ELEMENT:
@@ -268,7 +284,7 @@ public class DriverControl extends LinearOpMode {
                         sleep(100);
                         if (intake.diffy.isClawOpen()) {
                             intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
-//                            gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
+                            gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
                             sleep(200);
                         }
                     }
@@ -280,14 +296,28 @@ public class DriverControl extends LinearOpMode {
                         case SAMPLE:
                             outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.DROP_SAMPLE);
                             outtake.setOuttakeArmPosition(OuttakeArmPosition.SAMPLE_DROP);
+                            //Check of Outtake Slides Position and Arm Position
+                            if (outtake.areSlidesAtPosition()) {
+                                gameState = GameState.READY_TO_DROP_GAME_ELEMENT;
+                                sleep(200);
+                            }
                             break;
                         case SPECIMEN:
                             outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.HOOK_SPECIMEN_TOP_RUNG);
                             outtake.setOuttakeArmPosition(OuttakeArmPosition.SPECIMEN_DROP);
+                            //Check of Outtake Slides Position and Arm Position
+                            if (outtake.areSlidesAtPosition()) {
+                                gameState = GameState.READY_TO_DROP_GAME_ELEMENT;
+                                sleep(200);
+                            }
                             break;
                         case SPECIMEN_TO_BE:
                             intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
                             intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.SHORT); //@ToDo: Do we need this
+                            if (intake.diffy.isDiffyInPosition() && intake.areSlidesAtPosition()) {
+                                gameState = GameState.READY_TO_DROP_GAME_ELEMENT;
+                                sleep(200);
+                            }
                             break;
                     }
                     break;

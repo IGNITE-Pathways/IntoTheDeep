@@ -88,6 +88,10 @@ public class Outtake {
         targetSlidesPosition = inches * TICKS_PER_INCH;
     }
 
+    public boolean areSlidesAtPosition() {
+        return isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition);
+    }
+
     public void setPositionInInchesSync(double inches) {
         targetSlidesPosition = inches * TICKS_PER_INCH;
         // Run until at setpoint or forced out of loop
