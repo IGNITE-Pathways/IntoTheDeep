@@ -61,14 +61,6 @@ public class Outtake {
         outtakeDCRight.setDirection(DcMotor.Direction.FORWARD);
         outtakeDCLeft.setDirection(DcMotor.Direction.REVERSE);
 
-        outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
-        outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
 
@@ -82,26 +74,29 @@ public class Outtake {
         setPositionInInches(0);
     }
 
-    // 1) Method to set the PID controller’s setpoint
     public void setPositionInInches(double inches) {
         targetSlidesPosition = inches * TICKS_PER_INCH;
-//        // Run until at setpoint or forced out of loop
-//        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetPosition)) {
-//            double current = outtakeDCLeft.getCurrentPosition();
-//            double output = controller.calculate(current, targetPosition);
-//            outtakeDCLeft.setPower(output);
-//            outtakeDCRight.setPower(output);
-//
-//            // Let the system keep breathing
-//            try {
-//                sleep(10);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        // Stop
-//        outtakeDCLeft.setPower(0);
-//        outtakeDCRight.setPower(0);
+    }
+
+    public void setPositionInInchesSync(double inches) {
+        targetSlidesPosition = inches * TICKS_PER_INCH;
+        // Run until at setpoint or forced out of loop
+        while (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition)) {
+            double current = outtakeDCLeft.getCurrentPosition();
+            double output = controller.calculate(current, targetSlidesPosition);
+            outtakeDCLeft.setPower(output);
+            outtakeDCRight.setPower(output);
+
+            // Let the system keep breathing
+            try {
+                sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        // Stop
+        outtakeDCLeft.setPower(0);
+        outtakeDCRight.setPower(0);
     }
 
     // 2) Method to call each time in from while loop in DriverControl.runOpMode()
@@ -209,22 +204,30 @@ public class Outtake {
         updateOuttakePID();
     }
 
-    public void setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
+    public double setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
         this.outtakeSlidesPosition = position;
+        double inches = 0.0;
         switch (outtakeSlidesPosition) {
             case DROP_SAMPLE:
-                setPositionInInches(28);
+                inches = 28;
                 break;
             case HOOK_SPECIMEN_TOP_RUNG:
-                setPositionInInches(10); //@ToDo:
+                inches = 10;
                 break;
             case CLOSE:
-                setPositionInInches(0);
+                inches = 0;
                 break;
             case TRANSFER:
-                setPositionInInches(2.4);
+                inches = 2.4;
                 break;
         }
+        setPositionInInches(inches);
+        return inches;
+    }
+
+    public void setOuttakeSlidesPositionSync(OuttakeSlidesPosition outtakeSlidesPosition) {
+        double inches = setOuttakeSlidesPosition(outtakeSlidesPosition);
+        setPositionInInchesSync(inches);
     }
 
     public void setOuttakeClawPosition(ClawPosition position) {
@@ -256,4 +259,5 @@ public class Outtake {
                 break;
         }
     }
+
 }

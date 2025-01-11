@@ -192,7 +192,7 @@ public class DriverControl extends LinearOpMode {
                         intake.setIntakeSlidesPosition(IntakeSlidesPosition.SHORT);
                     }
 
-                    outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.TRANSFER);
+                    outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER);
                     outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                     outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                     if (gamepad2.triangle) {

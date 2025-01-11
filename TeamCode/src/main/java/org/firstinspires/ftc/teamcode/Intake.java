@@ -31,9 +31,6 @@ public class Intake {
     public Intake(HardwareMap hardwareMap) {
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc"); //chub 0
         intakeDCMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        intakeDCMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        intakeDCMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        intakeDCMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         diffy = new Diffy(hardwareMap);
         controller = new PIDFController(p, i, d, f);
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
