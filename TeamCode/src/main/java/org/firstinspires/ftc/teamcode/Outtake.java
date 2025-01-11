@@ -37,7 +37,7 @@ public class Outtake {
     // The tolerance we allow for the final position
     private static final double POSITION_TOLERANCE = 10; // example: 10 ticks
 
-    // Store the target in a class-level variable
+    // Store the target in a class-level variable, in ticks
     public double targetSlidesPosition = 0.0;
 
     private OuttakeSlidesPosition outtakeSlidesPosition = OuttakeSlidesPosition.CLOSE;
@@ -48,6 +48,7 @@ public class Outtake {
     private static final double ARM_ANGLE_TOLERANCE = 1; // in degrees
 
     private ClawPosition outtakeClawPosition = ClawPosition.OPEN;
+    boolean usePID = true;
 
     public Outtake(HardwareMap hardwareMap) {
         outtakeDCRight = hardwareMap.get(DcMotorEx.class, "outtakedcright"); //chub 1
@@ -64,17 +65,26 @@ public class Outtake {
         outtakeServoLeft.setDirection(Servo.Direction.FORWARD);
         outtakeServoRight.setDirection(Servo.Direction.REVERSE);
 
-        controller = new PIDFController(p, i, d, f);
-        controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
+        if (!usePID) {
+            outtakeDCLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            outtakeDCLeft.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            outtakeDCLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            outtakeDCRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            outtakeDCRight.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            outtakeDCRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        } else {
+            controller = new PIDFController(p, i, d, f);
+            controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
+        }
     }
 
     public void initialize() {
         setOuttakeArmAngle(70);
         openClaw();
-        setPositionInInches(0);
+        setPositionInInchesSync(0);
     }
 
-    public void setPositionInInches(double inches) {
+    private void setPositionInInches(double inches) {
         targetSlidesPosition = inches * TICKS_PER_INCH;
     }
 
@@ -201,7 +211,9 @@ public class Outtake {
 
     //Called from, DriverControl:runOpMode
     public void loop() {
-        updateOuttakePID();
+        if (usePID) {
+            updateOuttakePID();
+        }
     }
 
     public double setOuttakeSlidesPosition(OuttakeSlidesPosition position) {
@@ -222,12 +234,21 @@ public class Outtake {
                 break;
         }
         setPositionInInches(inches);
+        if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition) && !usePID) {
+            driveToPosition(1, inches, 10000);
+        }
         return inches;
     }
 
     public void setOuttakeSlidesPositionSync(OuttakeSlidesPosition outtakeSlidesPosition) {
         double inches = setOuttakeSlidesPosition(outtakeSlidesPosition);
-        setPositionInInchesSync(inches);
+        if (!isAtSetpoint(outtakeDCLeft.getCurrentPosition(), targetSlidesPosition)) {
+            if (usePID) {
+                setPositionInInchesSync(inches);
+            } else {
+                driveToPosition(1, inches, 10000); //@ToDo
+            }
+        }
     }
 
     public void setOuttakeClawPosition(ClawPosition position) {
@@ -258,6 +279,34 @@ public class Outtake {
                 setOuttakeArmAngle(160);
                 break;
         }
+    }
+
+    //If not using PID
+    private void driveToPosition(double maxSpeed, double inches, double timeoutMilliSeconds) {
+        // Ensure that the OpMode is still active
+        int newTarget = (int)(inches * TICKS_PER_INCH);
+        outtakeDCLeft.setTargetPosition(newTarget);
+        outtakeDCRight.setTargetPosition(newTarget);
+
+        // Turn On RUN_TO_POSITION
+        outtakeDCLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        outtakeDCRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        runtime.reset();
+        outtakeDCLeft.setPower(Math.abs(maxSpeed));
+        outtakeDCRight.setPower(Math.abs(maxSpeed));
+
+        // keep looping while we are still active, and there is time left, and outtakeDC motors are running.
+        // Note: We use (isBusy()) in the loop test, which means that when outtakeDC motors hits
+        // their target position, the motion will stop.  This is "safer" in the event that the robot will
+        // always end the motion as soon as possible.
+        while ((runtime.milliseconds() < timeoutMilliSeconds) && (outtakeDCLeft.isBusy())) {
+            // Set motor power
+            outtakeDCLeft.setPower(maxSpeed);
+            outtakeDCRight.setPower(maxSpeed);
+        }
+        // Stop all motion;
+        outtakeDCLeft.setPower(0);
+        outtakeDCRight.setPower(0);
     }
 
 }

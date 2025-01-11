@@ -16,9 +16,7 @@ public class HorizontalTest extends OpMode {
     public static double p = 0.05, i = 0, d = 0.0005;
     public static double f = 0.00004;
 
-//    public static double targetPosition = 0;
     public static double targetPositionInInches = 0.0;
-
     public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
 
     private DcMotorEx intakeDCMotor;
@@ -30,10 +28,6 @@ public class HorizontalTest extends OpMode {
 
         intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc");
         intakeDCMotor.setDirection(DcMotor.Direction.REVERSE);
-//        intakeDCMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-//        intakeDCMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-//        intakeDCMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-
         controller.setTolerance(5); // optional: how close to setpoint you want to be in ticks
     }
 

@@ -187,9 +187,9 @@ public class DriverControl extends LinearOpMode {
                     }
 
                     if (gamepad2.dpad_right) {
-                        intake.setIntakeSlidesPosition(IntakeSlidesPosition.FULL);
+                        intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.FULL);
                     } else if (gamepad2.dpad_left) {
-                        intake.setIntakeSlidesPosition(IntakeSlidesPosition.SHORT);
+                        intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.SHORT);
                     }
 
                     outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER);
@@ -230,12 +230,12 @@ public class DriverControl extends LinearOpMode {
                     }
                     break;
                 case GAME_ELEMENT_IN_INTAKE_CLAW:
-                    if (intake.isClawClosed()) {
+                    if (intake.diffy.isClawClosed()) {
                         //intake and outtake moves to transfer position
-                        intake.setIntakeSlidesPosition(IntakeSlidesPosition.TRANSFER);
+                        intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.TRANSFER);
                         intake.diffy.setDiffyPosition(DiffyPosition.TRANSFER_SAMPLE); //@ToDo:
                         intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
-                        outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.TRANSFER);
+                        outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.TRANSFER); //Short distance, go sync
                         outtake.setOuttakeArmPosition(OuttakeArmPosition.TRANSFER);
                         outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                     }
@@ -268,7 +268,7 @@ public class DriverControl extends LinearOpMode {
                             break;
                         case SPECIMEN_TO_BE:
                             intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
-                            intake.setIntakeSlidesPosition(IntakeSlidesPosition.SHORT); //@ToDo: Do we need this
+                            intake.setIntakeSlidesPositionSync(IntakeSlidesPosition.SHORT); //@ToDo: Do we need this
                             break;
                     }
                     break;
@@ -291,7 +291,7 @@ public class DriverControl extends LinearOpMode {
                     }
                     break;
                 case DROPPED_GAME_ELEMENT:
-                    if (outtake.isClawOpen() && intake.isClawOpen()) {
+                    if (outtake.isClawOpen() && intake.diffy.isClawOpen()) {
                         intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
                         gameState = GameState.PICKING_GAME_ELEMENT;
                     }

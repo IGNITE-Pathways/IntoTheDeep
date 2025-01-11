@@ -23,12 +23,12 @@ public class HorizontalTestNoPID extends OpMode {
     public static final double TICKS_PER_INCH = 85.1409747739; // <== Replace with your real value!
     private ElapsedTime runtime = new ElapsedTime();
 
-    private DcMotor intakeDCMotor;
+    private DcMotorEx intakeDCMotor;
 
     @Override
     public void init() {
         telemetry = new MultipleTelemetry(telemetry, FtcDashboard.getInstance().getTelemetry());
-        intakeDCMotor = hardwareMap.get(DcMotor.class, "intakedc");
+        intakeDCMotor = hardwareMap.get(DcMotorEx.class, "intakedc");
         intakeDCMotor.setDirection(DcMotor.Direction.REVERSE);
         intakeDCMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         intakeDCMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
