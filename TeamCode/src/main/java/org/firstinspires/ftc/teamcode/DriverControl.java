@@ -323,17 +323,19 @@ public class DriverControl extends LinearOpMode {
                                 outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                                 if (outtake.isClawOpen()) {
                                     gameState = GameState.DROPPED_GAME_ELEMENT;
+                                    sleep(200);
                                 }
                                 break;
                             case SPECIMEN:
-                                //move outtake arm
-                                outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                                 //Move Slides to Drop
                                 outtake.setOuttakeArmPosition(OuttakeArmPosition.POST_SPECIMEN_DROP);
                                 //If arm in position
                                 outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.POST_HOOK);
+                                sleep(200);
                                 if (outtake.areSlidesAtPosition()) {
+                                    outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                                     gameState = GameState.DROPPED_GAME_ELEMENT;
+                                    sleep(200);
                                 }
                                 break;
                             case SPECIMEN_TO_BE:
@@ -341,6 +343,7 @@ public class DriverControl extends LinearOpMode {
                                 outtake.setOuttakeClawPosition(ClawPosition.OPEN);
                                 if (outtake.isClawOpen() && intake.diffy.isClawOpen()) {
                                     gameState = GameState.DROPPED_GAME_ELEMENT;
+                                    sleep(200);
                                 }
                                 break;
                         }
@@ -349,7 +352,9 @@ public class DriverControl extends LinearOpMode {
                 case DROPPED_GAME_ELEMENT:
                     if (outtake.isClawOpen() && intake.diffy.isClawOpen()) {
                         intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
+                        moveForward(0.6, 300);
                         gameState = GameState.PICKING_GAME_ELEMENT;
+                        sleep(200);
                     }
                     break;
             }
@@ -380,5 +385,19 @@ public class DriverControl extends LinearOpMode {
             telemetry.update();
             sleep(1);
         }
+    }
+
+    private void moveForward(double speed, int milliSeconds) {
+        leftFrontDrive.setPower(speed);
+        rightFrontDrive.setPower(speed);
+        leftBackDrive.setPower(speed);
+        rightBackDrive.setPower(speed);
+
+        sleep(milliSeconds);
+
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
     }
 }
