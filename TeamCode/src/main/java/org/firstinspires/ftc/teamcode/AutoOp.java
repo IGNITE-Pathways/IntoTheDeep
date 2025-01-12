@@ -36,9 +36,11 @@ public class AutoOp extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.FORWARD);
         rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
 
-        outtake.setOuttakeArmPosition(OuttakeArmPosition.SPECIMEN_DROP);
         outtake.closeClaw();
+        sleep(100);
         outtake.setOuttakeClawPosition(ClawPosition.CLOSE);
+
+        outtake.setOuttakeArmPosition(OuttakeArmPosition.SPECIMEN_DROP);
 
         // Telemetry
         telemetry.addData("Arm Left Pos", outtake.getLeftArmPosition());
@@ -55,17 +57,18 @@ public class AutoOp extends LinearOpMode {
         outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.HOOK_SPECIMEN_TOP_RUNG);
         sleep(1000);
 
-        moveForward(-.5, 800);
+        moveForward(-.5, 1050);
+        moveForward(-.1, 200);
 
         //Move Slides to Drop
         outtake.setOuttakeArmPosition(OuttakeArmPosition.POST_SPECIMEN_DROP);
-        sleep(100);
+        sleep(200);
         //If arm in position
         outtake.setOuttakeSlidesPosition(OuttakeSlidesPosition.POST_HOOK);
-        sleep(200);
+        sleep(400);
 
         outtake.setOuttakeClawPosition(ClawPosition.OPEN);
-        sleep(400);
+        sleep(200);
 
         //Initialization Positions
         outtake.setOuttakeArmPosition(OuttakeArmPosition.FACING_DOWN);
@@ -74,9 +77,9 @@ public class AutoOp extends LinearOpMode {
         outtake.setOuttakeSlidesPositionSync(OuttakeSlidesPosition.CLOSE);
         sleep(1000);
 
-        moveForward(.5, 800);
+        moveForward(.5, 500);
         sleep(100);
-        strafeRight(.8, 1000);
+        strafeLeft(.8, 1000);
 
          // Telemetry
         telemetry.addData("Time Used", runtime.seconds());
@@ -100,10 +103,13 @@ public class AutoOp extends LinearOpMode {
     }
 
     private void strafeLeft(double speed, int milliSeconds) {
+        //inward
         leftFrontDrive.setPower(-speed);
-        rightFrontDrive.setPower(speed);
         leftBackDrive.setPower(speed);
-        rightBackDrive.setPower(-speed);
+
+        //outward
+        rightFrontDrive.setPower(speed);
+        rightBackDrive.setPower(-speed * 0.9);
 
         sleep(milliSeconds);
 
