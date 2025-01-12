@@ -48,6 +48,8 @@ public class DriverControl extends LinearOpMode {
         // or square (or X) button when ready to pick Specimen, state changes to GAME_ELEMENT_IN_INTAKE_CLAW
         PICKING_GAME_ELEMENT,
 
+        CHECKING_GAME_ELEMENT,
+
         //Get into state: when in PICKING_GAME_ELEMENT mode, driver hits circle (Sony) or B (Logitech) button on GamePad 2 to pick game element
         //What happens in state? Intake Claw closes to pick / hold the game element, intake and outtake moves to transfer position
         //Get out of state: auto-change to TRANSFERRING_GAME_ELEMENT
@@ -199,7 +201,7 @@ public class DriverControl extends LinearOpMode {
                         gameElement = GameElement.SAMPLE;
                         intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                         if (intake.diffy.isClawClosed()) {
-                            gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                            gameState = GameState.CHECKING_GAME_ELEMENT;
                             sleep(200);
                         }
                     } else if (gamepad2.square) {
@@ -208,14 +210,14 @@ public class DriverControl extends LinearOpMode {
                             gameElement = GameElement.SAMPLE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                             if (intake.diffy.isClawClosed()) {
-                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                gameState = GameState.CHECKING_GAME_ELEMENT;
                                 sleep(200);
                             }
                         } else {
                             gameElement = GameElement.SPECIMEN;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                             if (intake.diffy.isClawClosed()) {
-                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                gameState = GameState.CHECKING_GAME_ELEMENT;
                                 sleep(200);
                             }
                         }
@@ -224,14 +226,14 @@ public class DriverControl extends LinearOpMode {
                             gameElement = GameElement.SAMPLE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                             if (intake.diffy.isClawClosed()) {
-                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                                gameState = GameState.CHECKING_GAME_ELEMENT;
                                 sleep(200);
                             }
                         } else {
                             gameElement = GameElement.SPECIMEN_TO_BE;
                             intake.diffy.setIntakeClawPosition(ClawPosition.CLOSE);
                             if (intake.diffy.isClawClosed()) {
-                                gameState = GameState.GOING_TO_DROP_GAME_ELEMENT; //Directly jump to DROP Game Element
+                                gameState = GameState.CHECKING_GAME_ELEMENT; //Directly jump to DROP Game Element
                                 sleep(200);
                             }
                         }
@@ -241,6 +243,22 @@ public class DriverControl extends LinearOpMode {
                         int sign = (gamepad2.right_stick_x == 0) ? 0 : (gamepad2.right_stick_x > 0) ? 1 : -1;
                         intake.diffy.cycleDownPosition(sign);
                         lastDiffyDegreesChanged = runtime.milliseconds();
+                    }
+                    break;
+                case CHECKING_GAME_ELEMENT:
+                    if (intake.diffy.isClawClosed()) {
+                        intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
+                        sleep(100);
+                        if (!intake.diffy.isDiffyHoldingGameElement()) {
+                            intake.diffy.setIntakeClawPosition(ClawPosition.OPEN);
+                            gameState = GameState.PICKING_GAME_ELEMENT;
+                        } else {
+                            if (gameElement == GameElement.SPECIMEN_TO_BE) {
+                                gameState = GameState.GOING_TO_DROP_GAME_ELEMENT;
+                            } else {
+                                gameState = GameState.GAME_ELEMENT_IN_INTAKE_CLAW;
+                            }
+                        }
                     }
                     break;
                 case GAME_ELEMENT_IN_INTAKE_CLAW:
@@ -352,7 +370,9 @@ public class DriverControl extends LinearOpMode {
                 case DROPPED_GAME_ELEMENT:
                     if (outtake.isClawOpen() && intake.diffy.isClawOpen()) {
                         intake.diffy.setDiffyPosition(DiffyPosition.FLAT);
-                        moveForward(0.6, 300);
+                        if (gameElement == GameElement.SAMPLE) {
+                            moveForward(0.6, 300);
+                        }
                         gameState = GameState.PICKING_GAME_ELEMENT;
                         sleep(200);
                     }
@@ -395,6 +415,36 @@ public class DriverControl extends LinearOpMode {
 
         sleep(milliSeconds);
 
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
+    }
+
+    private void strafeLeft(double speed, int milliSeconds) {
+        leftFrontDrive.setPower(-speed);
+        rightFrontDrive.setPower(speed);
+        leftBackDrive.setPower(speed);
+        rightBackDrive.setPower(-speed);
+
+        sleep(milliSeconds);
+
+        // Stop all motors
+        leftFrontDrive.setPower(0);
+        rightFrontDrive.setPower(0);
+        leftBackDrive.setPower(0);
+        rightBackDrive.setPower(0);
+    }
+
+    private void strafeRight(double speed, int milliSeconds) {
+        leftFrontDrive.setPower(speed);
+        rightFrontDrive.setPower(-speed);
+        leftBackDrive.setPower(-speed);
+        rightBackDrive.setPower(speed);
+
+        sleep(milliSeconds);
+
+        // Stop all motors
         leftFrontDrive.setPower(0);
         rightFrontDrive.setPower(0);
         leftBackDrive.setPower(0);

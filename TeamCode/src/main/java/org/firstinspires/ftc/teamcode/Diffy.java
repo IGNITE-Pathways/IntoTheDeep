@@ -135,4 +135,14 @@ public class Diffy {
     public double getDistance() {
         return intakeSensor.getDistance(DistanceUnit.MM);
     }
+
+    //This can misfire if claw is pointing downward
+    public boolean isDiffyHoldingGameElement() {
+//        if ((savedPosition == DiffyPosition.DOWN_CLOCKWISE) ||
+//                (savedPosition == DiffyPosition.DOWN_PARALLEL) ||
+//                (savedPosition == DiffyPosition.DOWN_ANTI_CLOCKWISE)) {
+//
+//        }
+        return (isClawClosed() && (getDistance() < 110));
+    }
 }

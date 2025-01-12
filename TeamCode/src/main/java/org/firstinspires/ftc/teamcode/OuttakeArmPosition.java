@@ -2,11 +2,11 @@ package org.firstinspires.ftc.teamcode;
 
 public enum OuttakeArmPosition {
 
-    TRANSFER ("TRANSFER", 0), //0 Degrees
-    SAMPLE_DROP("SAMPLE_DROP", Outtake.MAX_ROTATION_DEGREES), //255 Degrees
-    SPECIMEN_DROP("SPECIMEN_DROP", 210), //210 Degrees,
-    POST_SPECIMEN_DROP("POST_SPECIMEN_DROP", 190), //190 Degrees,
-    FACING_DOWN("FACING_DOWN", 70); //70 Degrees
+    TRANSFER ("TRANSFER", 250), //0 Degrees
+    SAMPLE_DROP("SAMPLE_DROP", 20), //255 Degrees
+    SPECIMEN_DROP("SPECIMEN_DROP", 75), //210 Degrees,
+    POST_SPECIMEN_DROP("POST_SPECIMEN_DROP", 95), //190 Degrees,
+    FACING_DOWN("FACING_DOWN", 200); //70 Degrees
 
     String name;
     double degrees;

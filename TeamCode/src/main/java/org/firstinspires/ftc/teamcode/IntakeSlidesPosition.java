@@ -4,7 +4,7 @@ public enum IntakeSlidesPosition {
     CLOSE ("CLOSE", 0),
     SHORT ("SHORT", 3),
     TRANSFER ("TRANSFER", .5),
-    FULL ("FULL", 8.5);
+    FULL ("FULL", 9);
 
     private String name;
     private double position;

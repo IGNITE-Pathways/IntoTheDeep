@@ -197,6 +197,10 @@ public class Outtake {
         outtakeClaw.setPosition(0);
     }
 
+    public double getClawPosition() {
+        return outtakeClaw.getPosition();
+    }
+
     public double getOuttakeLeftServoPosition() {
         return outtakeServoLeft.getPosition();
     }
